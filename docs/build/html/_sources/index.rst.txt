@@ -1,20 +1,23 @@
-.. PanDAWMS documentation master file, created by
-   sphinx-quickstart on Thu Dec 10 17:24:03 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to PanDAWMS's documentation!
+====================================
+Welcome to PanDA WMS's documentation
 ====================================
 
 .. toctree::
+   :numbered:
    :maxdepth: 2
    :caption: Contents:
 
+   terminology
+   architecture/architecture
+   database/database
+   installation/installation
+   operation/operation
+   client/client
+   repository
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
