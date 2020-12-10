@@ -1,10 +1,10 @@
 ====================================
-Welcome to PanDA WMS's documentation
+Welcome to PanDA's documentation
 ====================================
 
 .. toctree::
    :numbered:
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    terminology
@@ -16,8 +16,8 @@ Welcome to PanDA WMS's documentation
    repository
 
 
-Indices and tables
-==================
+Indices
+=======
 
 * :ref:`genindex`
 * :ref:`search`
