@@ -1,5 +1,7 @@
+============
 Terminology
 ============
+
 
 .. toctree::
 
@@ -33,8 +35,8 @@ Resource type
 End-user
 ---------
 
-User's intensity
------------------
+User's identity and group
+--------------------------
 
 Error recovery
 ---------------

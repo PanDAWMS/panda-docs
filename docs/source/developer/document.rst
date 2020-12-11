@@ -66,3 +66,9 @@ by opening panda-docs/docs/build/html/index.html via your web browser.
 Once you are comfortable with the changes you should push them to your forked repository and submit pull request following
 `the github doc <https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_ .
 Then requests are reviewed and the changes will be merged to the main branch once the requests are approved.
+
+5. Publish latest documents
+----------------------------
+
+Actions on the git repository such as push and tagging trigger automatic-builds on the Read The Docs
+and the latest documents show up at https://panda-wms.readthedocs.io/en/latest/ .
