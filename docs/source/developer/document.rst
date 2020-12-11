@@ -64,5 +64,5 @@ by opening panda-docs/docs/build/html/index.html via your web browser.
 ------------------------
 
 Once you are comfortable with the changes you should push them to your forked repository and submit pull request following
-`HowTo <https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_ .
+`the github doc <https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_ .
 Then requests are reviewed and the changes will be merged to the main branch once the requests are approved.
