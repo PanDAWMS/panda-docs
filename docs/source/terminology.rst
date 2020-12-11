@@ -1,4 +1,0 @@
-Terminology
-============
-
-The easiest way

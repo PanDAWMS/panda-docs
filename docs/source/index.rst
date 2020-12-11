@@ -3,17 +3,18 @@ Welcome to PanDA's documentation
 ====================================
 
 .. toctree::
-   :numbered:
    :maxdepth: 1
    :caption: Contents:
 
-   terminology
+   terminology/terminology
    architecture/architecture
    database/database
    installation/installation
    operation/operation
+   monitoring/monitoring
    client/client
-   repository
+   repository/repository
+   developer/developer
 
 
 Indices
