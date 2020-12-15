@@ -13,7 +13,6 @@ Welcome to PanDA's documentation
    operation/operation
    monitoring/monitoring
    client/client
-   repository/repository
    developer/developer
 
 

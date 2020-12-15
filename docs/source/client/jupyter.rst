@@ -2,7 +2,7 @@
 Running with JupyterLab
 =======================
 
-This page explains how to submit/manage analysis on PanDA using JupyterLab.
+Users can submit/manage analysis on PanDA using JupyterLab.
 
 .. toctree::
    :maxdepth: 1

@@ -38,7 +38,7 @@ Priority
 Resource type
 --------------
 
-End-user, Production user, and System user
+End-user and System user
 -------------------------------------------
 
 User's identity and group

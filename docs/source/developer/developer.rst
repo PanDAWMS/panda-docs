@@ -6,3 +6,4 @@ Developer's Guide
    :maxdepth: 1
 
    document
+   repository

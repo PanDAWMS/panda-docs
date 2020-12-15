@@ -2,8 +2,20 @@
 Client
 ======
 
-.. toctree::
-   :maxdepth: 2
+For end-users
+==============
 
-   normal_users
-   system_users
+.. toctree::
+   :maxdepth: 1
+
+   panda-client
+   notebooks/python.ipynb
+   jupyter
+
+For system users
+=================
+
+.. toctree::
+   :maxdepth: 1
+
+   rest
