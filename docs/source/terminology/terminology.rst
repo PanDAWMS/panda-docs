@@ -5,7 +5,7 @@ Terminology
 
 .. toctree::
 
-Task, Input and Output
+Task, Input, and Output
 ------------------------
 A task is a unit of workload to accomplish an indivisible scientific objective.
 If an objective is done in multiple steps each step is mapped to a task.

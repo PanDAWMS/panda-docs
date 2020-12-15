@@ -40,6 +40,8 @@ html_static_path = ['_static']
 
 html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'] }
 
+html_show_sourcelink = False
+
 html_logo = 'images/PanDA-rev-logo-small-200px.jpg'
 
 html_theme_options = {
