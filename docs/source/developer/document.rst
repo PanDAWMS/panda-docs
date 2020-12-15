@@ -7,7 +7,7 @@ This section explains how to write PanDA documentation.
 1. Preparation
 ---------------
 
-First, you need to install sphinx packages.
+First, you need to install sphinx packages
 
 .. prompt:: bash
 
@@ -15,6 +15,7 @@ First, you need to install sphinx packages.
     pip install sphinx-rtd-theme
     pip install sphinx-prompt
 
+and `pandoc <https://pandoc.org/installing.html>`_ .
 Then fork the `panda-docs <https://github.com/PanDAWMS/panda-docs.git>`_ repository following
 `HowTo <https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo>`_ .
 

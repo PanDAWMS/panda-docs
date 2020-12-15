@@ -26,7 +26,10 @@ import sphinx_rtd_theme
 extensions = [
     "sphinx_rtd_theme",
     'sphinx-prompt',
+    'nbsphinx',
 ]
+
+nbsphinx_execute = 'never'
 
 html_theme = "sphinx_rtd_theme"
 
