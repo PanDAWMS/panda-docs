@@ -27,9 +27,11 @@ extensions = [
     "sphinx_rtd_theme",
     'sphinx-prompt',
     'nbsphinx',
+    'sphinx.ext.autosectionlabel',
 ]
 
 nbsphinx_execute = 'never'
+autosectionlabel_prefix_document = True
 
 html_theme = "sphinx_rtd_theme"
 

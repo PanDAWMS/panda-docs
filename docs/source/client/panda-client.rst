@@ -4,7 +4,7 @@ panda-client
 
 panda-client is a package composed of python modules and command-line tools to allow end-users to submit/manage
 their analysis on the PanDA system. This package is supposed to be used by end-users as functionality is simplified
-and limited. System users should refer to :doc:`API reference <rest>`.
+and limited. System administrators or developers should refer to :doc:`API reference <rest>`.
 
 Installation
 ==============
