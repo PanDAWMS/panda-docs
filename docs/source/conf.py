@@ -52,5 +52,12 @@ html_theme_options = {
     'titles_only': True,
 }
 
+rst_prolog = """
+.. |br| raw:: html
+
+   <br />
+"""
+
+
 def setup (app):
     app.add_css_file('custom.css')

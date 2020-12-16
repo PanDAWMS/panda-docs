@@ -19,7 +19,9 @@ Task status changes as shown in the following figure.
 
 .. figure:: images/jediTaskStatus.png
 
-Yellow boxes in the figure show commands sent to PanDA by external actors, to trigger
+|br|
+
+Yellow boxes in the figure show commands sent to PanDA by external actors to trigger
 task status transition. Here is the list of task statuses and their descriptions.
 
 * registered
