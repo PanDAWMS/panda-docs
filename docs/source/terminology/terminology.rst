@@ -3,8 +3,6 @@ Terminology
 ============
 
 
-.. toctree::
-
 Task, and its Input and Output
 -------------------------------
 
@@ -96,6 +94,9 @@ task status transition. Here is the list of task statuses and their descriptions
 * throttled
    The task is throttled not to generate new jobs.
 
+-------
+
+|br|
 
 Job
 -------

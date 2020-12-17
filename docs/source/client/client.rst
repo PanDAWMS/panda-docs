@@ -2,8 +2,8 @@
 Clients
 =======
 
-There are client modules and tools to send commands to the PanDA server with standard HTTP methods.
-The PanDA server listens on the port 25080 for plain HTTP and another port 25443 for HTTP over SSL by default.
+There are client modules and tools to send commands to the PanDA server using standard HTTP methods.
+The PanDA server, by default, listens on the port 25080 for plain HTTP and another port 25443 for HTTP over SSL.
 Make sure that your local firewall doesn't block access to those ports.
 
 The first part of this page is for end-users to use PanDA for their analysis,
