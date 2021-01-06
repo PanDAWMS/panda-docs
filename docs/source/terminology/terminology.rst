@@ -2,9 +2,36 @@
 Terminology
 ============
 
+PanDA components
+-----------------
+.. figure:: images/PandaSys.png
 
-Task, and its Input and Output
--------------------------------
+There are 5 components in the PanDA system as shown in the schematic view above.
+
+* :ref:`architecture/jedi:JEDI` is the high-level engine to dynamically tailor workload for optimal usage of heterogeneous resources.
+
+* :ref:`architecture/server:PanDA server` is the central hub implemented as a stateless REST web service to allow asynchronous communication from users, :ref:`architecture/pilot:Pilot`, and :ref:`architecture/harvester:Harvester` over HTTPS.
+
+* :ref:`architecture/pilot:Pilot` is a transient agent to execute workload with actual compute and storage resources, periodically reporting various metrics to :ref:`architecture/server:PanDA server` throughout its lifetime.
+
+* :ref:`architecture/harvester:Harvester` provisions :ref:`architecture/pilot:Pilot` on resources using the relevant communication protocol for each resource provider, and communicates with :ref:`architecture/server:PanDA server` on behalf of :ref:`architecture/pilot:Pilot` if necessary.
+
+* :ref:`architecture/monitor:PanDA monitor` is a web based monitoring and browsing that provides a common interface to PanDA for users and system administrators.
+
+:ref:`architecture/jedi:JEDI` and :ref:`architecture/server:PanDA server` share the central database
+for workload management.
+:ref:`architecture/monitor:PanDA monitor` has only read access to the central database,
+while :ref:`architecture/harvester:Harvester` uses own database which is ether central or local
+depending on its deployment model.
+PanDA components and database are explained in :ref:`architecture/architecture:System Architecture`
+and :ref:`database/database:Database`, respectively.
+
+----------
+
+|br|
+
+Task
+-----
 
 A task is a unit of workload to accomplish an indivisible scientific objective.
 If an objective is done in multiple steps each step is mapped to a task.
@@ -100,6 +127,10 @@ task status transition. Here is the list of task statuses and their descriptions
 
 Job
 -------
+
+
+Push and Pull
+--------------
 
 Brokerage
 ----------

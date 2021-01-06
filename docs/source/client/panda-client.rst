@@ -15,6 +15,9 @@ package or software. You just do
 
     pip install panda-client
 
-so that all python modules, command-line tools, and configuration files are setup properly.
+so that all python modules, command-line tools, and configuration files are installed properly.
 
+Setup
+==============
+You need to setup several environment variables before using python modules and command-line tools.
 

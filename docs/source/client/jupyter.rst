@@ -1,5 +1,5 @@
 =======================
-Running with JupyterLab
+Working with JupyterLab
 =======================
 
 Users can submit/manage analysis on PanDA using JupyterLab. This page explains how to setup JupyterLab

@@ -17,6 +17,8 @@ For end-users
    :maxdepth: 1
 
    panda-client
+   prun
+   phpo
    notebooks/python.ipynb
    jupyter
 
