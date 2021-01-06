@@ -1,9 +1,6 @@
 ==========================================
-Running Hyper Parameter Optimization (HPO)
+Running Hyper Parameter Optimization
 ==========================================
-
-Introduction
---------------
 
 PanDA and `iDDS <https://idds.cern.ch/>`_ integrate geographically distributed GPU/CPU resources, so that
 users can run special analysis to automatically optimize hyperparameters of machine learning models.
@@ -38,7 +35,8 @@ thus it is good to have a look at log files in PanDA monitoring if there is some
 
 Preparation
 -------------
-The main trick to run HPO on distributed resources is the separation of steering and evaluation and their asynchronous
+The main trick to run hyperparameter optimization (HPO) on distributed resources is the separation of steering and
+evaluation and their asynchronous
 execution, as shown in the figure below.
 
 .. figure:: images/ask_and_tell.png
@@ -271,6 +269,8 @@ Once tasks are submitted, users can see what's going on in the system by using P
 
 If ``--trainingDS`` is specified each PanDA job gets all files in the dataset unless the task is segmented.
 Segmented HPO is explained later.
+
+-----------
 
 |br|
 

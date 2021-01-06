@@ -38,7 +38,7 @@ If an objective is done in multiple steps each step is mapped to a task.
 A task takes input and produces output. Generally input and output are collections
 of data files but there are also other formats, such as a group of sequence numbers,
 metadata, notification, void, and so on. Each task has a unique
-identifier in the system.
+identifier **JediTaskID** in the system.
 
 Task status changes as shown in the following figure.
 

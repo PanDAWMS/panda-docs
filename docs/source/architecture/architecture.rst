@@ -11,3 +11,4 @@ The PanDA system is composed of the following components.
    pilot
    monitor
    harvester
+   iam
