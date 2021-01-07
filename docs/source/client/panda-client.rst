@@ -19,5 +19,10 @@ so that all python modules, command-line tools, and configuration files are inst
 
 Setup
 ==============
-You need to setup several environment variables before using python modules and command-line tools.
+The setup file ``panda_setup.(c)sh`` is automatically generated under *$VIRTUAL_ENV/etc/panda* when panda-client
+is installed. The file needs to be sourced before using python modules and command-line tools.
+
+.. prompt:: bash
+
+    source $VIRTUAL_ENV/etc/panda/panda_setup.sh
 

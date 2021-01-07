@@ -1,5 +1,5 @@
 ==========================================
-Running Hyper Parameter Optimization
+Running hyperparameter optimization
 ==========================================
 
 PanDA and `iDDS <https://idds.cern.ch/>`_ integrate geographically distributed GPU/CPU resources, so that

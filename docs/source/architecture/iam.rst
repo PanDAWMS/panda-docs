@@ -14,9 +14,9 @@ PanDA IAM is consist of
 
 * `Identity providers <https://cilogon.org/idplist/>`_
 
-`Indigo IAM`_ is an account and group membership management service to define virtual organizations (VOs) and groups,
+Indigo IAM is an account and group membership management service to define virtual organizations (VOs) and groups,
 to add/remove users to/from VOs and groups, and issue ID tokens once users are authenticated.
-`CILogon`_ is a federated ID broker to delegate authentication to ID providers such as CERN, BNL IT/SDCC, KIT,
+CILogon is a federated ID broker to delegate authentication to ID providers such as CERN, BNL IT/SDCC, KIT,
 Google, ...
 
 .. figure:: images/iam.png
@@ -24,10 +24,10 @@ Google, ...
 The figure above shows the procedure of user authentication and authorization where the device code flow is used
 to allow users to run command-line tools.
 First, the user invokes a command-line tool which checks if a valid ID token is locally available.
-If not, the command-line tool sends an authentication request to `Indigo IAM`_ on behalf of the user and retrieves
+If not, the command-line tool sends an authentication request to Indigo IAM on behalf of the user and retrieves
 a verification URL. Then the user opens a web browser to go to the verification URL, and is eventually
-redirected to his/her own ID provider through `CILogon`_. Once the user successfully logs on, a couple
-of tokens are exchanged between `CILogon`_ and `Indigo IAM`_, and an ID token is issued. The command-line
+redirected to his/her own ID provider through CILogon. Once the user successfully logs on, a couple
+of tokens are exchanged between CILogon and Indigo IAM, and an ID token is issued. The command-line
 tool gets the ID token and put it to the HTTP request header when accessing the PanDA server.
 The PanDA server decodes the token and authorizes the user based on OIDC claims such as name, username, and groups.
 
