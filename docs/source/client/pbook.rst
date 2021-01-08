@@ -2,6 +2,16 @@
 Bookkeeping
 =========================
 
+.. contents:: Table of Contents
+    :local:
+
+-----------
+
+|br|
+
+Introduction
+--------------
+
 ``pbook`` is the command-line tool for users to manage their analysis, e.g., to check task status,
 and finish/kill/retry tasks. ``pbook`` launches an interactive session on the terminal where the user enters
 bookkeeping commands such as *show* and *kill*.
@@ -11,6 +21,8 @@ bookkeeping commands such as *show* and *kill*.
  pbook
 
 The interactive session can be terminated by entering Ctrl+D.
+
+------------
 
 |br|
 
@@ -127,3 +139,16 @@ Show tasks in other format
    >>> show(format='plain')
 
 where available formats are 'standard', 'long', 'json', 'plain'.
+
+|br|
+----------
+
+Trouble shooting
+-----------------
+``pbook`` goes into the verbose mode to show shows what's exactly going on when being launched with ``-v`` option.
+
+.. prompt:: bash
+
+ prun -v
+
+which would give clues if there are problems.

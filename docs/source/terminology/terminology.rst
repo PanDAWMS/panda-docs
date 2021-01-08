@@ -2,6 +2,13 @@
 Terminology
 ============
 
+.. contents::
+    :local:
+
+----------
+
+|br|
+
 PanDA components
 -----------------
 .. figure:: images/PandaSys.png
