@@ -2,6 +2,15 @@
 Running hyperparameter optimization
 ==========================================
 
+.. contents:: Table of Contents
+    :local:
+
+------------
+
+|br|
+
+Introduction
+----------------
 PanDA and `iDDS <https://idds.cern.ch/>`_ integrate geographically distributed GPU/CPU resources, so that
 users can run special analysis to automatically optimize hyperparameters of machine learning models.
 
@@ -30,6 +39,8 @@ The `iDDS document <https://idds.readthedocs.io/en/latest/usecases/hyperparemete
 explains how the system works, but end-users don't have to know all the details.
 However, one important thing is that a single PanDA job evaluates one or more hyperparameter points and
 thus it is good to have a look at log files in PanDA monitoring if there is something wrong.
+
+------------
 
 |br|
 
@@ -69,6 +80,8 @@ It is better to dynamically get the path of the initial working directory using 
 and so on, when applications are executed in evaluation containers,
 rather than hard-coding ``/srv/workDir`` in the
 applications, since the convention might be changed in the future.
+
+------------
 
 |br|
 
@@ -165,6 +178,8 @@ To see latest or full list of options,
 .. prompt:: bash
 
     phpo --helpGroup ALL
+
+------------
 
 |br|
 
@@ -378,11 +393,10 @@ or practically partitioned
 to sub-objects, and want to optimize their ML models in one-go.
 For example, it would be reasonable to logically decompose a puppet to several parts, such as arms, body, and legs,
 in some use-cases, but it would be nightmare to submit a HPO task for each part if there are so many.
-Instead, the user submits a single task for the puppet and let the system split workload based on the decomposition,
-which significantly simplifies bookkeeping from user's point of view.
-
-
-Users can specify how the training dataset is partitioned by using the ``--segmentSpecFile`` option.
+Instead, the user would submit a single task for the puppet and let the system split workload based on the
+user-defined decomposition, which would significantly simplify bookkeeping from user's point of view.
+It is enough to prepare a single training dataset which contains files for all models, but the user
+needs to specify how the training dataset is partitioned by using the ``--segmentSpecFile`` option.
 
 .. code-block:: text
 
