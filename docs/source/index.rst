@@ -19,10 +19,3 @@ computing middleware.
    monitoring/monitoring
    client/client
    developer/developer
-
-
-Indices
-=======
-
-* :ref:`genindex`
-* :ref:`search`
