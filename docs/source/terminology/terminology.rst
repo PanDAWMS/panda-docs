@@ -157,10 +157,11 @@ throttled
 
 Job
 -------
-A job is an artificial unit of sub-workload partitioned from a task. A single task is composed of multiple jobs.
-Each job is tailored based on user's preference (if any) and/or constraints on compute and storage resources.
+A job is an artificial unit of sub-workload partitioned from a task. A single task is composed of multiple jobs,
+and each job runs on the minimum unit of the compute resource.
+Each job is tailored based on user's preference (if any) and/or constraints on the compute resource.
 For example, if job size is flexible, jobs are generated to have short execution time and produce small output files
-when they are processed on resources with limited time slots and local disk spaces.
+when they are processed on resources with limited time slots and local scratch disk spaces.
 The task input is logically split to multiple subsets and each job gets a subset to produce output.
 The collection of job output is the task output.
 
@@ -225,8 +226,6 @@ Push and Pull
 Brokerage
 ----------
 
-Worker node
-------------
 
 Heartbeat
 ----------
