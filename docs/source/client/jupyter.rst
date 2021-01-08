@@ -10,7 +10,6 @@ and tools in Jupyter notebook.
 
 .. toctree::
    :maxdepth: 1
-   :numbered:
 
    jupyter_preparation
    notebooks/jupyter_installation
