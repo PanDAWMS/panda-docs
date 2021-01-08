@@ -1,6 +1,6 @@
-=========================
-Running generic analysis
-=========================
+===========================
+Running ordinary analysis
+===========================
 
 ``prun`` is the command-line tool to allow users to run any kind of application on PanDA.
 The application could be ROOT (CINT, C++, pyRoot), python, user's executable, shell script and so on,
@@ -245,3 +245,135 @@ like renaming and stage-out.
 
 FAQ
 ======
+
+Output with wildcards
+-----------------------------
+When the number of output files produced by each job or a part of their filenames is unknown,
+it is possible to specify their names with wildcards in ``--outputs`` option.
+
+.. prompt:: bash
+
+ prun --outputs "abc.data,JiveXML_*.xml" ...
+
+Each job will have two output files, *<jediTaskID>.<serial number>.abc.data* and
+*<jediTaskID>.<serial number>.JiveXML_XYZ.xml.tgz*.
+The latter is a tarball of all JiveXML_*.xml produced by the job. Note that you need to escape the wildcard character
+using \\ or "" to disable shell-globing, i.e. JiveXML\_\\*.xml or "JiveXML_*.xml".
+
+|br|
+
+Send jobs to particular compute resources
+----------------------------------------------------
+The system automatically chooses appropriate compute resources by using various information like data locality,
+resource occupancy, and user's profile. However, users can still send jobs to particular sites using ``--site`` option.
+e.g.,
+
+.. prompt:: bash
+
+ prun --site TRIUMF ...
+
+|br|
+
+Filtering files in the input dataset
+-------------------------------------
+The ``--match`` option allows user to choose files matching a given pattern. The argument is a comma-separated string.
+
+.. prompt:: bash
+
+ prun --match "*AOD*" ...
+ prun --match "*r123*,*r345*" ...
+
+If you need to skip specific files, use the ``--antiMatch`` option.
+
+|br|
+
+How to use multiple input datasets
+----------------------------------------------------
+If you just want to submit a single task running on multiple datasets, you just need to specify a comma-separated
+list of input datasets.
+
+.. prompt:: bash
+
+ prun --inDS dsA,dsB,dsC,dsD ...
+
+However, if you want to read multiple datasets in each job, i.e., one for signal and the other for background,
+you need something more complicated.
+The ``--secondaryDSs`` option specifies secondary dataset names. The argument is a comma-separated list of
+`StreamName:nFilesPerJob:DatasetName[:MatchingPattern[:nSkipFiles]]` where
+
+StreamName
+   the name of stream in the --exec argument
+
+nFilesPerJob
+   the number of files per subjob
+
+DatasetName
+   the dataset name
+
+MatchingPattern
+   to use files matching a pattern (can be omitted)
+
+nSkipFiles
+   to skip files (can be omitted)
+
+For example,
+
+.. prompt:: bash
+
+  prun --exec "test %IN %IN2 %IN3" --secondaryDSs IN2:3:data19.106017.gg2WW0240_JIMMY_WW_taunutaunu.recon.AOD.e371_s462_r563/,IN3:2:mc08.105200.T1_McAtNlo_Jimmy.recon.AOD.e357_s462_r541/ --inDS ...
+
+`%IN2` and `%IN3` will be replaced with actual filenames in data19.blah and mc08.blah, respectively,
+when jobs get started.
+Note that `%IN` is replaced with files in ``--inDS``.
+
+|br|
+
+Merge output files
+--------------------
+The ``--mergeOutput`` option merges output files on the fly. E.g.,
+
+.. prompt:: bash
+
+ prun ... --mergeOutput --mergeScript="your_merger.py -o %OUT -i %IN"
+
+Merge jobs (pmerge jobs) are generated once run jobs produce premerged files.
+Each merge job executes the application described above to merge
+`%IN` will be replaced with a comma-separated list of premerged filenames, and `%OUT` replaced with the final output
+filename, when merge jobs get started. Each merge job merges the premerged files using Merging_trf.py for pool files,
+hadd for ROOT hist and ntuple, gzip for log and text, or the application specified in the ``--mergeScript`` option.
+
+|br|
+
+Adding job metadata
+----------------------
+
+Users can add metadata to each job in PanDA. If jobs produce json files userJobMetadata.json in the run directory it is uploaded to PanDA and you can see it in pandamon or pbook. This is typically useful if jobs have very small outputs, such as hyperparameter optimization for machine learning where each job could produce only one value. Users can get results directly from PanDA rather than uploading/downloading small files to/from storages. Note that the size of each metadata must be less than 1MB and metadata are available only for successfully finished jobs.
+First you need to change your application to produce a json file, e.g.
+
+.. code-block:: bash
+
+    $ cat a.py
+    # do something useful and then
+    import json
+    json.dump({'aaaaaa':'bbbbbb', 'ccc':[1,2,5]}, open('userJobMetadata.json', 'w'))
+
+Then submit tasks as usual. You don't need any special option. E.g.,
+
+.. prompt:: bash
+
+ prun --exec 'python a.py' --outDS user.hage.`uuidgen`
+
+Once jobs have successfully finished you can see metadata in the job metadata field in the job page of
+PanDA monitor.
+You can fetch a json dump through
+https://bigpanda.cern.ch/jobs/?jeditaskid=<taskID>&fields=metastruct&json
+or in pbook
+
+.. code-block:: bash
+
+    $ pbook
+    >>> getUserJobMetadata(taskID, output_json_filename)
+
+or through end-user python API.
+
+|br|
