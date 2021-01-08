@@ -9,6 +9,27 @@ Terminology
 
 |br|
 
+Compute and storage resources
+------------------------------
+Compute resource providers, such as the grid, HPC centers, and commercial cloud services, offer compute resources with
+processing capabilities. The minimum unit in each compute resource is a (virtual) host, a host cluster, or a slot on a host,
+depending on workload or resource configuration.
+The object with the minimum unit represents a combination of CPUs, memory, and a scratch disk to process workload.
+Storage resource providers accommodate data storage needs. A storage resource is composed of a persistent data storage
+with disk, tape, or their hybrid, and a storage management service running on top of it.
+Association between compute and storage resources can be arbitrary, but in most cases
+resources from the same provider are associated with each other.
+
+PanDA integrates heterogeneous compute and storage resources to provide a consistent interface to users. Users
+can seamlessly process their workload on compute resources while taking input data from storage resources and
+uploading
+output data to storage resources, without paying attention on the details of compute and storage technologies.
+
+
+-----
+
+|br|
+
 PanDA components
 -----------------
 .. figure:: images/PandaSys.png
