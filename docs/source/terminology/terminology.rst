@@ -163,7 +163,7 @@ Each job is tailored based on user's preference (if any) and/or constraints on t
 For example, if job size is flexible, jobs are generated to have short execution time and produce small output files
 when they are processed on resources with limited time slots and local scratch disk spaces.
 The task input is logically split to multiple subsets and each job gets a subset to produce output.
-The collection of job output is the task output.
+The collection of job output is the task output. Each job has a unique identifier **PanDA ID** in the system.
 
 Job status sequentially changes as follows:
 
