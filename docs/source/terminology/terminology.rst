@@ -9,12 +9,13 @@ Terminology
 
 |br|
 
-Compute and storage resources
-------------------------------
+Compute and storage resources, and worker node
+------------------------------------------------
 Compute resource providers, such as the grid, HPC centers, and commercial cloud services, offer compute resources with
-processing capabilities. The minimum unit in each compute resource is a (virtual) host, a host cluster, or a slot on a host,
-depending on workload or resource configuration.
-The object with the minimum unit represents a combination of CPUs, memory, and a scratch disk to process workload.
+processing capabilities. A worker node is the minimum unit in each compute resource, which is a (virtual) host,
+a host cluster, or a slot on a host,
+depending on workload or resource configuration,
+and represents a combination of CPUs, memory, and a scratch disk to process workload.
 Storage resource providers accommodate data storage needs. A storage resource is composed of a persistent data storage
 with disk, tape, or their hybrid, and a storage management service running on top of it.
 Association between compute and storage resources can be arbitrary, but in most cases
@@ -40,7 +41,7 @@ There are 5 components in the PanDA system as shown in the schematic view above.
 
 * **PanDA server** is the central hub implemented as a stateless REST web service to allow asynchronous communication from users, Pilot, and Harvester over HTTPS.
 
-* **Pilot** is a transient agent to execute workload with actual compute and storage resources, periodically reporting various metrics to PanDA server throughout its lifetime.
+* **Pilot** is a transient agent to execute workload on a worker node, reporting periodically various metrics to PanDA server throughout its lifetime.
 
 * **Harvester** provisions Pilot on resources using the relevant communication protocol for each resource provider, and communicates with PanDA server on behalf of Pilot if necessary.
 
@@ -220,18 +221,62 @@ cancelled
 
 |br|
 
-Push and Pull
---------------
+Scout jobs
+-----------
+Each task generates a small number of jobs using a small portion of input data.
+They are scout jobs to collect various metrics such as data processing rate and
+memory footprints. Tasks use those metrics to generate jobs for remaining input data
+more optimally.
+
+---------
+
+|br|
 
 Brokerage
 ----------
+There are two brokerages in JEDI, task brokerage and job brokerage.
+The task brokerage assigns tasks to storage resources, if those tasks are configured to aggregate
+output but final destinations are undefined.
+On the other hand, the job brokerage assign jobs to compute resources. A single task can generate
+many jobs and they can be assigned to multiple compute resources unless the task is configured
+to process the whole workload at a single compute resource.
+The details of brokerage algorithms are described in
+:doc:`JEDI </architecture/jedi>`.
 
+---------
+
+|br|
+
+Pull and push
+--------------
+Users submit tasks to JEDI through the PanDA server, JEDI generates jobs on behalf of users
+and pass them to the PanDA server, jobs are centrally pooled in the PanDA server.
+There are two modes for the PanDA server to dispatch jobs to compute resources, the pull and push modes.
+In the pull mode,
+pilots are provisioned first on compute resources and they fetch jobs once CPUs become available.
+It is possible to trigger the pilot provisioning well before generating jobs, and thus jobs can start
+processing immediately even if there is long latency for provisioning in the compute resource.
+Another advantage is the capability to postpone the decision making to bind jobs with CPUs until the last minute,
+which allows fine-grained job scheduling with various job attributes, e.g.
+increasing the chance for new jos in a higher priority share to jump over old jobs in a lower priority share.
+
+On the other hand, in the push mode, pilots are provisioned together with jobs on compute resources.
+Job scheduling totally relies on compute resources. The pilot can specify requirements for each job,
+so that compute resources can more optimally allocate CPUs, memory size, etc, to a worker node , which
+is typically better for special resources like HPCs and GPU clusters.
+
+------
+
+|br|
 
 Heartbeat
 ----------
+The pilot periodically sends heartbeat messages to the PanDA server via short-lived HTTPS connection
+to report various metrics while executing a job on a worker node. Heartbeats guarantee that the pilot
+is still alive as the PanDA server and the pilot don't maintain a permanent network connection between them.
+If the PanDA server doesn't receive heartbeats from the pilot during a certain period, the PanDA server
+presumes that the pilot is dead and kills the job being executed by the pilot.
 
-Walltime
----------
 
 Global share
 -------------
@@ -239,14 +284,35 @@ Global share
 Priority
 ---------
 
+
 Resource type
 --------------
 
 Users
 ---------
+Users process workloads on PanDA to accomplish their objectives. They are authenticated when interacting with PanDA
+and are authorized to use compute and storage resources based on their profile information.
+The :doc:`Identity and access management </architecture/iam>` page explains the details of PanDA's authentication and
+authorization mechanism.
+Users can be added to one or more working groups in the identity and access management system,
+to process "public" workloads for those communities. Resource usages of private and public workloads
+are accounted separately. Tasks and jobs have the working group attribute to indicate for which working groups
+they are.
 
-User's identity and group
---------------------------
+---------
+
+|br|
 
 Retry
 -----
+It is possible to retry tasks if a part of input data were not successfully processed or new data were
+added to input data. The task status changes from `finished` or `done` back to `running`, and output
+data are appended to the same output data collection. Tasks cannot be retried if they end up with
+a fatal finial status, such as `broken` and `failed` since they are hopeless and not worth to retry.
+On the other hand, the job status is irreversible, i.e., jobs don't change their statues once they
+go to a final status. JEDI generates new jobs to re-process the input data portion which were not successfully
+processed by previous jobs. Configuration of new jobs can be optimized based on experiences with previous jobs.
+
+---------
+
+|br|
