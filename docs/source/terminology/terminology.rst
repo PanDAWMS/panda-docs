@@ -277,16 +277,9 @@ is still alive as the PanDA server and the pilot don't maintain a permanent netw
 If the PanDA server doesn't receive heartbeats from the pilot during a certain period, the PanDA server
 presumes that the pilot is dead and kills the job being executed by the pilot.
 
+-----------
 
-Global share
--------------
-
-Priority
----------
-
-
-Resource type
---------------
+|br|
 
 Users
 ---------
@@ -300,6 +293,27 @@ are accounted separately. Tasks and jobs have the working group attribute to ind
 they are.
 
 ---------
+
+|br|
+
+Global share
+-------------
+Global shares define allocation of compute resources among various working groups and/or user activities.
+The whole compute resources are dynamically partitioned to multiple global shares.
+Each task is mapped to a global share according to its working group and activity type.
+
+-----------
+
+|br|
+
+Priority
+---------
+The priority of a task or job determines which task or job has precedence on other competing tasks or jobs in the same
+global share. Their priorities are relevant in each global share. E.g., high-priority tasks in a global share
+don't interfere with low-priority tasks in another global share. Generally priorities of jobs in a task inherit from
+the priority of the task, but scout jobs have higher priorities to collect various metrics as soon as possible.
+
+------
 
 |br|
 
