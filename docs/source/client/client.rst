@@ -30,3 +30,4 @@ For system administrators
    :maxdepth: 1
 
    rest
+   rest_idds

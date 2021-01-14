@@ -39,7 +39,7 @@ There are 5 components in the PanDA system as shown in the schematic view above.
 
 * **JEDI** is the high-level engine to dynamically tailor workload for optimal usage of heterogeneous resources.
 
-* **PanDA server** is the central hub implemented as a stateless REST web service to allow asynchronous communication from users, Pilot, and Harvester over HTTPS.
+* **PanDA server** is the central hub implemented as a stateless RESTful web service to allow asynchronous communication from users, Pilot, and Harvester over HTTPS.
 
 * **Pilot** is a transient agent to execute workload on a worker node, reporting periodically various metrics to PanDA server throughout its lifetime.
 
