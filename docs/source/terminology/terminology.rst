@@ -41,7 +41,7 @@ There are 5 components in the PanDA system as shown in the schematic view above.
 
 * **PanDA server** is the central hub implemented as a stateless RESTful web service to allow asynchronous communication from users, Pilot, and Harvester over HTTPS.
 
-* **Pilot** is a transient agent to execute workload on a worker node, reporting periodically various metrics to PanDA server throughout its lifetime.
+* **Pilot** is a transient agent to execute a tailored workload (= job) on a worker node, reporting periodically various metrics to PanDA server throughout its lifetime.
 
 * **Harvester** provisions Pilot on resources using the relevant communication protocol for each resource provider, and communicates with PanDA server on behalf of Pilot if necessary.
 
@@ -165,6 +165,9 @@ For example, if job size is flexible, jobs are generated to have short execution
 when they are processed on resources with limited time slots and local scratch disk spaces.
 The task input is logically split to multiple subsets and each job gets a subset to produce output.
 The collection of job output is the task output. Each job has a unique identifier **PanDA ID** in the system.
+Generally one pilot processes one job on a worker node. However, it is possible to configure the pilot to process
+multiple jobs sequentially or concurrently on a worker node if compute resources allow such configurations,
+to reduce the number of interactions with those resources.
 
 Job status sequentially changes as follows:
 
@@ -221,7 +224,7 @@ cancelled
 
 |br|
 
-Scout jobs
+Scout job
 -----------
 Each task generates a small number of jobs using a small portion of input data.
 They are scout jobs to collect various metrics such as data processing rate and
