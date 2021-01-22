@@ -41,13 +41,13 @@ There are 5 components in the PanDA system as shown in the schematic view above.
 
 * **PanDA server** is the central hub implemented as a stateless RESTful web service to allow asynchronous communication from users, Pilot, and Harvester over HTTPS.
 
-* **Pilot** is a transient agent to execute a tailored workload (= job) on a worker node, reporting periodically various metrics to PanDA server throughout its lifetime.
+* **Pilot** is a transient agent to execute a tailored workload (= a job : to be explained in a following section) on a worker node, reporting periodically various metrics to PanDA server throughout its lifetime.
 
-* **Harvester** provisions Pilot on resources using the relevant communication protocol for each resource provider, and communicates with PanDA server on behalf of Pilot if necessary.
+* **Harvester** provisions the Pilot on resources using the relevant communication protocol for each resource provider, and communicates with PanDA server on behalf of Pilot if necessary.
 
 * **PanDA monitor** is a web based monitoring and browsing that provides a common interface to PanDA for users and system administrators.
 
-JEDI and PanDA server share the central database
+JEDI and the PanDA server share the central database
 for workload management.
 PanDA monitor has only read access to the central database,
 while Harvester uses own database which is ether central or local

@@ -34,10 +34,23 @@ the request is `A` sec, the following formula must be satisfied:
 
 Otherwise, the HTTP server will get choked and requests will be terminated due to timeout errors.
 
-The time-based process scheduler is a daemon to periodically launch various processes.
-Its functionalities are very similar to the standard cron daemon, but it allows those processes
-to share database connections and provides an exclusive control mechanism to avoid concurrently
-launching the same process among multiple machines.
+The time-based process scheduler, so called ``PanDA daemon``, is a daemon to periodically launch various scripts.
+Its functionalities are very similar to the standard cron daemon, but it has the following advantages:
+
+* No need to maintain extra crontab config file.
+
+* On each machine the same script runs sequentially, i.e. only one process for each script,
+  which is especially helpful when the script may run longer than the period configured.
+  No new process will spawn until the existing one finishes, while the cron daemon blindly launches processes
+  do that one has to fine-tune the frequency or let the script itself kill old processes to avoid duplicated execution.
+
+* There is an exclusive control mechanism to prevent multiple machines from running the same script in parallel,
+  i.e., if this is enabled for a script only one machine can run the script at a time, which is
+  useful for long-running scripts that can run on any machine.
+
+* Better system resource usages, e.g., limited total processes ``n_proc`` to run scripts,
+  reduction of the overhead to launch processes, and sharing of database connections among
+  scripts to avoid making a new database connection in every run.
 
 ------------
 
@@ -49,7 +62,7 @@ PanDA Web application
 .. figure:: images/server_sync.png
 
 The picture above shows the internal architecture of the PanDA Web application to process
-synchronous requests. The ``panda`` module is the entry point of the application running in the
+synchronous requests. The ``panda`` module is the entry point of the PanDA Web application running in the
 main process and implementing
 the WSGI protocol to receive requests through the WSGI daemon.
 Requests are fed into one of three modules, ``JobDispatcher``, ``UserIF``, and ``Utils``.
@@ -60,8 +73,68 @@ provides utility APIs which don't involve the database access, such as API for f
 ``TaskBuffer`` and ``OraDBProxy`` modules provide high-level and low-level APIs for the database access,
 respectively, and they are executed in separate processes and communicate through the ``ConBridge``
 module. The ``ConBridge`` module allows the child process, which runs the ``OraDBProxy`` module, to get
-killed due to timeout, in order to avoid deadlock of the main process.
+killed due to timeout, in order to avoid deadlock of the main process. One ``ConBridge`` object talks to
+one ``OraDBProxy`` object.
 The ``OraDBProxyPool`` is a pool of ``ConBridge`` objects where the ``TaskBuffer`` module picks up one
 ``ConBridge`` object to call ``OraDBProxy`` APIs.
 The ``WrappedCursor`` module implements Python DB-API 2.0 interface to allow uniform access to various
-database backends.
+database backends, and establishes one connection to the database. If ``OraDBProxyPool`` is configured
+to have `C` ``ConBridge`` objects, the total number of database connections in all PanDA Web applications
+is statically
+
+.. math::
+
+ M \times W \times C
+
+When a group of jobs are submitted through ``UserIF`` the PanDA Web application spawns another type of child process
+with the ``Setupper`` module to prepare their input data, such as data registration, to trigger data distribution,
+and so on. Those preparation procedures are experiment-dependent, so that the ``Setupper`` has a plugin structure
+to load an experiment-specific plugin.
+
+------------------
+
+|br|
+
+PanDA daemon
+--------------------------------------------
+
+PanDA daemon launches the following scripts.
+The execution frequency can be configured for each script.
+
+add_main
+   A script to post-process jobs' output data after those jobs received the final heartbeat from the pilot.
+
+add_sub
+   A script to run high frequency procedures.
+
+configurator
+   A script to fetch information about compute, storage, and network resources from information sources.
+
+copyArchive
+   A script to take actions on jobs based on various timeout configurations.
+
+datasetManager
+   A script to take actions on input and output data of jobs.
+
+panda_activeusers_query
+   A script to cache user's credentials.
+
+tmpwatch
+   A script to clean-up temporary files.
+
+---------------
+
+|br|
+
+Other PanDA modules
+-----------------------
+
+There are also other modules which are mainly used to process asynchronous requests.
+The ``Adder`` module is the core for `add_main` to post-process jobs' output data,
+such as data registration, to trigger data aggregation, and so on.
+Those post-processing procedures are experiment-dependent, so that the ``Adder`` also
+has a plugin structure to load an experiment-specific plugin.
+The ``Watcher`` module checks whether jobs are getting heartbeats, and kills them due to lost-heartbeat errors
+if not.
+The ``Closer`` module works on collections of output data,
+and the ``Finisher`` module finalize jobs.

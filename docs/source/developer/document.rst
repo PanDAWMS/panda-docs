@@ -17,7 +17,7 @@ First, you need to install sphinx packages
 
 and `pandoc <https://pandoc.org/installing.html>`_ .
 Then fork the `panda-docs <https://github.com/PanDAWMS/panda-docs.git>`_ repository following
-`HowTo <https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo>`_ .
+`GitHub HowTo <https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo>`_ .
 
 
 2. Repository structure

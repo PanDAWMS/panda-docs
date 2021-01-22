@@ -38,10 +38,6 @@ There is an multipurpose IAM instance at `DOMA PanDA IAM <https://panda-iam-doma
 which can define any VO or group to play with PanDA.
 
 
-PanDA server configuration
----------------------------
-
-
 Client setup
 ---------------------
 :ref:`client/panda-client:panda-client` needs to set the following environment variables to enable
