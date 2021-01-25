@@ -320,7 +320,7 @@ be download using rucio client. It is easy to combine MLflow metrics files. The 
  tar xvfz metrics*
  mlflow ui
 
-Then access to http://127.0.0.1:5000 using your own browser will show something like the picture below.
+Then access to http://127.0.0.1:5000 using your own browser will show something like the figure below.
 
 .. figure:: images/mlflow.png
 
