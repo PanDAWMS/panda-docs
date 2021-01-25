@@ -391,10 +391,10 @@ It is possible to define multiple ML models in a single HPO task and optimize hy
 model independently. This is typically useful when you have a target object, which can be logically
 or practically partitioned
 to sub-objects, and want to optimize their ML models in one-go.
-For example, it would be reasonable to logically decompose a puppet to several parts, such as arms, body, and legs,
+For example, it would be reasonable to logically break down a puppet to several parts, such as arms, body, and legs,
 in some use-cases, but it would be nightmare to submit a HPO task for each part if there are so many.
 Instead, the user would submit a single task for the puppet and let the system split workload based on the
-user-defined decomposition, which would significantly simplify bookkeeping from user's point of view.
+user-defined breakdown instruction, which would significantly simplify bookkeeping from user's point of view.
 It is enough to prepare a single training dataset which contains files for all models, but the user
 needs to specify how the training dataset is partitioned by using the ``--segmentSpecFile`` option.
 
