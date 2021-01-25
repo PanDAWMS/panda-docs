@@ -4,14 +4,14 @@ PanDA server
 
 The PanDA server is the central hub of the system consist of Apache-based RESTful Web servers
 and time-based process schedulers, running on the database.
-The PanDA server takes care of jobs throughout their lifetime. The main functions are as follows:
+It takes care of jobs throughout their lifetime. The main functions are as follows:
 
 * To receive jobs from JEDI, and other job sources that directly generate jobs mainly for testing purposes.
-* To prepare input data for jobs.
+* To prepare job input data.
 * To dispatch jobs to worker nodes.
 * To watch jobs while they are running on worker nodes.
-* To post-process output data for jobs once they are done on worker nodes.
-* To take actions on jobs according to various timeout configurations.
+* To post-process job output data once jobs are done on worker nodes.
+* To take actions on jobs according to various timeout configurations if necessary.
 
 The PanDA server horizontally scales
 by adding machines since Web servers are stateless and time-based processes are
@@ -19,7 +19,8 @@ fine-grained.
 
 .. figure:: images/server_overview.png
 
-The figure above shows the architecture of the PanDA server on a machine. PanDA Web applications are embedded in
+The figure above shows the architecture of the PanDA server on a single machine.
+PanDA Web applications are embedded in
 WSGI daemons running behind an `Apache HTTP server <http://httpd.apache.org/>`_.
 The master Apache process spawns WSGI
 daemons via `mod_wsgi <https://modwsgi.readthedocs.io/en/master/>`_ in addition to
