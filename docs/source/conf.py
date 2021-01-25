@@ -56,6 +56,9 @@ rst_prolog = """
 .. |br| raw:: html
 
    <br />
+   
+.. role:: raw-html(raw)
+    :format: html   
 """
 
 

@@ -24,7 +24,7 @@ complete processing the requests.
 On the other hand, actors immediately get responses and then requests are
 asynchronously processed typically when they need heavy procedures like access to external services,
 in order to avoid the HTTP server from being clogged.
-Roughly speaking, when the entire PanDA server is composed of `M` machines receiving requests
+When the entire PanDA server is composed of `M` machines receiving requests
 at `R` Hz, each PanDA server machine runs `W` PanDA Web applications, the average processing time of
 the request is `A` sec, the following formula must be satisfied:
 
@@ -128,13 +128,24 @@ tmpwatch
 
 Other PanDA modules
 -----------------------
-
 There are also other modules which are mainly used to process asynchronous requests.
+The ``Activator`` module change job status to `activated` when input data of the job is ready.
 The ``Adder`` module is the core for `add_main` to post-process jobs' output data,
 such as data registration, to trigger data aggregation, and so on.
 Those post-processing procedures are experiment-dependent, so that the ``Adder`` also
 has a plugin structure to load an experiment-specific plugin.
 The ``Watcher`` module checks whether jobs are getting heartbeats, and kills them due to lost-heartbeat errors
 if not.
-The ``Closer`` module works on collections of output data,
+The ``Closer`` module works on collections of output data once jobs are done on worker nodes,
 and the ``Finisher`` module finalize jobs.
+
+Roughly speaking, jobs go through ``UserIF`` :raw-html:`&rarr;` ``Setupper`` :raw-html:`&rarr;`
+``Activator`` :raw-html:`&rarr;` ``JobDispatcher`` (:raw-html:`&rarr;` ``Watcher``) :raw-html:`&rarr;`
+``Adder`` :raw-html:`&rarr;` ``Closer`` :raw-html:`&rarr;` ``Finisher``.
+Note that they don't always pass on-memory job objects directly to subsequent modules.
+For example, the ``Setupper`` module leaves job objects in the database, and then
+the ``Activator`` module retrieves the job objects from the database when it is launched in another process.
+
+-----
+
+|br|
