@@ -387,6 +387,8 @@ the original file/directory names.
 Segmented HPO
 ^^^^^^^^^^^^^^
 
+.. figure:: images/segment_hpo.png
+
 It is possible to define multiple ML models in a single HPO task and optimize hyperparameters for each
 model independently. This is typically useful when you have a target object, which can be logically
 or practically partitioned
@@ -435,12 +437,15 @@ so that there are two segments in the task. Then
 
  phpo --segmentSpecFile seg.json --trainingDS blah ...
 
-
 The first segment is called *name_A* and PanDA jobs for the segment
 takes only *file_1* and *file_3* from the training dataset, while the second segment is called *name_B* and
 PanDA jobs for the segment takes only *file_2*. It is possible to use *%SEGMENT_NAME* in ``--evaluationExec``
 which is replaced with the actual segment name, such as *name_A* and *name_B*, so that the evaluation
-container can be configured accordingly based on the segment name. The segment name is prepended to
+container can dynamically choose the model relevant to the segment name as shown in the figure below.
+
+.. figure:: images/segment_hpo_eval.png
+
+The segment name is prepended to
 metrics files to show for which segment the metrics file contains information. For example,
 
 .. code-block:: bash
@@ -449,5 +454,5 @@ metrics files to show for which segment the metrics file contains information. F
     "evaluationMetrics": "metrics.tgz",
 
 with those options, PanDA jobs for the first segment would execute the evaluation container with
-"python toy.py name_A" so that toy.py would change confiuration based on sys.argv[1],
+"python toy.py name_A" so that toy.py would change configuration based on sys.argv[1],
 and the system would rename metrics.tgz to name_A.XYZ.metrics.tgz.
