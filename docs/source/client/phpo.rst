@@ -408,7 +408,10 @@ needs to specify how the training dataset is partitioned by using the ``--segmen
                         be optimized independently. The file contains a list of
                         dictionaries {'name': arbitrary_unique_segment_name,
                         'files': [filename_used_for_the_segment_in_the_training_dataset,
-                        ... ]}. None by default
+                        ... ]}. It is also possible to specify 'datasets' instead of 'files'
+                        in those dictionaries if the training dataset has constituent
+                        datasets and is partitioned with constituent dataset boundaries.
+                        None by default
 
 For example, when a dataset contains file_1, file_2, file_3, ..., and file_N, the json would be something like
 
@@ -431,7 +434,11 @@ For example, when a dataset contains file_1, file_2, file_3, ..., and file_N, th
         }
     ]
 
-so that there are two segments in the task. Then
+so that there are two segments in the task.
+Note that it is also possible to specify 'datasets' instead of 'files'
+in dictionaries in the json if the training dataset has constituent
+datasets and is partitioned with constituent dataset boundaries.
+Then
 
 .. prompt:: bash
 
