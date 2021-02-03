@@ -15,7 +15,7 @@ computing middleware.
    architecture/architecture
    database/database
    installation/installation
-   operation/operation
+   operations/operations
    monitoring/monitoring
    client/client
    developer/developer
