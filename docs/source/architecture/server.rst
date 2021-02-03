@@ -11,8 +11,8 @@ It takes care of jobs throughout their lifetime. The main functions are as follo
 * To dispatch jobs to worker nodes.
 * To watch jobs while they are running on worker nodes.
 * To post-process job output data once jobs are done on worker nodes.
-* To take actions on jobs according to various timeout configurations if necessary.
-* To report to JEDI if jobs came from JEDI.
+* To take actions on jobs according to various timeout configurations or user's commands.
+* To report on jobs to JEDI if those jobs came from JEDI.
 
 The PanDA server horizontally scales
 by adding machines since Web servers are stateless and time-based processes are
