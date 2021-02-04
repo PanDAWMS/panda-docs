@@ -45,7 +45,8 @@ and the third field specifies the number of processes.
 The experiment and activity fields are similar to that of ``modConfig``.
 If activity names are concatenated in the activity field those activities share the same processes.
 
-The exclusive lock mechanism distributes work across processes and threads on multiple machines.
+The exclusive lock mechanism allows operations to be distributed across threads, processes, and machines,
+so that JEDI horizontally scales with multiple machines.
 For example, it locks a task while an agent process is working on the task,
 and prevent other agent processes on the same or other machines from updating the task, which is typically
 useful to avoid inconsistent modifications caused by concurrently running processes.
@@ -53,10 +54,12 @@ useful to avoid inconsistent modifications caused by concurrently running proces
 .. figure:: images/jedi.png
 
 The figure above shows the architecture of JEDI.
-The details of the master process, agents, and their functions are explained in the following sections.
+The details of the master process, agents, their functions, and important internal objects
+are explained in the following sections.
 
 .. contents::
     :local:
+    :depth: 2
 
 -------
 
@@ -158,7 +161,8 @@ Message Processor
 |br|
 
 Job Generator
----------------
+^^^^^^^^^^^^^^^
+
 ``Job Generator`` is composed of ``Job Throttler``, ``Job Broker``, ``Job Splitter``, and
 the job submission code. It is highly parallelized since the performance of ``Job Generator``
 directly affects the throughput of the whole system. It must scale well since a single task
@@ -181,5 +185,157 @@ Once enough tasks are processed in the partition the threads are terminated and 
 ``Job Generator`` agent takes another partition.
 
 --------
+
+|br|
+
+Internal objects
+------------------
+
+Task
+^^^^^^^^^^^^^^
+``JediTaskSpec`` represents a task. The status transition chart and explanations of task statuses are
+available at :ref:`terminology/terminology:Task` section.
+
+----
+
+Dataset
+^^^^^^^^^^^^^^^^^
+``JediDatasetSpec`` represent a data collection, which is called a dataset.
+The status transition charts of input and output datasets
+are shown below.
+
+.. figure:: images/jedi_dataset.png
+
+Each dataset status is described as follows:
+
+Input dataset
+++++++++++++++
+
+defined
+    the dataset information is inserted to the database.
+toupdate
+    the dataset information needs to be updated.
+pending
+    the dataset is temporally unavailable.
+broken
+    the dataset is permanently unavailable.
+ready
+    the dataset is ready to be used.
+done
+    all files in the dataset were processed.
+
+Output dataset
++++++++++++++++
+
+defined
+    the dataset information is inserted to the database.
+ready
+    the dataset is ready for the main processing.
+running
+    files are being added to the dataset,
+prepared
+    the dataset is ready for post-processing.
+done
+    the final status.
+
+There are 6 types of datasets; input, output, log, lib, tmpl_output, and tmpl_log.
+Log datasets contain log files produced by jobs. Lib datasets contains auxiliary input files
+for jobs such as sandbox files that are not really data.
+Tmpl_output and tmpl_log datasets are pseudo template datasets to instantiate intermediate datasets where
+premerged output data files and log files are added to get merged later. Those pseudo datasets are used
+only when tasks are specified to use the internal merge capability.
+
+-----
+
+File
+^^^^^^^^^^^^^^^
+``JediFileSpec`` represents a file. A dataset is internally represented as a collection of files.
+Generally files are physical data files, but if tasks take other entities as input,
+such as collections of random seeds, they are also represented as 'pseudo' files.
+Files can be retied until they are successfully processed.
+JEDI makes a new replica of the file object for each attempt and passes it to the PanDA
+server, i.e., file objects in JEDI are master copies of file objects in the PanDA server,
+
+The status transition charts of input and output files
+are shown below.
+
+.. figure:: images/jedi_file.png
+
+Each file status is described as follows:
+
+Input file
++++++++++++
+ready
+    the file information is correctly retrieved from DDM and is inserted to the JEDI_Dataset_Contents table
+missing
+    the file is missing in the cloud/site where corresponding task is assigned
+lost
+    the file was available in the previous lookup but is now unavailable
+broken
+    the file is corrupted
+picked
+    the file is picked up to generate jobs
+running
+    one or more jobs are using the file
+finished
+    the file was successfully used
+failed
+    the file was tried multiple times but not succeeded
+partial
+    the file was split at event-level and some of event chunks were successfully finished
+
+Output file
+++++++++++++
+defined
+    the file information is inserted to the JEDI_Dataset_Contents table
+running
+    the file is being produced
+prepared
+    the file is produced
+merging
+    the file is being merged
+finished
+    the file was successfully processed
+failed
+    the file was not produced or failed to be merged
+
+-----
+
+Event
+^^^^^^^^^^^^^^
+JEDI has a capability to keep track of processing at the sub-file level.
+A file is internally represented as a collection of events.
+``JediEventSpec`` represents an event which is the finest processing granularity.
+
+
+The status transition chart of event and each event status
+are shown below.
+
+.. figure:: images/jedi_event.png
+
+ready
+    ready to be processed
+sent
+    sent to the pilot
+running
+    being processed on a worker node
+finished
+    successfully processed and the corresponding job is still running
+cancelled
+    the job was killed before the even range was successfully processed
+discarded
+    the job was killed in the merging state after the event range had finished
+done
+    successfully processed and waiting to be merged. The corresponding job went to a final job status.
+failed
+    failed to be processed
+fatal
+    failed with a fatal error or attempt number reached the max
+merged
+    the corresponding ES merge job successfully finished
+corrupted
+    the event is flagged as corrupted in order to be re-processed since corresponding zip file is problematic
+
+---------
 
 |br|
