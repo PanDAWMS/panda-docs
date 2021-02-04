@@ -183,7 +183,8 @@ assigned
    global input data motion or physical input data.
 
 activated
-   The job is ready to be dispatched as soon as the compute resource becomes available.
+   The job is ready to be fetched by the pilot as soon as CPU becomes available in the compute resource
+   and the pilot is up and running there.
 
 sent
    The job was dispatched to the compute resource.
@@ -301,9 +302,10 @@ they are.
 
 Global share
 -------------
-Global shares define allocation of compute resources among various working groups and/or user activities.
-The whole compute resources are dynamically partitioned to multiple global shares.
+Global shares define allocation of compute resources among various working groups and/or user activities,
+e.g., the whole compute resources are dynamically partitioned to multiple global shares.
 Each task is mapped to a global share according to its working group and activity type.
+Many components in JEDI and the PanDA server work with global shares.
 
 -----------
 

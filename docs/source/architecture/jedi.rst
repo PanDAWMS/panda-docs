@@ -156,9 +156,6 @@ Task Commando
 Message Processor
   ``Message Processor`` consumes messages sent from various external components through ActiveMQ.
 
---------
-
-|br|
 
 Job Generator
 ^^^^^^^^^^^^^^^
