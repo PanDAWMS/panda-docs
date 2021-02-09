@@ -33,22 +33,33 @@ The following code snippets show how iDDS native codes migrate to panda-client b
 .. code-block:: python
 
     import pandatools.idds_api
-    from pandatools.idds_common import constants
+    import idds.common.constants
+    import idds.common.utils
 
     req = {
         'requester': 'panda',
-        'request_type': constants.RequestType.HyperParameterOpt,
-        'transform_tag': constants.RequestType.HyperParameterOpt.value,
-        'status': constants.RequestStatus.New,
+        'request_type': idds.common.constants.RequestType.HyperParameterOpt,
+        'transform_tag': idds.common.constants.RequestType.HyperParameterOpt.value,
+        'status': idds.common.constants.RequestStatus.New,
         'priority': 0,
         'lifetime': 30,
         'request_metadata': {},
     }
 
-    c = pandatools.idds_api.get_api()
+    c = pandatools.idds_api.get_api(idds.common.utils.json_dumps)
     ret = c.add_request(**req)
+    if ret[0] == 0 and ret[0][0]:
+        ret = ret[0][-1]
 
-All constants in *idds.common.constants* are available in ``constants`` of ``pandatools.idds_common``.
-All client functions of ``idds.client.client.Client`` are available in the object returned by
+
+All client functions of ``idds.client.client.Client`` are available in the API object given by
 ``pandatools.idds_api.get_api()``
 with the same arguments. Check with iDDS documentation for the details of iDDS API.
+The returns from functions of the API object is always
+
+.. code-block:: text
+        returns:
+           status code
+              0: communication succeeded to the panda server
+            255: communication failure
+           a tuple of (True, the original response from iDDS), or (False, diagnostic message) if failed
