@@ -55,9 +55,23 @@ The following code snippets show how iDDS native codes migrate to panda-client b
 All client functions of ``idds.client.client.Client`` are available in the API object given by
 ``pandatools.idds_api.get_api()``
 with the same arguments. Check with iDDS documentation for the details of iDDS API.
-The returns from functions of the API object is always
+Here is the description of ``pandatools.idds_api.get_api()``.
 
 .. code-block:: text
+
+    get_api(dumper=None, verbose=False)
+        Get an API object to access iDDS through PanDA
+
+        args:
+            dumper: function object to json-serialize data
+            verbose: True to see verbose messages
+        return:
+            an API object
+
+The returns from any function of the API object are always as follows.
+
+.. code-block:: text
+
         returns:
            status code
               0: communication succeeded to the panda server
