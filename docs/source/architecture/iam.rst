@@ -50,3 +50,65 @@ OIDC/OAuth2.0 based Auth.
  export PANDA_VERIFY_HOST=off
 
 where *name of virtual organization* should be replaced with the actual VO name.
+
+
+Adding a new VO to the PanDA server
+-------------------------------------
+
+Each VO can be defined as a group in PanDA IAM, so that VOs share the same OIDC client attributes
+to skip the registration step in CILogon. In other words, if the VO wants to use a new OIDC
+client it needs to be registered in CILogon at https://cilogon.org/oauth2/register.
+
+There are three parameters in ``panda_server.cfg``.
+
+.. code-block:: text
+
+    # set to oidc to enable OpenID Connect
+    token_authType = oidc
+
+    # directory where OIDC authentication config files are placed
+    auth_config = /opt/panda/etc/panda/auth/
+
+    # json filename where OIDC authorization policies are described
+    auth_policies = /opt/panda/etc/panda/auth_policies.json
+
+``token_authType`` needs to be *oidc* to enable the OIDC/OAuth2.0 based Auth.
+The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
+parameter. The filename should be `<name of virtual organization>__auth_config.json`.
+The configuration file contains "audience", "client_id", "client_secret", "oidc_config_url", and "vo",
+where the first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
+the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
+Those configuration files must be reachable through Web interface of the PanDA server, so that make sure that
+the directory needs to be exposed in ``httpd.conf`` like
+
+.. code-block:: text
+
+    Alias /auth/ "/opt/panda/etc/panda/auth/"
+
+A json file, specified by ``auth_policies``, defines authorization policies of VOs.
+The format is
+
+.. code-block:: python
+
+    {
+      "VO name": [
+        [
+          "string in OIDC group attribute",
+          {
+            "group": "group name in the VO",
+            "role": "user"
+          }
+        ],
+        ...
+      ],
+      "another vo name": [
+        ...
+        ]
+      ],
+      ...
+    }
+
+PanDA IAM gives all group names in the OIDC group attribute. This means that each group name must be unique.
+The authorization policy file describes
+mapping between OIDC groups and actual groups in VOs. The "role" defines the permission level of
+users in the group.
