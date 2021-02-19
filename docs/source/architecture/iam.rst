@@ -49,7 +49,7 @@ OIDC/OAuth2.0 based Auth.
  export PANDA_AUTH_VO=<name of virtual organization>
  export PANDA_VERIFY_HOST=off
 
-where *name of virtual organization* should be replaced with the actual VO name.
+where *<name of virtual organization>* should be replaced with the actual VO name.
 
 
 Adding a new VO to the PanDA server
@@ -74,7 +74,7 @@ There are three parameters in ``panda_server.cfg``.
 
 ``token_authType`` needs to be *oidc* to enable the OIDC/OAuth2.0 based Auth.
 The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
-parameter. The filename should be `<name of virtual organization>__auth_config.json`.
+parameter. The filename should be `\<name of virtual organization\>_auth_config.json`.
 The configuration file contains "audience", "client_id", "client_secret", "oidc_config_url", and "vo",
 where the first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
 the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
