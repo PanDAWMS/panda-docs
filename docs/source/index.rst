@@ -9,13 +9,19 @@ computing middleware.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: Quick Guides:
 
    terminology/terminology
+   client/client
+   admin_guide/admin_guide
+   developer/developer
+
+.. toctree::
+   :maxdepth: 1
+   :caption: PanDA System in details:
+
    architecture/architecture
    database/database
    installation/installation
    operations/operations
    monitoring/monitoring
-   client/client
-   developer/developer

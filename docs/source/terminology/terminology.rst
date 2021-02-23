@@ -1,6 +1,6 @@
-============
-Terminology
-============
+===============
+Basic Concepts
+===============
 
 .. contents::
     :local:

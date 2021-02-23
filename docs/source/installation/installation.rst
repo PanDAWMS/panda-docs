@@ -16,7 +16,7 @@ Installation Manual of Each Component
 .. toctree::
    :maxdepth: 1
 
-   PanDA server <https://github.com/PanDAWMS/panda-server/blob/master/INSTALL.md>
+   server
    daemon
    Harvester <https://github.com/HSF/harvester/wiki/Installation-and-configuration>
    JEDI <https://github.com/PanDAWMS/panda-jedi/wiki/Installation>
