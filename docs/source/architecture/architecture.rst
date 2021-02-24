@@ -2,6 +2,8 @@
 System Architecture
 ===================
 
+.. figure:: /terminology/images/PandaSys.png
+
 The PanDA system is composed of the following components.
 
 .. toctree::
@@ -13,3 +15,5 @@ The PanDA system is composed of the following components.
    monitor
    harvester
    iam
+
+|br|

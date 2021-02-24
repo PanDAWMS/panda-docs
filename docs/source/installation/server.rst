@@ -23,12 +23,26 @@ Dependent python packages are automatically installed by pip.
 
 Installation
 ----------------
+It is a good practice to do installation in virtual environment.
+
+.. prompt:: bash
+
+  python3 -m venv <install dir>
+  . <install dir>/bin/activate
+
+Then
 
 .. prompt:: bash
 
  pip install panda-server
 
 which will install panda-server, panda-common, and dependent python packages.
+
+If the latest panda-server in the git master repository is required,
+
+.. prompt:: bash
+
+ pip install git+https://github.com/PanDAWMS/panda-server.git
 
 -------------
 
@@ -77,7 +91,7 @@ This configuration file sets various parameters of the PanDA server.
 .. prompt:: bash
 
  cd ${VIRTUAL_ENV}/etc/panda
- mv server.cfg.rpmnew server.cfg
+ mv panda_server.cfg.rpmnew panda_server.cfg
 
 The following parameters need to be modified if any.
 
@@ -198,7 +212,7 @@ Then you need to register the PanDA server as a system service, make some direct
 
 |br|
 
-Start and Stop the PanDA server
+Service Control
 ----------------------------------
 
 .. prompt:: bash
@@ -211,5 +225,25 @@ Start and Stop the PanDA server
 
 There should be log files in the ``logdir``.
 If httpd doesn't get started there could be clues in ``panda_server_error_log``.
+
+----------
+
+|br|
+
+Test
+------------
+
+.. prompt:: bash
+
+  curl http://localhost:25080/server/panda/isAlive
+
+It will show the following message if successful.
+
+.. code-block:: text
+
+  alive=yes
+
+If not see log files under ``logdir``, especially ``panda_server_access_log``, ``panda_server_error_log``,
+``panda-Entry.log``, ``panda-DBProxyPool.log``, and ``panda-DBProxy.log`` would help.
 
 |br|

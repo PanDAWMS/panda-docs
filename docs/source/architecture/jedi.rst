@@ -21,29 +21,7 @@ and a fine-grand exclusive lock mechanism.
 Those agents run independently and they don't directly communicate with each other.
 They take objects from the database, take actions on those objects, and update the database.
 Each agent is designed around a plugin structure with the core core and experiment/activity-specific
-plugins, and is configured in the configuration file. For example,
-
-.. code-block:: text
-
-  modConfig = atlas:managed|test:pandajedi.jedidog.AtlasProdWatchDog:AtlasProdWatchDog
-
-  procConfig = atlas:managed|test:2
-
-
-The first parameter ``modConfig`` defines what module and class is used for each experiment and activity.
-The syntax is ``experiment:activity:module_import_path:class_name<, ...>``,
-where the first field specifies the experiment name, the second field specifies the activity name,
-the third field specifies the import path of the module, and the last field specifies the class name.
-The experiment and activity fields can be empty if it work regardless of experiment or activity.
-The activity field can also take a string concatenating activity names with ``|`` if it works
-for multiple activities.
-
-The second parameter in the above config example ``procConfig`` defines the number of processes for each experiment
-and activity. The syntax is ``experiment:activity:n_processes<, ...>``,
-where the first field specifies the experiment name, the second field specifies the activity name,
-and the third field specifies the number of processes.
-The experiment and activity fields are similar to that of ``modConfig``.
-If activity names are concatenated in the activity field those activities share the same processes.
+plugins.
 
 The exclusive lock mechanism allows operations to be distributed across threads, processes, and machines,
 so that JEDI horizontally scales with multiple machines.
@@ -160,7 +138,7 @@ Message Processor
 Job Generator
 ^^^^^^^^^^^^^^^
 
-``Job Generator`` is composed of ``Job Throttler``, ``Job Broker``, ``Job Splitter``, and
+``Job Generator`` is composed of ``Job Throttler``, ``Job Broker``, ``Job Splitter``, ``Task Setupper``,  and
 the job submission code. It is highly parallelized since the performance of ``Job Generator``
 directly affects the throughput of the whole system. It must scale well since a single task
 can generate millions of jobs, for example.
@@ -176,7 +154,8 @@ The selection algorithm considers data locality, requirements for data processin
 constraints and downtime of compute resources, and transfer backlog over the network.
 If one or more compute resources are available ``Job Broker`` passes the task to ``Job Splitter``
 which generates jobs to respect task requirements and various constraints of compute resources.
-Finally the job submission code submits those jobs to the PanDA server.
+Finally the job submission code submits those jobs to the PanDA server after ``Task Setupper`` prepares
+output data collections.
 Then ``Job Broker`` takes the next task.
 Once enough tasks are processed in the partition the threads are terminated and the
 ``Job Generator`` agent takes another partition.

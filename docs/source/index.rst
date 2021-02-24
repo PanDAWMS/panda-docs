@@ -18,10 +18,17 @@ computing middleware.
 
 .. toctree::
    :maxdepth: 1
-   :caption: PanDA System in details:
+   :caption: PanDA System:
 
    architecture/architecture
    database/database
    installation/installation
    operations/operations
    monitoring/monitoring
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Advanced Topics:
+
+   advanced/cric
+   advanced/iam

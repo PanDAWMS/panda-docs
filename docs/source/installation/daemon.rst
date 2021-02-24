@@ -11,7 +11,7 @@ Configuration File
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The configurations of PanDA daemon should be written under ``[daemon]`` section in
-``/etc/panda/panda_server.cfg``.
+``panda_server.cfg``.
 
 Example
 ^^^^^^^^^^^^^^
@@ -111,22 +111,22 @@ One can control PanDA daemon with the ``panda_daemon`` service script:
 
 which will start/stop PanDA daemon.
 
-Or equivalently, one can control PanDA daemon with the ``panda_server`` init.d script, with special argument:
+Or equivalently, one can control PanDA daemon with the ``httpd-pandasrv`` init.d script, with special argument:
 
 .. prompt:: bash
 
-  /opt/panda/etc/rc.d/init.d/panda_server start-daemon
-  /opt/panda/etc/rc.d/init.d/panda_server stop-daemon
+  /sbin/service httpd-pandasrv start-daemon
+  /sbin/service httpd-pandasrv stop-daemon
 
 which will also start/stop PanDA daemon.
 
 
-Note that, about the ``panda_server`` init.d script, the ``start`` and ``stop`` argument:
+Note that, about the ``httpd-pandasrv`` init.d script, the ``start`` and ``stop`` argument:
 
 .. prompt:: bash
 
-  /opt/panda/etc/rc.d/init.d/panda_server start
-  /opt/panda/etc/rc.d/init.d/panda_server stop
+  /sbin/service httpd-pandasrv start
+  /sbin/service httpd-pandasrv stop
 
 will start/stop **both** PanDA web application **and** PanDA daemon.
 
@@ -141,8 +141,8 @@ Daemon Master process:
 
 .. code-block:: text
 
-  /var/log/panda/panda_daemon_stdout.log
-  /var/log/panda/panda_daemon_stderr.log
+  <logdir>/panda_daemon_stdout.log
+  <logdir>/panda_daemon_stderr.log
 
 Daemon Worker processes:
 
