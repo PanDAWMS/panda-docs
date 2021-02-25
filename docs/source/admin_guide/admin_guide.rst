@@ -45,7 +45,7 @@ Database Setup
 
 |br|
 
-PanDA Server Installation
+PanDA Server Setup
 --------------------------------------
 Install the PanDA server on a VM following :doc:`PanDA server installation guide </installation/server>`.
 You need to decide the userid and group under which the PanDA server runs before editing configuration files.
@@ -255,9 +255,14 @@ and is ready to be pickup by the pilot.
 
 |br|
 
-Harvester Installation
+Harvester Setup
 -------------------------
-In this tutorial we use condor as submission backend, so first you need to install condor on the node where
-Harvester runs.
+In this tutorial we use HTCondor as submission backend, so first you need to install HTCondor on the VM where
+Harvester will be installed. `HTCondor documentation <https://htcondor.readthedocs.io/en/latest/>`_ will help.
 
-Then install Harvester following `Harvester installation guide <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_.
+Then refer to `Harvester installation guide <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_
+to install Harvester on the same VM.
+
+
+PanDA Monitor Setup
+----------------------------

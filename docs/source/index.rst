@@ -1,5 +1,5 @@
 ====================================
-Welcome to PanDA's documentation
+Welcome to PanDA documentation
 ====================================
 
 The Production and Distributed Analysis (PanDA) is a data-driven workload management system capable of
