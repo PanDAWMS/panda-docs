@@ -1,5 +1,5 @@
 =====================
-Writing documentation
+Writing Documentation
 =====================
 
 This section explains how to write PanDA documentation.

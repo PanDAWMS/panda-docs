@@ -4,9 +4,12 @@ Administrator Guide
 
 Here is a a quick tutorial to setup a minimum PanDA system.
 
-.. contents::
+
+.. contents:: Table of Contents
     :local:
     :depth: 1
+
+|br|
 
 Hardware Requirements
 --------------------------------------
@@ -42,7 +45,7 @@ Database Setup
 
 |br|
 
-The PanDA Server Installation
+PanDA Server Installation
 --------------------------------------
 Install the PanDA server on a VM following :doc:`PanDA server installation guide </installation/server>`.
 You need to decide the userid and group under which the PanDA server runs before editing configuration files.
@@ -252,5 +255,9 @@ and is ready to be pickup by the pilot.
 
 |br|
 
-Harvester Installtion
------------------------
+Harvester Installation
+-------------------------
+In this tutorial we use condor as submission backend, so first you need to install condor on the node where
+Harvester runs.
+
+Then install Harvester following `Harvester installation guide <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_.

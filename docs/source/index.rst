@@ -9,9 +9,16 @@ computing middleware.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Introduction:
+
+   introduction/introduction
+   introduction/why
+   terminology/terminology
+
+.. toctree::
+   :maxdepth: 1
    :caption: Quick Guides:
 
-   terminology/terminology
    client/client
    admin_guide/admin_guide
    developer/developer

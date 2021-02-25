@@ -2,7 +2,7 @@
 Code Repositories
 =================
 
-PanDA software are available in the following github repositories:
+PanDA software are available in the following GitHub repositories:
 
 * `PanDA server <https://github.com/PanDAWMS/panda-client>`_
 
