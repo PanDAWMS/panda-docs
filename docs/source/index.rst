@@ -12,7 +12,6 @@ computing middleware.
    :caption: Introduction:
 
    introduction/introduction
-   introduction/why
    terminology/terminology
 
 .. toctree::
