@@ -2,7 +2,7 @@
 Identity and access management
 ==================================
 
-PanDA has the identity and access management (IAM) scheme fully compliant with OIDC/OAuth2.0
+PanDA has the Identity and Access Management (IAM) scheme fully compliant with OIDC/OAuth2.0
 capable of identity federation among scientific and academic identity providers.
 Although legacy x509 is also supported, it is recommended to avoid it since it is being outdated.
 
