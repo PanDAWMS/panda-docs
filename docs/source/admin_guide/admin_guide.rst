@@ -74,7 +74,7 @@ You also need to configure the firewall on the VM to allow access to 25080 and 2
 
 |br|
 
-JEDI Installation
+JEDI Setup
 --------------------
 Install JEDI on the same VM following :doc:`JEDI installation guide </installation/jedi>`.
 You need to use the name of the virtual organization when configuring plugins in ``panda_jedi.cfg``.
@@ -261,7 +261,7 @@ In this tutorial we use HTCondor as submission backend, so first you need to ins
 Harvester will be installed. `HTCondor documentation <https://htcondor.readthedocs.io/en/latest/>`_ will help.
 
 Then refer to `Harvester installation guide <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_
-to install Harvester on the same VM.
+to install Harvester on the same VM. For small scale tests it is enough to use the sqlite3 database backend.
 
 
 PanDA Monitor Setup
