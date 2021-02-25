@@ -30,7 +30,6 @@ computing middleware.
    architecture/architecture
    database/database
    installation/installation
-   operations/operations
    monitoring/monitoring
 
 .. toctree::

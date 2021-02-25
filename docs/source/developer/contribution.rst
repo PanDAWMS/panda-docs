@@ -26,7 +26,7 @@ with small customization. The sequence is as follows:
 How to install your local changes to your instances
 -----------------------------------------------------
 You can install and test your changes locally before submitting pull requests.
-The following examples shows how to install local changes to the PanDA server.
+The following examples shows how to install local changes to own PanDA server.
 
 .. prompt:: bash
 
