@@ -16,7 +16,7 @@ computing middleware.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Quick Guides:
+   :caption: Guides:
 
    client/client
    admin_guide/admin_guide
@@ -24,12 +24,11 @@ computing middleware.
 
 .. toctree::
    :maxdepth: 1
-   :caption: PanDA System:
+   :caption: PanDA Internals:
 
    architecture/architecture
    database/database
    installation/installation
-   monitoring/monitoring
 
 .. toctree::
    :maxdepth: 1

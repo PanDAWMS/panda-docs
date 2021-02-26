@@ -7,11 +7,11 @@ Here is a a quick tutorial to setup a minimum PanDA system.
 
 .. contents:: Table of Contents
     :local:
-    :depth: 1
+    :depth: 2
 
 |br|
 
-Hardware Requirements
+0. Hardware Requirements
 --------------------------------------
 It is recommended to install JEDI and the PanDA server on separate virtual machines (VMs), but it is possible to
 install them on a single VM for small testing purposes. a minimum PanDA system would be composed of 3 VMs;
@@ -40,12 +40,12 @@ The following table shows the minimum hardware configuration.
 
 |br|
 
-Database Setup
+1. Database Setup
 ------------------
 
 |br|
 
-PanDA Server Setup
+2. PanDA Server Setup
 --------------------------------------
 Install the PanDA server on a VM following :doc:`PanDA server installation guide </installation/server>`.
 You need to decide the userid and group under which the PanDA server runs before editing configuration files.
@@ -74,7 +74,7 @@ You also need to configure the firewall on the VM to allow access to 25080 and 2
 
 |br|
 
-JEDI Setup
+3. JEDI Setup
 --------------------
 Install JEDI on the same VM following :doc:`JEDI installation guide </installation/jedi>`.
 You need to use the name of the virtual organization when configuring plugins in ``panda_jedi.cfg``.
@@ -123,14 +123,14 @@ For testing purposes it would be enough to use generic plugins as shown below:
 
 |br|
 
-Registration of Resource Groups, Global Shares, and Compute Resources in the Database
+4. Registration of Resource Groups, Global Shares, and Compute Resources in the Database
 --------------------------------------------------------------------------------------------
 You need to manually register VO, global shares, and compute resources unless they are automatically
 registered through information system. If you integrate CRIC as explained at
 :doc:`CRIC integration guide </advanced/cric>`, you can register them through CRIC.
 
-Resource Group Registration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.1. Resource Group Registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 It is possible to define grouping among compute resources but generally it is enough to have one
 group for each organization. Groups are registered in the ``CLOUDCONFIG`` table in the PANDAMETA schema
 using the following SQL statement.
@@ -144,8 +144,8 @@ using the following SQL statement.
 where *NAME* is an arbitrary group name and *STATUS* needs to be set to "online". Replace "PANDAMETA" with your
 schema name for the meta tables.
 
-Global Share Registration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.2. Global Share Registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Each organization defines compute resource allocation among various working groups and/or user activities
 using global shares. Normal global shares are registered in the ``GLOBAL_SHARES`` table, while special and/or
 resource-specific shares are registered in the ``JEDI_WORK_QUEUE`` table. The following SQL statement
@@ -159,8 +159,8 @@ adds a special test share.
 where *VO* and *QUEUE_TYPE* are organization and activity names, respectively. Replace "PANDA" with your
 schema name for the JEDI tables.
 
-Compute Resource Registration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.3. Compute Resource Registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The following SQL statement adds a test resource.
 
 .. code-block:: sql
@@ -174,7 +174,7 @@ where *NAME* and *NICKNAME* are the resource name, and *STATUS* needs to be 'onl
 
 |br|
 
-Testing JEDI and the PanDA server
+5. Testing JEDI and the PanDA server
 ----------------------------------------
 At this stage, you can submit a test task to the PanDA server and let JEDI generate jobs.
 Before start testing, start the PanDA server and JEDI.
@@ -255,14 +255,98 @@ and is ready to be pickup by the pilot.
 
 |br|
 
-Harvester Setup
+6. Harvester Setup
 -------------------------
 In this tutorial we use HTCondor as submission backend, so first you need to install HTCondor on the VM where
 Harvester will be installed. `HTCondor documentation <https://htcondor.readthedocs.io/en/latest/>`_ will help.
 
 Then refer to `Harvester installation guide <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_
 to install Harvester on the same VM. For small scale tests it is enough to use the sqlite3 database backend.
+Make sure that ``harvester_id`` in ``panda_harvester.cfg`` can be an arbitrary unique string but it needs to be
+registered in the database of JEDI and the PanDA server (i.e., not the harvester database),
+
+.. code-block:: sql
+
+ INSERT INTO PANDA.HARVESTER_INSTANCES (HARVESTER_ID,DESCRIPTION) VALUES('your_harvester_id','some description')
+
+6.1. Queue Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In this tutorial, queues are specified in a local json file, so ``panda_harvester.cfg`` has
+
+.. code-block:: text
+
+    [qconf]
+
+    configFile = panda_queueconfig.json
+
+    queueList =
+     ALL
+
+``panda_queueconfig.json`` could be something like
+`a config example <https://github.com/HSF/harvester/blob/master/examples/panda_queueconfig_doma.json>`_
+where the compute resource defined in the previous step `TEST_SITE` is set to "online".
+
+.. code-block:: text
+
+    "TEST_SITE": {
+        "queueStatus": "online",
+        "prodSourceLabel": "test",
+        "templateQueueName": "production.pull",
+        "maxWorkers": 1,
+        "nQueueLimitWorkerMin": 1,
+        "nQueueLimitWorkerMax": 2,
+        "submitter": {
+                        "templateFile": "/opt/panda/misc/grid_submit_pilot.sdf"
+          }
+      },
+    }
+
+where the ``templateFile`` is a template file to generate sdf files like
+`an sdf template example <https://github.com/HSF/harvester/blob/master/examples/htcondor_submit_doma_pilot.sdf>`_
+Each sdf file has
+
+.. code-block:: text
+
+ executable = /opt/panda/misc/runpilot2-wrapper.sh
+ arguments = -s {computingSite} -r {computingSite} -q {pandaQueueName} -j {prodSourceLabel} -i {pilotType} \
+      -t -w generic --pilot-user generic --url https://ai-idds-01.cern.ch -d --harvester-submit-mode PULL \
+      --allow-same-user=False --job-type={jobType} {pilotResourceTypeOption} {pilotUrlOption}
+
+to launch the pilot on a worker node. ``runpilot2-wrapper.sh`` is available in
+`the pilot-wrapper repository <https://github.com/PanDAWMS/pilot-wrapper>`_.
+You need to put a template file and the pilot wrapper on the VM, and edit the template file and
+``panda_queueconfig.json`` accordingly. Note that the ``--url`` argument must take the URL of your PanDA server
+so that the pilot will talk to your PanDA server.
+
+6.2 Testing Harvester
+^^^^^^^^^^^^^^^^^^^^^^^^
+Now you can start Harvester to submit the pilot and see if the pilot properly communicates with the PanDA server.
+
+.. prompt:: bash
+
+ etc/rc.d/init.d/panda_harvester start
+
+Harvester logs are available in the directory specified in ``panda_common.cfg``. It is good to check
+``panda_harvester_stdout.log``, ``panda_harvester_stderr.log``, and ``panda-submitter.log``.
+Once the pilot is sent out through HTCondor, there should be log files in the directly specified in the sdf template
+file.
+
+.. code-block:: text
+
+ log = {logDir}/{logSubdir}/grid.$(Cluster).$(Process).log
+ output = {logDir}/{logSubdir}/grid.$(Cluster).$(Process).out
+ error = {logDir}/{logSubdir}/grid.$(Cluster).$(Process).err
+
+where ``{logDir}`` is specified in ``panda_queueconfig.json`` and ``{logSubdir}`` is automatically defined
+by Harvester based on the timestamp.
+
+If communication between the pilot and the PanDA server is successful there will be messages in PanDA
+server's log files such as ``panda_server_access_log`, `panda-JobDispatcher.log``, and ``panda-DBProxy.log``.
+
+-------------
+
+|br|
 
 
-PanDA Monitor Setup
+7. PanDA Monitor Setup
 ----------------------------
