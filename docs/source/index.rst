@@ -13,6 +13,7 @@ computing middleware.
 
    introduction/introduction
    terminology/terminology
+   publications/publications
 
 .. toctree::
    :maxdepth: 1
@@ -36,3 +37,4 @@ computing middleware.
 
    advanced/cric
    advanced/iam
+
