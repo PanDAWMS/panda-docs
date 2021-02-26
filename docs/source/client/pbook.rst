@@ -144,6 +144,7 @@ Show tasks in other format
 where available formats are 'standard', 'long', 'json', 'plain'.
 
 |br|
+
 ----------
 
 Trouble shooting
