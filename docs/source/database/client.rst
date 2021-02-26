@@ -10,7 +10,8 @@ There is a PanDA in-house library for connection pooling.
 Configuration
 ==============
 
-Below is an annotated excerpt of the PanDA configuration file that describes the DB settings.
+Below is an annotated excerpt of the PanDA configuration file that describes the DB settings. General configuration
+is explained further in the installation and administration sections.
 
 ::
 
