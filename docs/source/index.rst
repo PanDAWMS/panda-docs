@@ -37,4 +37,4 @@ computing middleware.
 
    advanced/cric
    advanced/iam
-
+   advanced/idds
