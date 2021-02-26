@@ -2,9 +2,10 @@
 Integration with CRIC
 ======================
 
-The Computing Resource Information System (CRIC) is a framework providing a centralized and flexible way
-to describe resources and their usage
-[`CRIC doc <https://core-cric-docs.web.cern.ch/core-cric-docs/latest/index.html>`_].
+The Computing Resource Information System
+(`CRIC <https://core-cric-docs.web.cern.ch/core-cric-docs/latest/index.html>`_) is a framework
+providing a centralized and flexible way
+to describe resources and their usage.
 
 It is possible to integrate PanDA and CRIC so that administrators registers various resources in CRIC
 by using WebUI and PanDA fetches information from CRIC, to avoid manual registration in the database.
