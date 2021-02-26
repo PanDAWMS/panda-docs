@@ -2,7 +2,7 @@
 Administrator Guide
 ===========================
 
-Here is a a quick tutorial to setup a minimum PanDA system.
+Here is a quick tutorial to setup a minimum PanDA system.
 
 
 .. contents:: Table of Contents

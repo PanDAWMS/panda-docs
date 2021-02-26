@@ -1,3 +1,13 @@
+===========================
+Publications
+===========================
+
+.. contents:: Table of Contents
+    :local:
+    :depth: 1
+
+|br|
+
 2016
 ==============
 ATLAS WORLD-cloud and networking in PanDA, CHEP 2016
