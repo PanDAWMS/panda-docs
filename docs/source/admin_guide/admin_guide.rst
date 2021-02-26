@@ -42,12 +42,14 @@ The following table shows the minimum hardware configuration.
 
 1. Database Setup
 ------------------
+The database is the backbone of the PanDA server and JEDI, so it needs to be setup before start
+installation of those components. You should go through :doc:`the Database page </database/database>`.
 
 |br|
 
 2. PanDA Server Setup
 --------------------------------------
-Install the PanDA server on a VM following :doc:`PanDA server installation guide </installation/server>`.
+The next step is to install the PanDA server on a VM following :doc:`PanDA server installation guide </installation/server>`.
 You need to decide the userid and group under which the PanDA server runs before editing configuration files.
 Make sure that the userid and group are consistent in ``panda_server.cfg`` and ``panda_server-httpd.conf``,
 the permission of log directories is set accordingly.
@@ -76,7 +78,7 @@ You also need to configure the firewall on the VM to allow access to 25080 and 2
 
 3. JEDI Setup
 --------------------
-Install JEDI on the same VM following :doc:`JEDI installation guide </installation/jedi>`.
+Once the PanDA server is ready, you can install JEDI on the same VM following :doc:`JEDI installation guide </installation/jedi>`.
 You need to use the name of the virtual organization when configuring plugins in ``panda_jedi.cfg``.
 For testing purposes it would be enough to use generic plugins as shown below:
 
