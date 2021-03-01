@@ -7,10 +7,15 @@ and strategies to partition workload while running those tasks. In the early sta
 the task execution, JEDI generates several jobs for each task using only a small portion of input data,
 collects various metrics such as data processing rate and memory footprints, and adjusts the following task parameters.
 Those first jobs are called scout jobs. The automatic optimization is triggered twice for each task;
-1) when half of the scout jobs finish, and 2) when the first 100 jobs finish after the task avalanches.
+
+#. when half of the scout jobs finished, and
+
+#. when the first 100 jobs finished after the task avalanched.
+
 Some task parameters specify the resource amount per event. If input data don't have event information,
 the number of events in each file is internally regarded as 1.
 
+|br|
 
 cpuTime
 -----------
@@ -42,6 +47,7 @@ If the *Fixed* suffix is used, scout jobs don't overwrite the preset ``cpuTime``
 
 Tasks can set *cpuEfficiency* to 0 to disable scaling with the number of events.
 
+|br|
 
 ramCount
 ------------------
@@ -50,7 +56,7 @@ The pilot monitors the memory usage of the job and reports the information to th
 
 .. math::
 
-  ramCount = frac{maxPSS-baseRamCount}{coreCount}
+  ramCount = \frac {maxPSS-baseRamCount} {coreCount}
 
 It is the RSS per core, allowing some offset (*baseRamCount*) independent of core count (*coreCount*).
 *baseRamCount* is a preset task parameter ad is not very important for single-core tasks.
@@ -62,6 +68,7 @@ remaining jobs.
 If the latter,
 scout jobs don't overwrite the preset value.
 
+|br|
 
 outDiskCount and workDiskCount
 ----------------------------------
@@ -74,6 +81,7 @@ The maximum value of ``workDiskCount`` of scout jobs is used to estimate the exp
 the remaining jobs.
 Note that scout jobs don't overwrite the preset ``workDisCount`` value when the measured value is smaller.
 
+|br|
 
 ioIntensity
 ---------------------------
@@ -81,6 +89,7 @@ ioIntensity
 roughly corresponds to the data traffics over the wide-area network. The maximum value of ``ioIntensity`` is
 used in the job brokerage to avoid redundant heavy data motion over WAN.
 
+|br|
 
 diskIO
 ----------------
@@ -89,13 +98,16 @@ The pilot reports the data size the job read and wrote from and to the local dis
 the data traffics over the local-area network. The maximum value of ``diskIO`` is
 used in the job brokerage to distribute IO-intensive workloads over many disk storages.
 
+|br|
 
 nGBPerJob
 ------------------
-JEDI generates jobs so that the expected disk usage of those jobs is less than ``nGBPerJob`` if this task
-parameter is specified.
+JEDI generates jobs so that the expected disk usage of those jobs is less than a limit if the task
+parameter ``nGBPerJob`` is specified.
 The parameter is adjusted based on ``outDiskCount`` and ``workDiskCout`` optimized by scout jobs,
-if the task sets the target size of the output size ``tgtMaxOutputForNG``.
+if the task sets the target size of the output size, ``tgtMaxOutputForNG``.
+
+|br|
 
 taskStatus=exhausted
 -----------------------
