@@ -5,19 +5,19 @@ Contributing Changes
 PanDA components are developed based on `GitHub Flow <https://guides.github.com/introduction/flow/>`_
 with small customization. The sequence is as follows:
 
-#. Create a branch or folk. In git, branches are light weight things that are often temporary and may be deleted
-   anytime. The master branch is protected, so that only a couple of persons can push commits there.
+#. Creation of a branch or folk. In git, branches are lightweight things that are often temporary and may be deleted
+   anytime. The master branch is protected so that only a couple of persons can push commits there.
 
-#. Add commits to the branch. You can experiment any changes since they don't affect the master branch.
+#. Adding commits to the branch. You can experiment with any changes since they don't affect the master branch.
 
-#. Deploy changes on a test instance. All changes must be verified before being merged to the master branch.
+#. Deployment of changes on a test instance. All changes must be verified before being merged to the master branch.
 
-#. Submit a Pull Request which will initiate discussion about your changes.
+#. Submittion of a Pull Request which will initiate a discussion about your changes.
 
-#. Discuss and review your code. Once a Pull Request has been opened, your changes are reviewed to check
-   functionalities, the coding style, test results, and so one. Note that your code must follow PEP8.
+#. Discussion and review on your code. Once a Pull Request has been opened, your changes are reviewed to check
+   functionalities, the coding style, test results, and so on. Note that your code must follow PEP8.
 
-#. Merge changes. Once your changes are approved they will be merged to the master branch. The branch can be
+#. Merging changes. Once your changes are approved, they will be merged to the master branch. The branch can be
    deleted at this stage since commit logs are also merged.
 
 
@@ -26,7 +26,7 @@ with small customization. The sequence is as follows:
 How to install your local changes to your instances
 -----------------------------------------------------
 You can install and test your changes locally before submitting pull requests.
-The following examples shows how to install local changes to own PanDA server.
+The following example shows how to install local changes to your own PanDA server.
 
 .. prompt:: bash
 
@@ -57,7 +57,7 @@ Publishing a new version of panda-* package on PyPI
 ---------------------------------------------------------
 The procedures are as follows:
 
-#. Increment the version number which is typically defined in ``panda-*/PandaPkgInfo.py``.
+#. Increment the version number, which is typically defined in ``panda-*/PandaPkgInfo.py``.
 
 #. Push it to the master branch of the git repository.
 

@@ -7,10 +7,10 @@ The Computing Resource Information System
 providing a centralized and flexible way
 to describe resources and their usage.
 
-It is possible to integrate PanDA and CRIC so that administrators registers various resources in CRIC
-by using WebUI and PanDA fetches information from CRIC, to avoid manual registration in the database.
-One of scripts launched by PanDA daemon, ``configurator``, periodically retrieves information from CRIC
-and populate database tables. To enable PanDA daemon and ``configurator``, you need in ``panda_server.cfg``
+It is possible to integrate PanDA and CRIC so that administrators register various resources in CRIC
+by using WebUI and PanDA fetches information from CRIC, avoiding manual registration in the database.
+One of the scripts launched by PanDA daemon, ``configurator``, periodically retrieves information from CRIC
+and populates database tables. To enable PanDA daemon and ``configurator``, you need in ``panda_server.cfg``
 
 .. code-block:: text
 

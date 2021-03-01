@@ -3,11 +3,11 @@ Working with iDDS
 =====================
 
 `iDDS <https://idds.cern.ch/>`_ is an intelligent data delivery service
-orchestrating workflow and data management systems in order to optimize resource usage in various workflows.
+orchestrating workflow and data management systems to optimize resource usage in various workflows.
 It is possible to use iDDS on top of PanDA as a high-level service to support various advanced workflows,
 such as
 
-* Fine grained data carousel
+* Fine-grained data carousel
 
 * Hyperparameter optimization among geographically distributed GPU resources
 
@@ -54,8 +54,8 @@ The contents of the json is something like
         }
     }
 
-where you specify the ActiveMQ server, user name and password to connect to ActiveMQ, queue names,
+where you specify the ActiveMQ server, user name, and password to connect to ActiveMQ, queue names,
 and plugins to consume messages from iDDS.
 There is a separate plugin for each workflow in
 `the plugin repository <https://github.com/PanDAWMS/panda-jedi/tree/master/pandajedi/jedimsgprocessor>`_.
-You need to choose appropriate plugins based on your needs.
+You choose appropriate plugins based on your needs.

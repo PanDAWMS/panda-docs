@@ -2,15 +2,15 @@
 JEDI
 =====
 
-JEDI (Job Execution and Definition Interface) is a high-level engine to dynamically tailor workload
-for optimal usages of heterogeneous resources. It works with tasks to submit jobs to the PanDA server.
+JEDI (Job Execution and Definition Interface) is a high-level engine to tailor workload
+for optimal usages of heterogeneous resources dynamically. It works with tasks to submit jobs to the PanDA server.
 The main functions are as follows:
 
 * To receive and parse task specifications which are fed into the system from clients through the RESTful
   interface of the PanDA server.
 * To collect information about task input data.
 * To decide the destination for each task output data.
-* To choose compute resources based on characteristics and requirements of each task.
+* To choose the compute resources based on the characteristics and requirements of each task.
 * To generate and assign jobs to compute resources by taking global shares into account.
 * To reassign jobs if workload distribution becomes unbalanced among compute resources.
 * To take actions on tasks according to various timeout configurations or user's commands.
@@ -18,9 +18,9 @@ The main functions are as follows:
 
 JEDI is composed of a master process, stateless agents running on multiple threads/processes,
 and a fine-grand exclusive lock mechanism.
-Those agents run independently and they don't directly communicate with each other.
+Those agents run independently, and they don't directly communicate with each other.
 They take objects from the database, take actions on those objects, and update the database.
-Each agent is designed around a plugin structure with the core core and experiment/activity-specific
+Each agent is designed around a plugin structure with the core and experiment/activity-specific
 plugins.
 
 The exclusive lock mechanism allows operations to be distributed across threads, processes, and machines,
@@ -32,7 +32,7 @@ useful to avoid inconsistent modifications caused by concurrently running proces
 .. figure:: images/jedi.png
 
 The figure above shows the architecture of JEDI.
-The details of the master process, agents, their functions, and important internal objects
+The details of the master process, agents, their functions, and essential internal objects
 are explained in the following sections.
 
 .. contents::
@@ -50,11 +50,11 @@ JEDI Master
 There is only one ``JEDI Master`` process on each machine, and all agents independently run as child
 processes of the ``JEDI Master``.
 There are two connection pools in ``JEDI Master``, one for connections to the database backend
-and the other for connections to an data management system,
+and the other for connections to a data management system,
 and agents share connections in those pools.
 The number of connections to the database or data management system is limited
-even if their accesses are quite busy, so that those external services are protected.
-When ``JEDI Master`` gets started it initializes connection pools first, launches agents,
+even if their accesses are quite busy so that those external services are protected.
+When ``JEDI Master`` gets started, it initializes connection pools first, launches agents,
 give connection pools to agents, waits for the SIGTERM or SIGKILL signal, and kills
 all agents and itself.
 
@@ -72,31 +72,30 @@ Task Refiner
   ``Task Refiner`` parses them to instantiate ``JediTaskSpec`` objects.
   Each ``JediTaskSpec`` object represents a task.
   The core code sets common attributes of ``JediTaskSpec`` while plugins set experiment/activity specific attributes.
-  One of the important attributes is ``splitRule`` concatenating two-latter codes to specify
+  One of the crucial attributes is ``splitRule`` concatenating two-letter codes to specify
   various characteristics and requirements of the task.
-  ``JediTaskSpec`` objects are inserted to the database once they are successfully instantiated.
+  ``JediTaskSpec`` objects are inserted into the database once they are successfully instantiated.
 
 Contents Feeder
   ``Contents Feeder`` retrieves the contents of input data, such as a list of data filenames,
-  from the external data management service, and records them to the database for subsequent processing
+  from the external data management service and records them to the database for subsequent processing
   by other agents. If the input data is not a collection of data files, e,g, a list of random seeds,
   ``Contents Feeder`` records a list of pseudo files in the database.
 
 Task Broker
   ``Task Broker`` decides final destinations of task output if tasks are specified to aggregate
   output but final destinations are undefined. It is skipped otherwise. The final destination
-  is chosen for each site by taking into account its input data locality, free disk spaces and downtime
-  of storage resources, transfer backlog over the network, and requirements on data processing.
+  is chosen for each site by considering its input data locality, free disk spaces and downtime of storage resources,
+  transfer backlog over the network, and requirements on data processing.
 
 Job Generator
-  ``Job Generator`` is the busiest agent in JEDI. It chooses compute resources for each task,
-  generates jobs, and submit them to the PanDA server. The details are described in the next section.
+  ``Job Generator`` is the busiest agent in JEDI. It chooses the compute resources for each task,
+  generates jobs, and submits them to the PanDA server. The details are described in the next section.
 
 Post Processor
-  Once tasks process all input data they are passed to ``Post Processor`` to be finalized.
-  The post-processing step includes various procedures like validation, cleanup, and duplication
-  removal of output data, dispatch of email notifications to task owners, to trigger processing
-  of child tasks, and so on.
+  Once tasks process all input data, they are passed to ``Post Processor`` to be finalized.
+  The post-processing step includes various procedures like validation, cleanup, duplication removal of output data,
+  dispatch of email notifications to task owners, trigger processing of child tasks, etc.
 
 Watch Dog
   ``Watch Dog`` periodically takes actions throughout the task lifetime.
@@ -114,21 +113,21 @@ Task Commando
        the task immediately.
 
     * retry
-       To retry a task. The task will process only input data which were unsuccessful in the previous attempt.
+       To retry a task. The task will process only input data that were unsuccessful in the previous attempt.
        Hopeless tasks such as broken and failed tasks reject the retry command since there is no reason to retry.
 
     * incexec
-       To retry a task with a new task parameters after looking up the input data. This is typically useful
-       when new data are appended to the input data and require changes some task parameters.
+       To retry a task with new task parameters after looking up the input data. This is typically useful
+       when new data are appended to the input data and require changes in some task parameters.
 
     * pause
-       To pause processing of a task. This command disables to generate new jobs for the task and pause queued jobs.
+       To pause processing of a task. This command disables generating new jobs for the task and pauses queued jobs.
 
     * resume
-       To resume a paused task. This command enables to generate new jobs for the task and release paused jobs.
+       To resume a paused task. This command enables to generate new jobs for the task and releases paused jobs.
 
     * avalanche
-       To skip the scouting state for a task. This commands changes the task status to running and triggers
+       To skip the scouting state for a task. This command changes the task status to running and triggers
        generation of remaining jobs for the task.
 
 Message Processor
@@ -149,15 +148,15 @@ in a single processing cycle.
 ``Job Throttler`` runs in the agent and checks whether there are enough jobs running or queued on compute resources
 for the partition.
 If not, the agent spawns multiple threads. ``Job Broker`` running on each thread
-takes one task in the partition based on its priority and select appropriate compute resources.
+takes one task in the partition based on its priority and selects appropriate compute resources.
 The selection algorithm considers data locality, requirements for data processing and transfers,
 constraints and downtime of compute resources, and transfer backlog over the network.
-If one or more compute resources are available ``Job Broker`` passes the task to ``Job Splitter``
+If one or more compute resources are available, ``Job Broker`` passes the task to ``Job Splitter``
 which generates jobs to respect task requirements and various constraints of compute resources.
-Finally the job submission code submits those jobs to the PanDA server after ``Task Setupper`` prepares
+Finally, the job submission code submits those jobs to the PanDA server after ``Task Setupper`` prepares
 output data collections.
 Then ``Job Broker`` takes the next task.
-Once enough tasks are processed in the partition the threads are terminated and the
+Once enough tasks are processed in the partition, the threads are terminated and the
 ``Job Generator`` agent takes another partition.
 
 --------
@@ -176,7 +175,7 @@ available at :ref:`terminology/terminology:Task` section.
 
 Dataset
 ^^^^^^^^^^^^^^^^^
-``JediDatasetSpec`` represent a data collection, which is called a dataset.
+``JediDatasetSpec`` represents a data collection, which is called a dataset.
 The status transition charts of input and output datasets
 are shown below.
 
@@ -188,7 +187,7 @@ Input dataset
 ++++++++++++++
 
 defined
-    the dataset information is inserted to the database.
+    the dataset information is inserted into the database.
 toupdate
     the dataset information needs to be updated.
 pending
@@ -204,7 +203,7 @@ Output dataset
 +++++++++++++++
 
 defined
-    the dataset information is inserted to the database.
+    the dataset information is inserted into the database.
 ready
     the dataset is ready for the main processing.
 running
@@ -214,9 +213,9 @@ prepared
 done
     the final status.
 
-There are 6 types of datasets; input, output, log, lib, tmpl_output, and tmpl_log.
-Log datasets contain log files produced by jobs. Lib datasets contains auxiliary input files
-for jobs such as sandbox files that are not really data.
+There are six types of datasets; input, output, log, lib, tmpl_output, and tmpl_log.
+Log datasets contain log files produced by jobs. Lib datasets contain auxiliary input files
+for jobs such as sandbox files that are not data.
 Tmpl_output and tmpl_log datasets are pseudo template datasets to instantiate intermediate datasets where
 premerged output data files and log files are added to get merged later. Those pseudo datasets are used
 only when tasks are specified to use the internal merge capability.
@@ -226,7 +225,7 @@ only when tasks are specified to use the internal merge capability.
 File
 ^^^^^^^^^^^^^^^
 ``JediFileSpec`` represents a file. A dataset is internally represented as a collection of files.
-Generally files are physical data files, but if tasks take other entities as input,
+Generally, files are physical data files, but if tasks take other entities as input,
 such as collections of random seeds, they are also represented as 'pseudo' files.
 Files can be retied until they are successfully processed.
 JEDI makes a new replica of the file object for each attempt and passes it to the PanDA
@@ -242,9 +241,9 @@ Each file status is described as follows:
 Input file
 +++++++++++
 ready
-    the file information is correctly retrieved from DDM and is inserted to the JEDI_Dataset_Contents table
+    the file information is correctly retrieved from DDM and is inserted into the JEDI_Dataset_Contents table
 missing
-    the file is missing in the cloud/site where corresponding task is assigned
+    the file is missing in the cloud/site where the corresponding task is assigned
 lost
     the file was available in the previous lookup but is now unavailable
 broken
@@ -258,12 +257,12 @@ finished
 failed
     the file was tried multiple times but not succeeded
 partial
-    the file was split at event-level and some of event chunks were successfully finished
+    the file was split at the event-level, and some of the event chunks were successfully finished
 
 Output file
 ++++++++++++
 defined
-    the file information is inserted to the JEDI_Dataset_Contents table
+    the file information is inserted into the JEDI_Dataset_Contents table
 running
     the file is being produced
 prepared
@@ -279,12 +278,12 @@ failed
 
 Event
 ^^^^^^^^^^^^^^
-JEDI has a capability to keep track of processing at the sub-file level.
+JEDI has the capability to keep track of processing at the sub-file level.
 A file is internally represented as a collection of events.
-``JediEventSpec`` represents an event which is the finest processing granularity.
+``JediEventSpec`` represents an event that is the finest processing granularity.
 
 
-The status transition chart of event and each event status
+The status transition chart of the event and each event status
 are shown below.
 
 .. figure:: images/jedi_event.png
@@ -296,21 +295,21 @@ sent
 running
     being processed on a worker node
 finished
-    successfully processed and the corresponding job is still running
+    successfully processed, and the corresponding job is still running
 cancelled
     the job was killed before the even range was successfully processed
 discarded
     the job was killed in the merging state after the event range had finished
 done
-    successfully processed and waiting to be merged. The corresponding job went to a final job status.
+    successfully processed and waiting to be merged. The corresponding job went to final job status.
 failed
     failed to be processed
 fatal
     failed with a fatal error or attempt number reached the max
 merged
-    the corresponding ES merge job successfully finished
+    the related ES merge job successfully finished
 corrupted
-    the event is flagged as corrupted in order to be re-processed since corresponding zip file is problematic
+    the event is flagged as corrupted to be re-processed since the corresponding zip file is problematic
 
 ---------
 
