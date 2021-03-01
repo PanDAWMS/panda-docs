@@ -2,8 +2,8 @@
 Using iDDS API through PanDA
 ==================================
 
-iDDS delegates user authentication and authorization to the PanDA server, so that iDDS APIs are available
-through panda-client. The PanDA server forwards requests to iDDS after receiving them from users,
+iDDS delegates user authentication and authorization to the PanDA server so that iDDS APIs are available
+through panda-client. The PanDA server forwards requests to iDDS after receiving them from users
 and propagates responses from iDDS back to the users.
 The following code snippets show how iDDS native codes migrate to panda-client based codes:
 

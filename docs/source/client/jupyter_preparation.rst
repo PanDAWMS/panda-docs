@@ -39,4 +39,4 @@ Here is an example of setup procedures with macOS X Big Sur, Python 3.9, venv, J
 JupyterLab will open automatically in your browser.
 You may access JupyterLab by entering the local notebook server’s `URL <http://localhost:8888/lab>`_ into the browser.
 
-You should do hereafter all procedures in Jupyter notebook.
+You will do hereafter all procedures in Jupyter notebook.

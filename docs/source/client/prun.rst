@@ -2,14 +2,14 @@
 Running ordinary analysis
 ===========================
 
-``prun`` is the command-line tool to allow users to run any kind of application on PanDA.
-The application could be ROOT (CINT, C++, pyRoot), python, user's executable, shell script and so on,
+``prun`` is the command-line tool to allow users to run any application on PanDA.
+The application could be ROOT (CINT, C++, pyRoot), python, user's executable, shell script, and so on,
 and must be made available on compute resources beforehand.
 ``prun`` sends all files except too large files under the current directory to compute resources.
-Users can construct arbitrary runtime environment there
+Users can construct arbitrary runtime environments there
 and can do anything in principle. However, please avoid careless network operations
 connecting to remote servers (e.g., git clone and wget) unless the remote servers permit them.
-Your task is split to many jobs and these jobs are executed in parallel,
+Your task is split into many jobs, and these jobs are executed in parallel,
 so that those operations tend to become a DDoS attack and easily break
 the remote servers.
 
