@@ -28,7 +28,7 @@ Jobs have auxiliary metadata and job parameters stored in teh METATABLE and JOBP
 These entries travel together with the jobs during the archival process.
 
 Each job has associated files in ``FILESTABLE4``. ``FILESTABLE4`` and ``JEDI_DATASET_CONTENTS``
-are often misunderstoof. The main difference is that ``FILESTABLE4`` has entries for each
+are often misunderstood. The main difference is that ``FILESTABLE4`` has entries for each
 job retry and therefore can be queried by ``PANDAID``, while ``JEDI_DATASET_CONTENTS`` contains
 the "primary" entries and only the latest retry of the job will be shown in the ``PANDAID``
 column.
