@@ -113,9 +113,25 @@ Finally there are a variety of other tables to complete the overview of tables.
 ATLAS_PANDAARCH schema
 ============================
 
-123
+The PANDAARCH schema is simple. It contains an archive of old jobs and directly associated entries.
+The tables have a slightly different name. They are not accessed by PanDA itself, but are queried
+by the monitoring to view older jobs.
+
+There are some auxiliary tables used for the archival process.
+
+.. figure:: images/ATLAS_PANDAARCH.png
+   :width: 1000
 
 ATLAS_PANDAMETA schema
-============================
+=========================
 
-123
+The PANDAMETA schema was used initially to store Grid and PanDA configuration, but is becoming less relevant over the years.
+``SCHEDCONFIG`` stores PanDA queue configuration. We are moving to the ``SCHEDCONFIG_JSON`` table in the main schema. This
+table is still used for joined queries, but once we are on a higher Oracle version that allows querying the fielsds in
+the JSON documents, we should try to move away completely from ``SCHEDCONFIG``.
+``CLOUDCONFIG`` lists the clouds (WLCG regional and political groupings) and the main Tier 1 queue in each cloud.
+``INSTALLED_SW`` tracks the software that is installed in each queue.
+
+.. figure:: images/ATLAS_PANDAMETA.png
+   :width: 1000
+
