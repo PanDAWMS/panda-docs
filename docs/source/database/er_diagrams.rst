@@ -46,7 +46,7 @@ resources across groups.
 .. figure:: images/JEDI.png
    :width: 1000
 
-.. figure:: images/Jobsactive.png
+.. figure:: images/Jobsactive4.png
    :width: 1000
 
 Configurator
