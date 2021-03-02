@@ -44,8 +44,10 @@ In this way we can control the amount of jobs of each type processed and can sha
 resources across groups.
 
 .. figure:: images/JEDI.png
+   :width: 1000
 
 .. figure:: images/Jobsactive.png
+   :width: 1000
 
 Configurator
 ________________
@@ -64,6 +66,8 @@ All the PanDA queue configuration is stored in JSON format in the ``SCHEDCONFIG_
 of the ``ATLAS_PANDAMETA.SCHEDCONFIG`` table, which needs to be updated each time a new attribute is added.
 
 .. figure:: images/Configurator.png
+   :width: 1000
+
 
 Harvester
 ________________
@@ -86,6 +90,7 @@ in json format, which is useful for service dashboards and alarms. This informat
 Harvester sends error messages from the internal log files to PanDA and are stored in ``HARVESTER_DIALOGS``.
 
 .. figure:: images/Harvester.png
+   :width: 1000
 
 Others
 ________________
@@ -98,10 +103,12 @@ There is also a table ``TABLEPART4COPYING`` used to track the status of the job 
 to ``ATLAS_PANDAARCH``.
 
 .. figure:: images/Auxiliary.png
+   :width: 1000
 
 Finally there are a variety of other tables to complete the overview of tables.
 
 .. figure:: images/Leftovers.png
+   :width: 1000
 
 ATLAS_PANDAARCH schema
 ============================
