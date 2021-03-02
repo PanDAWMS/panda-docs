@@ -19,6 +19,7 @@ You can find more information in the following sections.
 
    client
    server
+   er_diagrams
    partitioning
    archival
 
