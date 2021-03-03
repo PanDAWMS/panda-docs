@@ -19,7 +19,7 @@ The flexibility has been successfully demonstrated through the past decade of ev
 adopted by computing centers in ATLAS, spanning many continents. PanDA performed very well, including
 the LHC data-taking period. The system has been producing high volumes of Monte Carlo samples and making
 large-scale diverse computing resources available for individual analysis.
-A wide range of compute resources have been seamlessly integrated,
+A wide range of computing resources have been seamlessly integrated,
 such as WLCG grid, commercial cloud, volunteer computing, and high-performance computing resources.
 There are typically 600,000 jobs concurrently running in the system, and more than 5 million jobs are
 processed in total per week.

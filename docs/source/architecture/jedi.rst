@@ -10,9 +10,9 @@ The main functions are as follows:
   interface of the PanDA server.
 * To collect information about task input data.
 * To decide the destination for each task output data.
-* To choose the compute resources based on the characteristics and requirements of each task.
-* To generate and assign jobs to compute resources by taking global shares into account.
-* To reassign jobs if workload distribution becomes unbalanced among compute resources.
+* To choose the computing resources based on the characteristics and requirements of each task.
+* To generate and assign jobs to computing resources by taking global shares into account.
+* To reassign jobs if workload distribution becomes unbalanced among computing resources.
 * To take actions on tasks according to various timeout configurations or user's commands.
 * To finalize tasks once their input data are done.
 
@@ -89,7 +89,7 @@ Task Broker
   transfer backlog over the network, and requirements on data processing.
 
 Job Generator
-  ``Job Generator`` is the busiest agent in JEDI. It chooses the compute resources for each task,
+  ``Job Generator`` is the busiest agent in JEDI. It chooses the computing resources for each task,
   generates jobs, and submits them to the PanDA server. The details are described in the next section.
 
 Post Processor
@@ -145,14 +145,14 @@ can generate millions of jobs, for example.
 The enter task pool is first partitioned by global share and resource requirements such as
 the number of cores and memory size. Each ``Job Generator`` agent takes one partition
 in a single processing cycle.
-``Job Throttler`` runs in the agent and checks whether there are enough jobs running or queued on compute resources
+``Job Throttler`` runs in the agent and checks whether there are enough jobs running or queued on computing resources
 for the partition.
 If not, the agent spawns multiple threads. ``Job Broker`` running on each thread
-takes one task in the partition based on its priority and selects appropriate compute resources.
+takes one task in the partition based on its priority and selects appropriate computing resources.
 The selection algorithm considers data locality, requirements for data processing and transfers,
-constraints and downtime of compute resources, and transfer backlog over the network.
-If one or more compute resources are available, ``Job Broker`` passes the task to ``Job Splitter``
-which generates jobs to respect task requirements and various constraints of compute resources.
+constraints and downtime of computing resources, and transfer backlog over the network.
+If one or more computing resources are available, ``Job Broker`` passes the task to ``Job Splitter``
+which generates jobs to respect task requirements and various constraints of computing resources.
 Finally, the job submission code submits those jobs to the PanDA server after ``Task Setupper`` prepares
 output data collections.
 Then ``Job Broker`` takes the next task.

@@ -35,7 +35,11 @@ computing middleware.
    :maxdepth: 1
    :caption: Advanced Topics:
 
+   advanced/gdpconfig
+   advanced/brokerage
+   advanced/sizing
+   advanced/gshare
+   advanced/scouts
    advanced/cric
    advanced/iam
    advanced/idds
-   advanced/scouts

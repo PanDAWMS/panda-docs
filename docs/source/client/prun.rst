@@ -4,8 +4,8 @@ Running ordinary analysis
 
 ``prun`` is the command-line tool to allow users to run any application on PanDA.
 The application could be ROOT (CINT, C++, pyRoot), python, user's executable, shell script, and so on,
-and must be made available on compute resources beforehand.
-``prun`` sends all files except too large files under the current directory to compute resources.
+and must be made available on computing resources beforehand.
+``prun`` sends all files except too large files under the current directory to computing resources.
 Users can construct arbitrary runtime environments there
 and can do anything in principle. However, please avoid careless network operations
 connecting to remote servers (e.g., git clone and wget) unless the remote servers permit them.
@@ -38,7 +38,7 @@ Here is an Hello world example.
 
  prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.hoge.`uuidgen` --nJos 3 --output myout.txt
 
-where ``--exec`` takes the execution string which is executed on remote compute resources,
+where ``--exec`` takes the execution string which is executed on remote computing resources,
 and ``--outDS`` takes the basename of the output collection.
 
 This task generates 1 build job to setup and 3 run jobs to produce `myout.txt`, and creates two collections
@@ -67,13 +67,13 @@ Large input data must be transferred via data management systems instead of dire
 You can specify the name of input data collection (e.g., input dataset name or container name) in ``--inDS``. *%IN* is
 a placeholder
 in ``--exec`` to be replaced with a comma-concatenated list of input data (e.g., filenames) when being executed
-on compute resources.
+on computing resources.
 
 It would be suboptimal to build runtime environment and run the application in each job, if the build step is
 time-consuming.
 It is possible to execute the build step only once in a build job and let many run jobs share the runtime.
 
-The following example compiles a ROOT C++ source file in build jobs on remote compute resources and starts many
+The following example compiles a ROOT C++ source file in build jobs on remote computing resources and starts many
 run jobs with input files once build jobs finished.
 
 First, you need to prepare source files and Makefile locally.
@@ -172,8 +172,8 @@ Then
 
  prun --exec "cpptest %IN" --bexec "make" --inDS valid1.006384.PythiaH120gamgam.recon.AOD.e322_s412_r577 --rootVer recommended ...
 
-`prun` sends files including cpptest.cc and Makefile in the current directory to remote compute resources.
-Note that a build job is generated for each compute resource if the task is split to multiple comput resources
+`prun` sends files including cpptest.cc and Makefile in the current directory to remote computing resources.
+Note that a build job is generated for each computing resource if the task is split to multiple comput resources
 for parallel execution. The build job executess the argument of ``--bexec`` to produce binary files, and then
 run jobs get started with those binary files. *%IN* is dynamically converted to a commma-concatenated filenames
 in the input data collection specified by ``--inDS``.
@@ -232,7 +232,7 @@ application, since the convention might be changed in the future.
 
  prun --containerImage docker://atlasml/ml-base --exec "my_command %IN" --outputs my-output-file.h5 --forceStaged --inDS ...
 
-Input files are copied to `$PWD` even if the compute resource is configured to read files directly from the
+Input files are copied to `$PWD` even if the computing resource is configured to read files directly from the
 storage resource since ``--forceStaged" option is used.
 `%IN` in ``--exec`` is replaced to a comma-concatenated list of the copied input files.
 It is user's responsibility to copy output files to `$PWD`, i.e., `my_command` in this example has to put
@@ -262,9 +262,9 @@ using \\ or "" to disable shell-globing, i.e. JiveXML\_\\*.xml or "JiveXML_*.xml
 
 |br|
 
-Send jobs to particular compute resources
+Send jobs to particular computing resources
 ----------------------------------------------------
-The system automatically chooses appropriate compute resources by using various information like data locality,
+The system automatically chooses appropriate computing resources by using various information like data locality,
 resource occupancy, and user's profile. However, users can still send jobs to particular sites using ``--site`` option.
 e.g.,
 

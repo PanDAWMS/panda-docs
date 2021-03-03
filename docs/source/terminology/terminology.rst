@@ -9,23 +9,23 @@ Basic Concepts
 
 |br|
 
-Compute and storage resources, and worker node
+Computing and storage resources, and worker node
 ------------------------------------------------
-Compute resource providers offer the compute resources with
+computing resource providers offer the computing resources with
 processing capabilities, such as the grid, HPC centers, and commercial cloud services.
-A worker node is the minimum unit in each compute resource, which is a (virtual) host,
+A worker node is the minimum unit in each computing resource, which is a (virtual) host,
 a host cluster, or a slot on a host,
 depending on workload or resource configuration,
 and represents a combination of CPUs, memory, and a scratch disk to process workload.
 Storage resource providers accommodate data storage needs. A storage resource is composed of a persistent data storage
 with disk, tape, or their hybrid, and a storage management service running on top of it.
-Association between compute and storage resources can be arbitrary but in most cases
+Association between computing and storage resources can be arbitrary but in most cases
 resources from the same provider are associated with each other.
 
-PanDA integrates heterogeneous compute and storage resources to provide a consistent interface to users. Users
-can seamlessly process their workload on compute resources while taking input data from storage resources and
+PanDA integrates heterogeneous computing and storage resources to provide a consistent interface to users. Users
+can seamlessly process their workload on computing resources while taking input data from storage resources and
 uploading
-output data to storage resources, without paying attention to the details of compute and storage technologies.
+output data to storage resources, without paying attention to the details of computing and storage technologies.
 
 
 -----
@@ -94,7 +94,7 @@ ready
    The task is ready to generate jobs.
 
 pending
-   The task has a temporary problem, e.g., there are no free compute resources to work for new jobs.
+   The task has a temporary problem, e.g., there are no free computing resources to work for new jobs.
 
 scouting
    The task is running scout jobs to gather job metrics.
@@ -160,14 +160,14 @@ throttled
 Job
 -------
 A job is an artificial unit of sub-workload partitioned from a task. A single task is composed of multiple jobs,
-and each job runs on the minimum set of the compute resource.
-Each job is tailored based on the user's preference (if any) and/or constraints on the compute resource.
+and each job runs on the minimum set of the computing resource.
+Each job is tailored based on the user's preference (if any) and/or constraints on the computing resource.
 For example, if job size is flexible, jobs are generated to have a short execution time and produce small output files
 when being processed on resources with limited time slots and local scratch disk spaces.
 The task input is logically split into multiple subsets, and each job gets a subset to produce output.
 The collection of job output is the task output. Each job has a unique identifier **PanDA ID** in the system.
 Generally, one pilot processes one job on a worker node. However, it is possible to configure the pilot to process
-multiple jobs sequentially or concurrently on a worker node if the compute resources allow such configurations,
+multiple jobs sequentially or concurrently on a worker node if the computing resources allow such configurations,
 reducing the number of interactions with those resources.
 
 The status of jobs sequentially changes as follows:
@@ -177,28 +177,28 @@ pending
 
 defined
    The job is ready to work for global input data motion if necessary. E.g., data transfer from a remote storage
-   resource to the "local" storage resource close to the compute resource.
+   resource to the "local" storage resource close to the computing resource.
 
 assigned
    Input data are being transferred to the "local" storage resource. This status is skipped if the job doesn't need
    global input data motion or physical input data.
 
 activated
-   The job is ready to be fetched by the pilot as soon as the CPU becomes available in the compute resource
+   The job is ready to be fetched by the pilot as soon as the CPU becomes available in the computing resource
    and the pilot is up and running there.
 
 sent
-   The job was dispatched to the compute resource.
+   The job was dispatched to the computing resource.
 
 starting
    The job is working for the last-mile input data motion, such as data stage-in from the "local" storage to
-   the scratch disk attached to the compute resource.
+   the scratch disk attached to the computing resource.
 
 running
    The job is processing input data.
 
 holding
-   The job finished processing, reported the final metrics, and released the compute resource.
+   The job finished processing, reported the final metrics, and released the computing resource.
 
 merging
    Output data are being merged. This status is skipped unless the task is configured to merge job output.
@@ -217,7 +217,7 @@ failed
    The job failed in the middle.
 
 closed
-   The system terminated the job before running on a compute resource.
+   The system terminated the job before running on a computing resource.
 
 cancelled
    The job was manually aborted.
@@ -242,11 +242,11 @@ Brokerage
 There are two brokerages in JEDI, task brokerage, and job brokerage.
 The task brokerage assigns tasks to storage resources if those tasks are configured to aggregate
 output, but final destinations are undefined.
-On the other hand, the job brokerage assigns jobs to compute resources. A single task can generate
-many jobs, and they can be assigned to multiple compute resources unless the task is configured
-to process the whole workload at a single compute resource.
-The details of brokerage algorithms are described in
-:doc:`JEDI </architecture/jedi>`.
+On the other hand, the job brokerage assigns jobs to computing resources. A single task can generate
+many jobs, and they can be assigned to multiple computing resources unless the task is configured
+to process the whole workload at a single computing resource.
+The details of brokerage algorithms are described in the
+:doc:`Brokerage </advanced/brokerage>` page.
 
 ---------
 
@@ -256,17 +256,17 @@ Pull and push
 --------------
 Users submit tasks to JEDI through the PanDA server, JEDI generates jobs on behalf of users
 and pass them to the PanDA server, and the PanDA server centrally pools the jobs.
-There are two modes for the PanDA server to dispatch jobs to compute resources, the pull and push modes.
+There are two modes for the PanDA server to dispatch jobs to computing resources, the pull and push modes.
 In the pull mode,
-pilots are provisioned first on compute resources, and they fetch jobs once CPUs become available.
+pilots are provisioned first on computing resources, and they fetch jobs once CPUs become available.
 It is possible to trigger the pilot provisioning well before generating jobs. Thus jobs can start processing
-as soon as they are generated, even if there is long latency for provisioning in the compute resource.
+as soon as they are generated, even if there is long latency for provisioning in the computing resource.
 Another advantage is the capability to postpone the decision making to bind jobs with CPUs until the last minute,
 which allows fine-grained job scheduling with various job attributes, e.g.
 increasing the chance for new jobs in a higher priority share to jump over old jobs in a lower priority share.
 
-On the other hand, pilots are provisioned together with jobs on compute resources in the push mode.
-Job scheduling merely relies on the scheduling mechanisms in the compute resources. The pilot specifies requirements
+On the other hand, pilots are provisioned together with jobs on computing resources in the push mode.
+Job scheduling merely relies on the scheduling mechanisms in the computing resources. The pilot specifies requirements
 for each job.
 The mechanisms dynamically configure a worker with CPUs, memory size, execution time limit, and so on, which is
 typically more optimal for special resources like HPCs and GPU clusters.
@@ -290,7 +290,7 @@ presumes that the pilot is dead and kills the job being executed by the pilot.
 Users
 ---------
 Users process workloads on PanDA to accomplish their objectives. PanDA authenticates and authorizes them to access
-the compute and storage resources based on their profile information.
+the computing and storage resources based on their profile information.
 The :doc:`Identity and access management </architecture/iam>` page explains the details of PanDA's authentication and
 authorization mechanism.
 Users can be added to one or more working groups in the identity and access management system
@@ -304,10 +304,11 @@ they are.
 
 Global share
 -------------
-Global shares define the allocation of compute resources among various working groups and/or user activities,
-e.g., the whole compute resources are dynamically partitioned to multiple global shares.
+Global shares define the allocation of computing resources among various working groups and/or user activities,
+e.g., the whole computing resources are dynamically partitioned to multiple global shares.
 Each task is mapped to a global share according to its working group and activity type.
-Many components in JEDI and the PanDA server work with global shares.
+Many components in JEDI and the PanDA server work with global shares. See the :doc:`Resource Allocations</advanced/gshare>`
+page for the details.
 
 -----------
 

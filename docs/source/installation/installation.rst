@@ -11,5 +11,5 @@ Here are installation manuals of PanDA components.
    server
    daemon
    jedi
-   Harvester <https://github.com/HSF/harvester/wiki/Installation-and-configuration>
+   harvester
    PanDA monitor <https://some.webpage/>

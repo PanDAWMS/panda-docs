@@ -128,9 +128,14 @@ For steering,
                         is specified, the string is executed inside of the
                         container. Otherwise, the string is used as command-
                         line arguments for the docker command
-  --searchSpaceFile SEARCHSPACEFILE
+    --searchSpaceFile SEARCHSPACEFILE
                         External json filename to define the search space.
-                        None by default
+                        None by default. If this option is used together with
+                        --segmentSpecFile the json file contains a list of
+                        search space dictionaries. It is possible to contain
+                        only one search space dictionary if all models use the
+                        search space. In this case the search space dictionary
+                        is cloned for every segment
 
 For evaluation,
 

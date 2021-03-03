@@ -125,15 +125,15 @@ For testing purposes it would be enough to use generic plugins as shown below:
 
 |br|
 
-4. Registration of Resource Groups, Global Shares, and Compute Resources in the Database
+4. Registration of Resource Groups, Global Shares, and computing resources in the Database
 --------------------------------------------------------------------------------------------
-You need to manually register VO, global shares, and compute resources unless they are automatically
+You need to manually register VO, global shares, and computing resources unless they are automatically
 registered through information system. If you integrate CRIC as explained at
 :doc:`CRIC integration guide </advanced/cric>`, you can register them through CRIC.
 
 4.1. Resource Group Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-It is possible to define grouping among compute resources but generally it is enough to have one
+It is possible to define grouping among computing resources but generally it is enough to have one
 group for each organization. Groups are registered in the ``CLOUDCONFIG`` table in the PANDAMETA schema
 using the following SQL statement.
 
@@ -148,7 +148,7 @@ schema name for the meta tables.
 
 4.2. Global Share Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Each organization defines compute resource allocation among various working groups and/or user activities
+Each organization defines computing resource allocation among various working groups and/or user activities
 using global shares. Normal global shares are registered in the ``GLOBAL_SHARES`` table, while special and/or
 resource-specific shares are registered in the ``JEDI_WORK_QUEUE`` table. The following SQL statement
 adds a special test share.
@@ -161,7 +161,7 @@ adds a special test share.
 where *VO* and *QUEUE_TYPE* are organization and activity names, respectively. Replace "PANDA" with your
 schema name for the JEDI tables.
 
-4.3. Compute Resource Registration
+4.3. computing resource Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The following SQL statement adds a test resource.
 
@@ -218,7 +218,7 @@ In this script
   taskParamMap['prodSourceLabel'] = 'test'
   taskParamMap['site'] = 'TEST_SITE'
 
-they would need to be changed to organization, activity, compute resource names registered in the previous step.
+they would need to be changed to organization, activity, computing resource names registered in the previous step.
 Then
 
 .. prompt:: bash
@@ -286,7 +286,7 @@ In this tutorial, queues are specified in a local json file, so ``panda_harveste
 
 ``panda_queueconfig.json`` could be something like
 `a config example <https://github.com/HSF/harvester/blob/master/examples/panda_queueconfig_doma.json>`_
-where the compute resource defined in the previous step `TEST_SITE` is set to "online".
+where the computing resource defined in the previous step `TEST_SITE` is set to "online".
 
 .. code-block:: text
 
