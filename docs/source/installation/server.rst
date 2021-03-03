@@ -5,6 +5,11 @@ PanDA server
 This is the setup guide of the PanDA server. Note that there is a dedicated page
 for PanDA daemon although it is included in the PanDA server package.
 
+.. note::
+
+  This is a complete guide. It is recommended to have a look at :doc:`Quick Admin Tutorial </admin_guide/admin_guide>`
+  beforehand.
+
 Software requirements
 ------------------------
 The PanDA server requires:
@@ -120,21 +125,6 @@ The following parameters need to be modified if any.
    * - backend
      - Set mysql to use MySQL database
      - oracle
-   * - schemaPANDA
-     - The schema name of PanDA database tables
-     - ATLAS_PANDA
-   * - schemaMETA
-     - The schema name of meta database tables
-     - ATLAS_PANDAMETA
-   * - schemaPANDAARCH
-     - The schema name of archive database tables
-     - ATLAS_PANDAARCH
-   * - schemaJEDI
-     - The schema name of JEDI database tables
-     - ATLAS_PANDA
-   * - schemaDEFT
-     - The schema name of DEFT database tables
-     - ATLAS_DEFT
    * - pserveralias
      - The common name of the http server
      - pandaserver.cern.ch

@@ -4,6 +4,11 @@ PanDA daemon
 
 PanDA daemon is a sub-component of the PanDA server. Here is the configuration guide.
 
+.. note::
+
+  This is a complete guide. It is recommended to have look at :doc:`Quick Admin Tutorial </admin_guide/admin_guide>`
+  beforehand.
+
 Configurations
 -----------------
 

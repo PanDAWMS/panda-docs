@@ -2,8 +2,8 @@
 Job Brokerage
 ====================================
 
-The job brokerage is the most crucial component in the system to distribute workload among computing resources
-with the following goals:
+The job brokerage is one of the most crucial components in the system to distribute workload among computing resources.
+It has the following goals:
 
 * To assign enough jobs to computing resources to utilize all available CPUs continuously.
 
@@ -13,11 +13,11 @@ with the following goals:
 
 * To choose computing resources for each job based on characteristics of the job and constraints of the computing resources.
 
-It is not straightforward to satisfy the goals for all jobs since some of them are logically contradictory.
+It is not straightforward to satisfy those goals for all jobs since some of them are logically contradictory.
 The job brokerage has a plugin structure so that organizations can provide their algorithms according to
 their needs and use-cases.
 
-This page explains the algorithms of advanced plugins.
+This page explains the algorithms of some advanced plugins.
 
 ------------
 
@@ -175,6 +175,7 @@ This is the general ATLAS production job brokerage flow:
 #. If all queues are skipped, the task is pending for 1 hour.
    Otherwise, the remaining candidates are sorted by weight, and the best 10 candidates are taken.
 
+|br|
 
 .. _ref_auto_check:
 
@@ -203,8 +204,27 @@ Each queue publishes something like
     "tags": []
   }
 
-If the task uses a container, i.e., the ``container_name`` attribute is set,
+This dictionary can define the ``architecture`` key in addition and take a list of supported architectures as its value.
 
+Checks for Fat Containers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If the task uses a container, i.e., the ``container_name`` attribute is set, the checking flow is as follows:
+
+* The task ``architecture`` must be included in the ``architecture`` list if the queue defines the ``architecture``
+  key-value.
+
+* If the task uses only tags, i.e., it sets ``onlyTagsForFC``, the ``container_name`` must be equal to
+  *container_name* of a tag in the ``tags`` list or included in ``sources`` of a tag in the ``tags`` list.
+
+* If the task doesn't set ``onlyTagsForFC``,
+
+   * 'any' or '/cvmfs' must be included in the ``containers`` list, or
+
+   * ``container_name`` is resolved to the source path using the dictionary for "ALL" queue and one of strings
+     in the ``containers`` list must be forward-matched.
+
+|br|
 
 .. _ref_network_weight:
 

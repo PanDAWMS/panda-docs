@@ -55,7 +55,9 @@ The contents of the json is something like
     }
 
 where you specify the ActiveMQ server, user name, and password to connect to ActiveMQ, queue names,
-and plugins to consume messages from iDDS.
-There is a separate plugin for each workflow in
+and plugins to consume messages from iDDS. See
+Each workflow has a separate plugin in the :doc:`Using Message Processor <msg_processor>` page for the details.
 `the plugin repository <https://github.com/PanDAWMS/panda-jedi/tree/master/pandajedi/jedimsgprocessor>`_.
 You choose appropriate plugins based on your needs.
+
+|br|

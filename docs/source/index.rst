@@ -40,6 +40,7 @@ computing middleware.
    advanced/sizing
    advanced/gshare
    advanced/scouts
+   advanced/msg_processor
    advanced/cric
    advanced/iam
    advanced/idds

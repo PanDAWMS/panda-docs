@@ -2,4 +2,5 @@
 Harvester
 ======================
 
-`External link <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_.
+Harvester is a common project that extends beyond PanDA. The Harvester installation guide is available at
+`external link <https://github.com/HSF/harvester/wiki/Installation-and-configuration>`_.
