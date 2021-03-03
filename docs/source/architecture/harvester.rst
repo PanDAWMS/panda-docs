@@ -6,6 +6,7 @@ Harvester provisions the Pilot on computing resources using the relevant communi
 for each resource provider, and communicates with PanDA server on behalf of Pilot if it
 runs on the limited environment where outbound network connectivity is missing.
 
-The details of Harvester are described at `Harvester documentation page <https://github.com/HSF/harvester/wiki/Home>`_.
+Harvester is a common project that extends beyond PanDA.
+The details of Harvester are described on `external Harvester documentation page <https://github.com/HSF/harvester/wiki/Home>`_.
 
 |br|

@@ -29,7 +29,7 @@ For example, it locks a task while an agent process is working on the task,
 and prevent other agent processes on the same or other machines from updating the task, which is typically
 useful to avoid inconsistent modifications caused by concurrently running processes.
 
-.. figure:: images/jedi.png
+.. figure:: images/jedi_arch.png
 
 The figure above shows the architecture of JEDI.
 The details of the master process, agents, their functions, and essential internal objects

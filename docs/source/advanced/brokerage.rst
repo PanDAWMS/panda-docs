@@ -201,7 +201,24 @@ Each queue publishes something like
       "atlas",
       "nightlies"
     ],
-    "tags": []
+    "tags": [
+      {
+        "cmtconfig": "x86_64-slc6-gcc62-opt",
+        "container_name": "",
+        "project": "AthDerivation",
+        "release": "21.2.2.0",
+        "sources": [],
+        "tag": "VO-atlas-AthDerivation-21.2.2.0-x86_64-slc6-gcc62-opt"
+      },
+      {
+        "cmtconfig": "x86_64-slc6-gcc62-opt",
+        "container_name": "",
+        "project": "Athena",
+        "release": "21.0.38",
+        "sources": [],
+        "tag": "VO-atlas-Athena-21.0.38-x86_64-slc6-gcc62-opt"
+      }
+    ]
   }
 
 This dictionary can define the ``architecture`` key in addition and take a list of supported architectures as its value.
