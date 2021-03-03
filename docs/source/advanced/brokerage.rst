@@ -17,14 +17,14 @@ It is not straightforward to satisfy the goals for all jobs since some of them a
 The job brokerage has a plugin structure so that organizations can provide their algorithms according to
 their needs and use-cases.
 
-This page explains the algorithms of some plugins.
+This page explains the algorithms of advanced plugins.
 
 ------------
 
 |br|
 
-ATLAS Production
----------------------
+ATLAS Production Job Brokerage
+-------------------------------------
 
 This is the general ATLAS production job brokerage flow:
 

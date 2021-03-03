@@ -1,6 +1,6 @@
-========================================
-System Configurations in the Database
-========================================
+=================================================
+System Configuration Parameters in the Database
+=================================================
 
 There is the ``PANDA.CONFIG`` table, so-called ``gdpconfig`` table in the database where you can define
 any configuration parameter
