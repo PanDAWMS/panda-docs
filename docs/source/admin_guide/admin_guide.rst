@@ -161,7 +161,7 @@ adds a special test share.
 where *VO* and *QUEUE_TYPE* are organization and activity names, respectively. Replace "PANDA" with your
 schema name for the JEDI tables.
 
-4.3. computing resource Registration
+4.3. Computing resource Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The following SQL statement adds a test resource.
 

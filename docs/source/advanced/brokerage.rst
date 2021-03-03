@@ -1,8 +1,8 @@
 ====================================
-Job Brokerage
+Brokerage
 ====================================
 
-The job brokerage is one of the most crucial components in the system to distribute workload among computing resources.
+The brokerage is one of the most crucial functions in the system to distribute workload among computing resources.
 It has the following goals:
 
 * To assign enough jobs to computing resources to utilize all available CPUs continuously.
@@ -14,7 +14,7 @@ It has the following goals:
 * To choose computing resources for each job based on characteristics of the job and constraints of the computing resources.
 
 It is not straightforward to satisfy those goals for all jobs since some of them are logically contradictory.
-The job brokerage has a plugin structure so that organizations can provide their algorithms according to
+The brokerage has a plugin structure so that organizations can provide their algorithms according to
 their needs and use-cases.
 
 This page explains the algorithms of some advanced plugins.
@@ -209,13 +209,13 @@ This dictionary can define the ``architecture`` key in addition and take a list 
 Checks for Fat Containers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the task uses a container, i.e., the ``container_name`` attribute is set, the checking flow is as follows:
+If the task uses a container, i.e., the ``container_name`` attribute is set, checks are as follows:
 
 * The task ``architecture`` must be included in the ``architecture`` list if the queue defines the ``architecture``
   key-value.
 
 * If the task uses only tags, i.e., it sets ``onlyTagsForFC``, the ``container_name`` must be equal to
-  *container_name* of a tag in the ``tags`` list or included in ``sources`` of a tag in the ``tags`` list.
+  *container_name* of a tag in the ``tags`` list or be included in ``sources`` of a tag in the ``tags`` list.
 
 * If the task doesn't set ``onlyTagsForFC``,
 
@@ -224,11 +224,28 @@ If the task uses a container, i.e., the ``container_name`` attribute is set, the
    * ``container_name`` is resolved to the source path using the dictionary for "ALL" queue and one of strings
      in the ``containers`` list must be forward-matched.
 
+Checks for Releases, Caches, or Nightlies
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Checks are as follows for releases, caches, and nightlies:
+
+* 'any' or *cvmfs_tag* must be included in the ``cvmfs`` list, where *cvmfs_tag* is *atlas* for
+  standard releases and caches or *nightlies* for nightlies. In addition,
+
+   * 'any' or '/cvmfs' must be included in the ``containers`` list, or
+
+   * the task ``architecture`` must be included in the ``cmtconfigs`` list.
+
+* If the above is not the case, 'any' must be in the ``containers`` list and the task ``architecture``,
+  ``sw_project``, and ``sw_version`` must be equal to ``cmtconfig``, ``project``, and ``release`` of a tag
+  in the ``tags`` list.
+
+
 |br|
 
 .. _ref_network_weight:
 
-Network weight
+Network Weight
 ==========================
 The network data sources are
 
