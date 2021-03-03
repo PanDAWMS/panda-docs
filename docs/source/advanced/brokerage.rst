@@ -14,7 +14,7 @@ with the following goals:
 * To choose computing resources for each job based on characteristics of the job and constraints of the computing resources.
 
 It is not straightforward to satisfy the goals for all jobs since some of them are logically contradictory.
-The job brokerage has a plugin structure so that organizations can provide their own algorithms according to
+The job brokerage has a plugin structure so that organizations can provide their algorithms according to
 their needs and use-cases.
 
 This page explains the algorithms of some plugins.
@@ -28,15 +28,13 @@ ATLAS Production
 
 This is the general ATLAS production job brokerage flow:
 
-#. Generate the list of preliminary candidates, from one of the following:
+#. Generate the list of preliminary candidates from one of the following:
 
    * All queues while excluding any queue with case-insensitive 'test' in the name.
 
    * A list of pre-assigned queues. Unified queues are resolved to pseudo-queues. Although merge jobs are pre-assigned
      to avoid transferring small pre-merged files, the pre-assignment is ignored if the relevant queues have been skipped
      for 24 hours.
-
-#. Generate the list of queues associated to the nucleus.
 
 #. Filter out preliminary candidates that don't pass any of the following checks:
 
@@ -50,13 +48,13 @@ This is the general ATLAS production job brokerage flow:
    * Skip all queues if the number of files to be aggregated to the nucleus is larger than ``NQUEUED_NUC_CAP_FOR_JOBS``
      (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
 
-   * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs, skip queues unless they are associated to the nucleus.
+   * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs, skip queues unless associated with the nucleus.
 
    * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs or merging jobs or pre-merged jobs, skip inactive queues
      (where no jobs got started in the last 2 hours although activated jobs had been there).
 
-   * Zero Share which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgensimul:100%*,
-     in this case only evgen or simul jobs can be assigned as others have zero shares.
+   * Zero Share, which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgensimul:100%*,
+     in this case, only evgen or simul jobs can be assigned as others have zero shares.
 
    * If the task ``ioIntensity`` is larger than ``IO_INTENSITY_CUTOFF`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`),
      the total size of missing files must be less than ``SIZE_CUTOFF_TO_MOVE_INPUT`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`)
@@ -86,43 +84,97 @@ This is the general ATLAS production job brokerage flow:
      close to the lower limit. Queues are skipped if the estimated memory usage is not included in the acceptable
      memory ranges.
 
-   * Skip queues if they don't support direct access to read input files from the local storage although the task is
+   * Skip queues if they don't support direct access to read input files from the local storage, although the task is
      configured to use only direct access.
 
-   * The disk usage for each job is estimated as
+   * The disk usage for a job is estimated as
 
      .. math::
 
         inputDiskCount + max (0.5 GB, outDiskCount \times nEvents) + workDiskCount
 
-     where *inputDiskCount* is the total size of job input files, a discrete function of *nEvents*. It is zero
-     if queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
+     where *inputDiskCount* is the total size of job input files, a discrete function of *nEvents*,
+     and *nEvents* is the smalles1t number allowed based on the task requirements. *inputDiskCount* is zero
+     if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
      *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
 
    * DISK size check, free space in the local storage has to be over 200GB.
 
    * Skip blacklisted storage endpoints.
 
-Walltime
-IPConnectivity
-Event Server settings
-Too many transferring jobs: skip if transferring > max(transferring_limit, 2 x running), where transferring_limit limit is defined by site or 2000 if undefined
-T1 Weight, see details
-Queues without pilots
-if processingType=urgent or priority >= 1000, the network weight (see next subsection) must be larger than or equal to NW_THRESHOLD × NW_WEIGHT_MULTIPLIER which are defined in gdp config
-Calculate brokerage weight for remaining candidates:
-Initial weight based on running vs queued jobs. If nRunning is less than 20 and the number of running/submitted batch jobs at PQ is larger than nRunning, min(20, nBatchJob) is used as nRunning for bootstrap.
-the number of assigned jobs is ignored for the weight and cap if the input for the jobs being considered is already available locally. Jobs waiting for data transfer do not block new jobs needing no transfer.
+   * If scout or merge jobs, skip queues if their ``maxtime`` is less than 24 hours.
 
-Take data availability into consideration
+   * The estimated walltime for a job is
 
-For WORLD tasks, apply a network weight based on connectivity between nucleus and satellite, since the OUTPUT files are collected in the nucleus (see next subsection)
+     .. math::
 
-Apply further filters
-Skip site if activated + starting > 2 x running
-Skip site if defined+activated+assigned+starting > 2 x running
-If all sites are skipped candidates with the 3 best weights go to the next step.
-Remaining candidates are sorted by weight. For WORLD tasks, the best 10 candidates are taken.
+        \frac {cpuTime \times nEvents} {C \times P \times cpuEfficiency} + baseTime
+
+     *nEvents* is the same as the one used to estimate the disk usage. The estimated walltime must be less than
+     ``maxtime`` of the queue.
+
+   * ``wnconnectivity`` of the queue must be consistent if the task specifies ``ipConnectivity``.
+
+   * Settings for event service and the dynamic number of events.
+
+   * Too many transferring jobs: skip if transferring > max(transferring_limit, 2 x running), where transferring_limit limit is defined by site or 2000 if undefined.
+
+   * Use only the queues associated with the nucleus if the task sets ``t1Weight=-1`` and normal jobs are being generated.
+
+   * Skip queues without pilots for the last 3 hours.
+
+   * If processingType=*urgent* or priority :raw-html:`&GreaterEqual;` 1000, the :ref:`Network weight <ref_network_weight>`
+     must be larger than or equal to ``NW_THRESHOLD`` :raw-html:`&times;` ``NW_WEIGHT_MULTIPLIER``
+     (both defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+
+#. Calculate brokerage weight for remaining candidates.
+   The initial weight is based on running vs queued jobs.
+   The brokerage uses the largest one as the number of running jobs among the following numbers:
+
+   * The actual number of running jobs at the queue, *R*\ :sub:`real`.
+
+   * min(*nBatchJob*, 20) if *R*\ :sub:`real` < 20 and *nBatchJob* (the number of running+submitted
+     batch workers at PQ) > *R*\ :sub:`real`. Mainly for bootstrap.
+
+   * *numSlots* if it is set to a positive number for the queue to the `proactive job assignment <https://github.com/HSF/harvester/wiki/Workflows#proactive-job-assignment>`_.
+
+   * The number of starting jobs if *numSlots* is set to zero, which is typically useful for Harvester to fetch
+     jobs when the number of available slots dynamically changes.
+
+   The number of assigned jobs is ignored for the weight calculation and the subsequent filtering if the input for
+   the jobs being considered is already
+   available locally. Jobs waiting for data transfer do not block new jobs needing no transfer.
+
+   .. math::
+
+     manyAssigned = max(1, min(2, \frac {assigned} {activated}))
+
+   .. math::
+
+     weight = \frac {running + 1} {(activated + assigned + starting + defined + 10) \times manyAssigned}
+
+   Take data availability into consideration.
+
+   .. math::
+
+     weight = weight \times \frac {availableSize + totalSize} {totalSize \times (numMissingFiles / 100 + 1)}
+
+   Apply a :ref:`Network weight <ref_network_weight>` based on connectivity between nucleus and satellite,
+   since the output files are aggregated to the nucleus.
+
+   .. math::
+
+     weight = weight \times networkWeight
+
+#. Apply further filters.
+
+   * Skip queues if activated + starting > 2 :raw-html:`&times;` running.
+
+   * Skip queues if defined+activated+assigned+starting > 2 :raw-html:`&times;` running.
+
+#. If all queues are skipped, the task is pending for 1 hour.
+   Otherwise, the remaining candidates are sorted by weight, and the best 10 candidates are taken.
+
 
 .. _ref_auto_check:
 
@@ -153,3 +205,40 @@ Each queue publishes something like
 
 If the task uses a container, i.e., the ``container_name`` attribute is set,
 
+
+.. _ref_network_weight:
+
+Network weight
+==========================
+The network data sources are
+
+* the `Network Weather Service <http://atlas-adc-netmetrics-lb.cern.ch/metrics/latest.json>`_ as the dynamic source, and
+
+* the `CRIC closeness <https://atlas-cric.cern.ch/api/core/sitematrix/query/?json&json_pretty=0>`_ as a semi static source.
+
+Given the accuracy of the data and the timelapse from decision to action, the network weight only aims to provide
+a simple, dynamic classification of links. It is currently calculated as:
+
+.. math::
+
+  netWorkWeight = 0.5 \times (queuedWeight + throughputWeight)
+
+where the queued and throughput weight are calculated as in the plot below:
+
+.. figure:: images/queued.png
+  :align: center
+
+  queuedWeight
+
+.. figure:: images/throughput.png
+  :align: center
+
+  throughputWeight
+
+It uses the most recent available data, so preferably data of the last 1 hour, in not available of last 1 day,
+if not available of last 1 week. FTS Mbps are used, which are filled from Chicago elastic search.
+If there are no available network metrics, the AGIS closeness (0 best to 11 worst) is used in a normalized way
+
+.. math::
+
+  weightNwThroughput = 1+ \frac {MAX\_CLOSENESS - closeness} {MAX\_CLOSENESS - MIN\_CLOSENESS}
