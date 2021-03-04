@@ -27,6 +27,16 @@ can seamlessly process their workload on computing resources while taking input 
 uploading
 output data to storage resources, without paying attention to the details of computing and storage technologies.
 
+-----
+
+|br|
+
+Virtual organization
+-----------------------
+A virtual organization (VO) refers to a dynamic set of individuals defined around a set of resource-sharing
+rules and conditions. Its members are geographically apart but working for a common objective, such as
+scientific project, research program, etc.
+
 
 -----
 
