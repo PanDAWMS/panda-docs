@@ -343,10 +343,12 @@ It is possible to retry tasks if a part of input data were not successfully proc
 added to input data. The task status changes from `finished` or `done` back to `running`, and output
 data are appended to the same output data collection. Tasks cannot be retried if they end up with
 a fatal status, such as `broken` and `failed` since they are hopeless and not worth retrying.
+
 On the other hand, the job status is irreversible, i.e., jobs don't change their status once they
 go to a final status. JEDI generates new jobs to re-process the input data portion, which was not successfully
 processed by previous jobs. Configuration of retried jobs can be optimized based on experiences with previous jobs (e.g.
-increased memory requirements).
+increased memory requirements). It is also possible to configure rules to avoid the job retrial for hopeless
+error codes/messages.
 
 ---------
 
