@@ -9,9 +9,9 @@ Basic Concepts
 
 |br|
 
-Computing and storage resources, and worker node
+Computing and storage resources
 ------------------------------------------------
-computing resource providers offer the computing resources with
+Computing resource providers offer the computing resources with
 processing capabilities, such as the grid, HPC centers, and commercial cloud services.
 A worker node is the minimum unit in each computing resource, which is a (virtual) host,
 a host cluster, or a slot on a host,
@@ -54,15 +54,14 @@ There are five components in the PanDA system, as shown in the schematic view ab
 
 * **Pilot** is a transient agent to execute a tailored workload (= a job: to be explained in a following section) on a worker node, reporting periodically various metrics to the PanDA server throughout its lifetime.
 
-* **Harvester** provisions the Pilot on resources using the relevant communication protocol for each resource provider and communicates with PanDA server on behalf of Pilot if necessary.
+* **Harvester** provisions the Pilot on resources using the relevant communication protocol for each resource provider and communicates with PanDA server on behalf of the Pilot if necessary.
 
-* **PanDA monitor** is a web-based monitoring and browsing that provides a common interface to PanDA for users and system administrators.
+* **PanDA monitor** is a web-based monitoring of tasks and jobs processed by PanDA, providing a common interface for end users, central operations team and remote site administrators.
 
-JEDI and the PanDA server share the central database
-for workload management.
-PanDA monitor has only read access to the central database,
-while Harvester uses its own database, which is either central or local
-depending on its deployment model.
+JEDI and the PanDA server share the central database to record the status of tasks and jobs.
+PanDA monitor reads this central database to offer the different views.
+Harvester uses its own more lightweight and more transient database, which can be either central or local
+depending on the deployment model.
 PanDA components and database are explained in :doc:`System Architecture </architecture/architecture>`
 and :doc:`Database </database/database>` pages, respectively.
 
@@ -104,13 +103,13 @@ ready
    The task is ready to generate jobs.
 
 pending
-   The task has a temporary problem, e.g., there are no free computing resources to work for new jobs.
+   The task has a temporary problem, e.g., there are no free computing resources for new jobs.
 
 scouting
    The task is running scout jobs to gather job metrics.
 
 scouted
-   Enough number of scout jobs were successfully finished, and job metrics were calculated.
+   Enough number of scout jobs were successfully finished and job metrics were calculated.
 
 running
    The task avalanches to generate more jobs.
@@ -128,13 +127,13 @@ finished
    The workload of the task partially succeeded.
 
 aborting
-   The task got the kill command.
+   The task got the ``kill`` command.
 
 aborted
    The task was killed.
 
 finishing
-   The task got the finish command to terminate processing in the middle.
+   The task got the ``finish`` command to terminate processing while it was still running.
 
 topreprocess
    The task is ready to run the preprocessing step.
@@ -152,13 +151,13 @@ toretry
    The task got the retry command.
 
 toincexec
-   The task got the incexec (incremental execution) command.
+   The task got the ``incexec`` (incremental execution) command.
 
 rerefine
    The task is changing parameters for incremental execution.
 
 paused
-   The task is paused and doesn't do anything until it is resumed.
+   The task is paused and doesn't do anything until it gets the ``resume`` command.
 
 throttled
    The task is throttled not to generate new jobs.
@@ -169,10 +168,10 @@ throttled
 
 Job
 -------
-A job is an artificial unit of sub-workload partitioned from a task. A single task is composed of multiple jobs,
+A job is an artificial workload sub-unit partitioned from a task. A single task is composed of multiple jobs,
 and each job runs on the minimum set of the computing resource.
-Each job is tailored based on the user's preference (if any) and/or constraints on the computing resource.
-For example, if job size is flexible, jobs are generated to have a short execution time and produce small output files
+Each job is tailored based on the user's preference (if any) and/or constraints of the computing resource.
+For example, if the job size is flexible, jobs are generated to have a short execution time and produce small output files
 when being processed on resources with limited time slots and local scratch disk spaces.
 The task input is logically split into multiple subsets, and each job gets a subset to produce output.
 The collection of job output is the task output. Each job has a unique identifier **PanDA ID** in the system.
@@ -194,11 +193,10 @@ assigned
    global input data motion or physical input data.
 
 activated
-   The job is ready to be fetched by the pilot as soon as the CPU becomes available in the computing resource
-   and the pilot is up and running there.
+   The input data has been transferred correctly and the job is ready to be fetched by a running pilot.
 
 sent
-   The job was dispatched to the computing resource.
+   The job was fetched by a pilot running on the computing resource.
 
 starting
    The job is working for the last-mile input data motion, such as data stage-in from the "local" storage to
@@ -208,13 +206,14 @@ running
    The job is processing input data.
 
 holding
-   The job finished processing, reported the final metrics, and released the computing resource.
+   The job finished processing and reported the final metrics, the output was uploaded to the local storage and
+   released the computing resource.
 
 merging
    Output data are being merged. This status is skipped unless the task is configured to merge job output.
 
 transferring
-   Output data are being transferred to the final destination.
+   Output data are being transferred from the local storage to the final destination.
 
 |br|
 
@@ -224,7 +223,7 @@ finished
    The job successfully produced output, and it is available at the final destination.
 
 failed
-   The job failed in the middle.
+   The job failed during execution or data management.
 
 closed
    The system terminated the job before running on a computing resource.
@@ -249,9 +248,12 @@ more optimally.
 
 Brokerage
 ----------
-There are two brokerages in JEDI, task brokerage, and job brokerage.
+There are two brokerages in JEDI: task brokerage and job brokerage.
+
+
 The task brokerage assigns tasks to storage resources if those tasks are configured to aggregate
 output, but final destinations are undefined.
+
 On the other hand, the job brokerage assigns jobs to computing resources. A single task can generate
 many jobs, and they can be assigned to multiple computing resources unless the task is configured
 to process the whole workload at a single computing resource.
@@ -265,17 +267,17 @@ The details of brokerage algorithms are described in the
 Pull and push
 --------------
 Users submit tasks to JEDI through the PanDA server, JEDI generates jobs on behalf of users
-and pass them to the PanDA server, and the PanDA server centrally pools the jobs.
-There are two modes for the PanDA server to dispatch jobs to computing resources, the pull and push modes.
+and passes them to the PanDA server and the PanDA server centrally pools the jobs.
+There are two modes for the PanDA server to dispatch jobs to computing resources: the pull and push modes.
 In the pull mode,
-pilots are provisioned first on computing resources, and they fetch jobs once CPUs become available.
+blank pilots are provisioned first on computing resources, and they fetch jobs once CPUs become available.
 It is possible to trigger the pilot provisioning well before generating jobs. Thus jobs can start processing
 as soon as they are generated, even if there is long latency for provisioning in the computing resource.
 Another advantage is the capability to postpone the decision making to bind jobs with CPUs until the last minute,
 which allows fine-grained job scheduling with various job attributes, e.g.
-increasing the chance for new jobs in a higher priority share to jump over old jobs in a lower priority share.
+increasing the chance for new jobs with a higher priority share to jump over old jobs in a lower priority share.
 
-On the other hand, pilots are provisioned together with jobs on computing resources in the push mode.
+On the other hand, in push mode pilots are provisioned on computing resources together with a preassigned jobs.
 Job scheduling merely relies on the scheduling mechanisms in the computing resources. The pilot specifies requirements
 for each job.
 The mechanisms dynamically configure a worker with CPUs, memory size, execution time limit, and so on, which is
@@ -314,8 +316,8 @@ they are.
 
 Global share
 -------------
-Global shares define the allocation of computing resources among various working groups and/or user activities,
-e.g., the whole computing resources are dynamically partitioned to multiple global shares.
+Global shares define the allocation of computing resources among various working groups and/or user activities.
+The aggregation of available computing resources are dynamically partitioned to multiple global shares.
 Each task is mapped to a global share according to its working group and activity type.
 Many components in JEDI and the PanDA server work with global shares. See the :doc:`Resource Allocations</advanced/gshare>`
 page for the details.
@@ -327,23 +329,24 @@ page for the details.
 Priority
 ---------
 The priority of a task or job determines which task or job has precedence over other competing tasks or jobs in the same
-global share. Their priorities are relevant in each global share. E.g., high-priority tasks in a global share
-don't interfere with low-priority tasks in another global share. Generally, priorities of jobs in a task inherit from
-the priority of the task, but scout jobs have higher priorities to collect various metrics as soon as possible.
+global share. Their priorities are relevant in each global share: i.e. high-priority tasks in a global share
+don't interfere with low-priority tasks in another global share. Generally jobs inherit the priority of its task,
+but scout jobs have higher priorities to collect various metrics as soon as possible.
 
 ------
 
 |br|
 
-Retry
------
+Task and job retry
+--------------------
 It is possible to retry tasks if a part of input data were not successfully processed or new data were
 added to input data. The task status changes from `finished` or `done` back to `running`, and output
 data are appended to the same output data collection. Tasks cannot be retried if they end up with
 a fatal status, such as `broken` and `failed` since they are hopeless and not worth retrying.
 On the other hand, the job status is irreversible, i.e., jobs don't change their status once they
 go to a final status. JEDI generates new jobs to re-process the input data portion, which was not successfully
-processed by previous jobs. Configuration of new jobs can be optimized based on experiences with previous jobs.
+processed by previous jobs. Configuration of retried jobs can be optimized based on experiences with previous jobs (e.g.
+increased memory requirements).
 
 ---------
 
