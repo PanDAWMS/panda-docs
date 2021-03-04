@@ -5,14 +5,14 @@ Contributing Changes
 PanDA components are developed based on `GitHub Flow <https://guides.github.com/introduction/flow/>`_
 with small customization. The sequence is as follows:
 
-#. Creation of a branch or folk. In git, branches are lightweight things that are often temporary and may be deleted
+#. Creation of a branch or fork. In git, branches are lightweight things that are often temporary and may be deleted
    anytime. The master branch is protected so that only a couple of persons can push commits there.
 
 #. Adding commits to the branch. You can experiment with any changes since they don't affect the master branch.
 
 #. Deployment of changes on a test instance. All changes must be verified before being merged to the master branch.
 
-#. Submittion of a Pull Request which will initiate a discussion about your changes.
+#. Submission of a Pull Request which will initiate a discussion about your changes.
 
 #. Discussion and review on your code. Once a Pull Request has been opened, your changes are reviewed to check
    functionalities, the coding style, test results, and so on. Note that your code must follow PEP8.

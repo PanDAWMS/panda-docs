@@ -151,7 +151,8 @@ toretry
    The task got the retry command.
 
 toincexec
-   The task got the ``incexec`` (incremental execution) command.
+   The task got the ``incexec`` (incremental execution) command to retry a task with new task parameters after looking
+   up the input data. This is typically useful when new data are appended to the input data and require changes in some task parameters.
 
 rerefine
    The task is changing parameters for incremental execution.
