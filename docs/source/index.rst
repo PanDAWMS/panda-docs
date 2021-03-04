@@ -36,6 +36,7 @@ computing middleware.
    :caption: Advanced Topics:
 
    advanced/gdpconfig
+   advanced/daemon
    advanced/brokerage
    advanced/sizing
    advanced/gshare

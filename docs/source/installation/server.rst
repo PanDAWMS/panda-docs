@@ -2,8 +2,7 @@
 PanDA server
 =================
 
-This is the setup guide of the PanDA server. Note that there is a dedicated page
-for PanDA daemon although it is included in the PanDA server package.
+This is the setup guide of the PanDA server.
 
 .. note::
 
@@ -143,6 +142,9 @@ The following parameters need to be modified if any.
    * - auth_policies
      - The policy file of OIDC-based auth
      -
+
+Parameters of PanDA Daemon are descrribed in :doc:`/advanced/daemon`.
+
 
 panda_server-httpd.conf
 ===========================

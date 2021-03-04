@@ -1,6 +1,6 @@
-=================
-PanDA daemon
-=================
+====================
+Using PanDA Daemon
+====================
 
 PanDA daemon is a sub-component of the PanDA server. Here is the configuration guide.
 

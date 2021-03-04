@@ -73,106 +73,103 @@ This configuration file sets various JEDI parameters.
  cd ${VIRTUAL_ENV}/etc/panda
  mv panda_jedi.cfg.rpmnew panda_jedi.cfg
 
-The following parameters need to be modified if any.
+* Global Parameters
 
-.. list-table:: master parameters
-   :header-rows: 1
+    The following parameters need to be modified if any.
 
-   * - Name
-     - Description
-     - Default
-   * - uname
-     - The userid under which JEDI runs
-     - atlpan
-   * - gname
-     - The group under which JEDI runs
-     - zp
+    .. list-table:: master parameters
+       :header-rows: 1
 
-.. list-table:: database parameters
-   :header-rows: 1
+       * - Name
+         - Description
+         - Default
+       * - uname
+         - The userid under which JEDI runs
+         - atlpan
+       * - gname
+         - The group under which JEDI runs
+         - zp
 
-   * - Name
-     - Description
-     - Default
-   * - dbhost
-     - The database hostname
-     -
-   * - dbuser
-     - The database username
-     -
-   * - dbpasswd
-     - The database password
-     -
+    .. list-table:: database parameters
+       :header-rows: 1
 
-As explained in :doc:`JEDI architecture page </architecture/jedi>`,
-JEDI agents/components have plugin structure.
-They need to be configured in the following sections in ``panda_jedi.cfg``:
+       * - Name
+         - Description
+         - Default
+       * - dbhost
+         - The database hostname
+         -
+       * - dbuser
+         - The database username
+         -
+       * - dbpasswd
+         - The database password
+         -
 
-ddm
-    The component to access the data management system
+* Agent Parameters
 
-confeeder
-    Contents Feeder
+    As explained in :doc:`JEDI architecture page </architecture/jedi>`,
+    JEDI agents/components have plugin structure.
+    They need to be configured in the following sections in ``panda_jedi.cfg``:
 
-taskrefine
-    Task Refine
+    ddm
+        The component to access the data management system
 
-jobbroker
-    Job Brokerage
+    confeeder
+        Contents Feeder
 
-jobthrottle
-    The component to throttle job submission
+    taskrefine
+        Task Refine
 
-jobgen
-    Job Generator
+    jobbroker
+        Job Brokerage
 
-postprocessor
-    Post Processor
+    jobthrottle
+        The component to throttle job submission
 
-watchdog
-    Watch Dog
+    jobgen
+        Job Generator
 
-taskbroker
-    Task Brokerage
+    postprocessor
+        Post Processor
 
-tcommando
-    Task Commando
+    watchdog
+        Watch Dog
 
-msgprocessor
-    Message processor
+    taskbroker
+        Task Brokerage
 
+    tcommando
+        Task Commando
 
-Common Parameters
-~~~~~~~~~~~~~~~~~~~~~~
-
-Most of them have two parameters, ``modConfig`` and ``procConfig``. For example,
-
-.. code-block:: text
-
-  modConfig = wlcg:managed|test:pandajedi.jedidog.ProdWatchDog:ProdWatchDog
-
-  procConfig = wlcg:managed|test:2
-
-The first parameter ``modConfig`` defines what module and class is used for each virtual organization and activity.
-The syntax is ``organization:activity:module_import_path:class_name<, ...>``,
-where the first field specifies the organization name, the second field specifies the activity name,
-the third field specifies the import path of the module, and the last field specifies the class name.
-The organization and activity fields can be empty if it work regardless of organization or activity.
-The activity field can also take a string concatenating activity names with ``|`` if it works
-for multiple activities.
-
-The second parameter in the above config example ``procConfig`` defines the number of processes for each organization
-and activity. The syntax is ``experiment:activity:n_processes<, ...>``,
-where the first field specifies the organization name, the second field specifies the activity name,
-and the third field specifies the number of processes.
-The experiment and activity fields are similar to that of ``modConfig``.
-If activity names are concatenated in the activity field those activities share the same processes.
+    msgprocessor
+        Message Processor
 
 
-Msgprocessor Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Most of them have two parameters, ``modConfig`` and ``procConfig``. For example,
 
-See :doc:`Using Message Processor </advanced/msg_processor>`.
+    .. code-block:: text
+
+      modConfig = wlcg:managed|test:pandajedi.jedidog.ProdWatchDog:ProdWatchDog
+
+      procConfig = wlcg:managed|test:2
+
+    The first parameter ``modConfig`` defines what module and class is used for each virtual organization and activity.
+    The syntax is ``organization:activity:module_import_path:class_name<, ...>``,
+    where the first field specifies the organization name, the second field specifies the activity name,
+    the third field specifies the import path of the module, and the last field specifies the class name.
+    The organization and activity fields can be empty if it work regardless of organization or activity.
+    The activity field can also take a string concatenating activity names with ``|`` if it works
+    for multiple activities.
+
+    The second parameter in the above config example ``procConfig`` defines the number of processes for each organization
+    and activity. The syntax is ``experiment:activity:n_processes<, ...>``,
+    where the first field specifies the organization name, the second field specifies the activity name,
+    and the third field specifies the number of processes.
+    The experiment and activity fields are similar to that of ``modConfig``.
+    If activity names are concatenated in the activity field those activities share the same processes.
+
+    Parameters of Message Processor are described in :doc:`/advanced/msg_processor`.
 
 
 ------------
