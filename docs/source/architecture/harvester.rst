@@ -7,6 +7,6 @@ for each resource provider, and communicates with PanDA server on behalf of Pilo
 runs on the limited environment where outbound network connectivity is missing.
 
 Harvester is a common project that extends beyond PanDA.
-The details of Harvester are described on `external Harvester documentation page <https://github.com/HSF/harvester/wiki/Home>`_.
+The details of Harvester are described on `an external page <https://github.com/HSF/harvester/wiki/Home>`_.
 
 |br|

@@ -82,29 +82,22 @@ This configuration file sets various JEDI parameters.
 
        * - Name
          - Description
-         - Default
        * - uname
          - The userid under which JEDI runs
-         - atlpan
        * - gname
          - The group under which JEDI runs
-         - zp
 
     .. list-table:: database parameters
        :header-rows: 1
 
        * - Name
          - Description
-         - Default
        * - dbhost
          - The database hostname
-         -
        * - dbuser
          - The database username
-         -
        * - dbpasswd
          - The database password
-         -
 
 * Agent Parameters
 
