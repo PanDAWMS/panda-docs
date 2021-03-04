@@ -296,3 +296,5 @@ If there are no available network metrics, the AGIS closeness (0 best to 11 wors
 .. math::
 
   weightNwThroughput = 1+ \frac {MAX\_CLOSENESS - closeness} {MAX\_CLOSENESS - MIN\_CLOSENESS}
+
+|br|

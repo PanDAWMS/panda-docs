@@ -1,5 +1,5 @@
 ==================================
-Identity and access management
+Identity and Access Management
 ==================================
 
 PanDA has the Identity and Access Management (IAM) scheme fully compliant with OIDC/OAuth2.0
