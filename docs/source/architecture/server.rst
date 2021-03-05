@@ -150,10 +150,9 @@ Other PanDA modules
 Other modules are mainly used to process asynchronous requests.
  * The ``Activator`` module changes job status to `activated` when input data of the job is ready.
  * The ``Adder`` module is the core for `add_main` to post-process jobs' output data,
-such as data registration, trigger data aggregation and so on. Those post-processing procedures are experiment-dependent
-so that the ``Adder`` also has a plugin structure to load an experiment-specific plugin.
- * The ``Watcher`` module checks whether jobs are getting heartbeats and kills them due to lost-heartbeat errors
-if not.
+   such as data registration, trigger data aggregation and so on. Those post-processing procedures are experiment-dependent
+   so that the ``Adder`` also has a plugin structure to load an experiment-specific plugin.
+ * The ``Watcher`` module checks whether jobs are getting heartbeats and kills them due to lost-heartbeat errors if not.
  * The ``Closer`` module works on collections of output data once jobs are done on worker nodes.
  * The ``Finisher`` module finalizes jobs.
 
