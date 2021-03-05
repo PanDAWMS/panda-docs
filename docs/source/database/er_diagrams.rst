@@ -2,7 +2,8 @@
 Entity relation diagrams
 =========================
 
-This section will give an overview of the database structure and important table groups.
+The full Oracle SQL files to generate the tables can be generated on request.
+The purpose of this section is to give an overview of the database structure and important table groups.
 
 ATLAS_PANDA schema
 ============================
