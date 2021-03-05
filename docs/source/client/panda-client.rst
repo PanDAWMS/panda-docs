@@ -9,18 +9,18 @@ and limited. System administrators or developers should refer to :doc:`API refer
 Installation
 ==============
 panda-client works either python 2 and 3, and is self-contained so that you don't have to install an external
-package or software. You do
+package or software. In order to install all python modules, command-line tools and configuration files, simply run:
 
 .. prompt:: bash
 
     pip install panda-client
 
-so that all python modules, command-line tools, and configuration files are correctly installed.
 
 Setup
 ==============
 The setup file ``panda_setup.(c)sh`` is automatically generated under *$VIRTUAL_ENV/etc/panda* when panda-client
-is installed. The file needs to be sourced before using python modules and command-line tools.
+is installed. The file needs to be sourced before using the python modules and command-line tools, in order to setup
+the required environment.
 
 .. prompt:: bash
 

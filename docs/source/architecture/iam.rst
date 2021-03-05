@@ -2,7 +2,7 @@
 Identity and Access Management
 ==================================
 
-PanDA has the Identity and Access Management (IAM) scheme fully compliant with OIDC/OAuth2.0
+PanDA has an Identity and Access Management (IAM) scheme fully compliant with OIDC/OAuth2.0
 capable of identity federation among scientific and academic identity providers.
 Although legacy x509 is also supported, it is recommended to avoid it since it is being outdated.
 
@@ -21,7 +21,7 @@ Google, ...
 
 .. figure:: images/iam.png
 
-The figure above shows the procedure of user authentication and authorization where the device code flow is used
+The figure above shows the procedure of user authentication and authorization, where the device code flow is used
 to allow users to run command-line tools.
 First, the user invokes a command-line tool which checks if a valid ID token is locally available.
 If not, the command-line tool sends an authentication request to Indigo IAM on behalf of the user and retrieves
@@ -75,8 +75,13 @@ There are three parameters in ``panda_server.cfg``.
 ``token_authType`` needs to be *oidc* to enable the OIDC/OAuth2.0 based Auth.
 The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
 parameter. The filename should be `\<name of virtual organization\>_auth_config.json`.
-The configuration file contains "audience", "client_id", "client_secret", "oidc_config_url", and "vo",
-where the first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
+The configuration file contains
+ * "audience"
+ * "client_id"
+ * "client_secret"
+ * "oidc_config_url"
+ * and "vo"
+The first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
 the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
 Those configuration files must be reachable through Web interface of the PanDA server, so that make sure that
 the directory needs to be exposed in ``httpd.conf`` like

@@ -23,7 +23,7 @@ Then fork the `panda-docs <https://github.com/PanDAWMS/panda-docs.git>`_ reposit
 2. Repository structure
 -----------------------
 
-You can see te following structure in the repository.
+You can see the following structure in the repository.
 
 .. code-block:: none
 

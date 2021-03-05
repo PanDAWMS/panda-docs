@@ -87,8 +87,8 @@ Retry tasks
 
    >>> retry(arg, newOpts=None)
 
-This command is used to retry only failed PanDA jobs in finished task.
-The arg is a jediTaskID, a list of jediTaskIDs.
+This command is used to retry only failed PanDA jobs in a `finished` task.
+The arg is a jediTaskID or a list of jediTaskIDs.
 It is possible to specify ``newOpts``, which is None by default and can be a map of options and new arguments like
 *{'nFilesPerJob': 10,'excludedSite': 'ABC,XYZ'}* to overwrite task parameters.
 If values of some arguments are *None*, corresponding task parameters are removed. For example,

@@ -3,31 +3,31 @@ JEDI
 =====
 
 JEDI (Job Execution and Definition Interface) is a high-level engine to tailor workload
-for optimal usages of heterogeneous resources dynamically. It works with tasks to submit jobs to the PanDA server.
+for optimal usage of heterogeneous resources dynamically. It processes tasks and generates jobs for PanDA server.
 The main functions are as follows:
 
-* To receive and parse task specifications which are fed into the system from clients through the RESTful
+* To receive and parse task specifications, which clients submit through the RESTful
   interface of the PanDA server.
 * To collect information about task input data.
 * To decide the destination for each task output data.
 * To choose the computing resources based on the characteristics and requirements of each task.
 * To generate and assign jobs to computing resources by taking global shares into account.
 * To reassign jobs if workload distribution becomes unbalanced among computing resources.
-* To take actions on tasks according to various timeout configurations or user's commands.
+* To take actions on tasks according to various timeout configurations or user commands.
 * To finalize tasks once their input data are done.
 
 JEDI is composed of a master process, stateless agents running on multiple threads/processes,
-and a fine-grand exclusive lock mechanism.
-Those agents run independently, and they don't directly communicate with each other.
+and a fine-grained exclusive lock mechanism.
+Those agents run independently and don't directly communicate with each other.
 They take objects from the database, take actions on those objects, and update the database.
 Each agent is designed around a plugin structure with the core and experiment/activity-specific
 plugins.
 
-The exclusive lock mechanism allows operations to be distributed across threads, processes, and machines,
+The exclusive lock mechanism allows operations to be distributed across threads, processes and machines,
 so that JEDI horizontally scales with multiple machines.
-For example, it locks a task while an agent process is working on the task,
-and prevent other agent processes on the same or other machines from updating the task, which is typically
-useful to avoid inconsistent modifications caused by concurrently running processes.
+For example, while one agent process is working on a particular task, the task is locked and other agent processes
+are prevented from updating the task. This is typically useful to avoid inconsistent modifications caused
+by concurrently running processes.
 
 .. figure:: images/jedi_arch.png
 
@@ -50,13 +50,15 @@ JEDI Master
 There is only one ``JEDI Master`` process on each machine, and all agents independently run as child
 processes of the ``JEDI Master``.
 There are two connection pools in ``JEDI Master``, one for connections to the database backend
-and the other for connections to a data management system,
-and agents share connections in those pools.
+and another for connections to the data management system. Agents share connections in those pools.
 The number of connections to the database or data management system is limited
 even if their accesses are quite busy so that those external services are protected.
-When ``JEDI Master`` gets started, it initializes connection pools first, launches agents,
-give connection pools to agents, waits for the SIGTERM or SIGKILL signal, and kills
-all agents and itself.
+When ``JEDI Master`` gets started, it
+ * initializes connection pools first
+ * launches agents
+ * provides access to the connection pools to the agents
+ * waits an eventual SIGTERM or SIGKILL signal when JEDI is stopped
+ * kills all agents and itself
 
 -------
 
@@ -67,33 +69,33 @@ Agents
 --------------
 
 Task Refiner
-  Clients specify tasks in json dictionaries and feed them into the database through RESTful
+  Clients specify tasks in json dictionaries and feed them into the database through the RESTful
   interface of the PanDA server.
   ``Task Refiner`` parses them to instantiate ``JediTaskSpec`` objects.
   Each ``JediTaskSpec`` object represents a task.
-  The core code sets common attributes of ``JediTaskSpec`` while plugins set experiment/activity specific attributes.
+  The core code defines common attributes of ``JediTaskSpec``, while plugins set experiment/activity specific attributes.
   One of the crucial attributes is ``splitRule`` concatenating two-letter codes to specify
   various characteristics and requirements of the task.
   ``JediTaskSpec`` objects are inserted into the database once they are successfully instantiated.
 
 Contents Feeder
-  ``Contents Feeder`` retrieves the contents of input data, such as a list of data filenames,
+  The ``Contents Feeder`` retrieves the contents of input data, such as a list of data filenames,
   from the external data management service and records them to the database for subsequent processing
-  by other agents. If the input data is not a collection of data files, e,g, a list of random seeds,
+  by other agents. If the input data is not a collection of data files, e.g. a list of random seeds,
   ``Contents Feeder`` records a list of pseudo files in the database.
 
 Task Broker
-  ``Task Broker`` decides final destinations of task output if tasks are specified to aggregate
-  output but final destinations are undefined. It is skipped otherwise. The final destination
+  When tasks specify to aggregate their output, but the final destination is undefined, then the ``Task Broker``
+  will decide the final destinations of the task output. It is skipped otherwise. The final destination
   is chosen for each site by considering its input data locality, free disk spaces and downtime of storage resources,
   transfer backlog over the network, and requirements on data processing.
 
 Job Generator
-  ``Job Generator`` is the busiest agent in JEDI. It chooses the computing resources for each task,
+  The ``Job Generator`` is the busiest agent in JEDI. It chooses the computing resources for each task,
   generates jobs, and submits them to the PanDA server. The details are described in the next section.
 
 Post Processor
-  Once tasks process all input data, they are passed to ``Post Processor`` to be finalized.
+  Once tasks process all their input data, they are passed to the ``Post Processor`` to be finalized.
   The post-processing step includes various procedures like validation, cleanup, duplication removal of output data,
   dispatch of email notifications to task owners, trigger processing of child tasks, etc.
 
@@ -102,7 +104,7 @@ Watch Dog
 
 Task Commando
   Users send the following commands to JEDI through the RESTful interface of the PanDA server.
-  ``Task Command`` takes actions based on those commands.
+  ``Task Commando`` takes actions based on those commands.
 
     * kill
        To kill a task. All running jobs of the task are killed.
@@ -139,18 +141,21 @@ Job Generator
 
 ``Job Generator`` is composed of ``Job Throttler``, ``Job Broker``, ``Job Splitter``, ``Task Setupper``,  and
 the job submission code. It is highly parallelized since the performance of ``Job Generator``
-directly affects the throughput of the whole system. It must scale well since a single task
-can generate millions of jobs, for example.
+directly affects the throughput of the whole system. It must scale well since, for example, a single task
+can generate millions of jobs.
 
-The enter task pool is first partitioned by global share and resource requirements such as
+The entire task pool is first partitioned by global share and resource requirements such as
 the number of cores and memory size. Each ``Job Generator`` agent takes one partition
 in a single processing cycle.
 ``Job Throttler`` runs in the agent and checks whether there are enough jobs running or queued on computing resources
 for the partition.
-If not, the agent spawns multiple threads. ``Job Broker`` running on each thread
+If not, the agent spawns multiple threads. The ``Job Broker`` running on each thread
 takes one task in the partition based on its priority and selects appropriate computing resources.
-The selection algorithm considers data locality, requirements for data processing and transfers,
-constraints and downtime of computing resources, and transfer backlog over the network.
+The selection algorithm takes into consideration multiple factors such as
+ * data locality
+ * requirements for data processing and transfers
+ * constraints and downtime of computing resources
+ * and transfer backlog over the network
 If one or more computing resources are available, ``Job Broker`` passes the task to ``Job Splitter``
 which generates jobs to respect task requirements and various constraints of computing resources.
 Finally, the job submission code submits those jobs to the PanDA server after ``Task Setupper`` prepares
@@ -169,15 +174,14 @@ Internal objects
 Task
 ^^^^^^^^^^^^^^
 ``JediTaskSpec`` represents a task. The status transition chart and explanations of task statuses are
-available at :ref:`terminology/terminology:Task` section.
+available in the :ref:`terminology/terminology:Task` section.
 
 ----
 
 Dataset
 ^^^^^^^^^^^^^^^^^
 ``JediDatasetSpec`` represents a data collection, which is called a dataset.
-The status transition charts of input and output datasets
-are shown below.
+The status transition charts of input and output datasets are shown below.
 
 .. figure:: images/jedi_dataset.png
 

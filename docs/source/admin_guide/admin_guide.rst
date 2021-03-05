@@ -14,8 +14,8 @@ Here is a quick tutorial to setup a minimum PanDA system.
 0. Hardware Requirements
 --------------------------------------
 It is recommended to install JEDI and the PanDA server on separate virtual machines (VMs), but it is possible to
-install them on a single VM for small testing purposes. a minimum PanDA system would be composed of 3 VMs;
-the first VM for JEDI and the PanDA server, the second VM for Harvester, and the third VM.
+install them on a single VM for small testing purposes. A minimum PanDA system would be composed of 3 VMs;
+the first VM for JEDI and the PanDA server, the second VM for Harvester, and the third VM for the PanDA monitor.
 The following table shows the minimum hardware configuration.
 
 .. list-table:: Minimum hardware configuration

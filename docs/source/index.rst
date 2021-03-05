@@ -45,3 +45,4 @@ computing middleware.
    advanced/cric
    advanced/iam
    advanced/idds
+   advanced/job_retry_module
