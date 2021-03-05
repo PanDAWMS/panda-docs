@@ -270,8 +270,8 @@ Pull and push
 Users submit tasks to JEDI through the PanDA server, JEDI generates jobs on behalf of users
 and passes them to the PanDA server and the PanDA server centrally pools the jobs.
 There are two modes for the PanDA server to dispatch jobs to computing resources: the pull and push modes.
-In the pull mode,
-blank pilots are provisioned first on computing resources, and they fetch jobs once CPUs become available.
+
+In pull mode, blank pilots are provisioned first on computing resources, and they fetch jobs once CPUs become available.
 It is possible to trigger the pilot provisioning well before generating jobs. Thus jobs can start processing
 as soon as they are generated, even if there is long latency for provisioning in the computing resource.
 Another advantage is the capability to postpone the decision making to bind jobs with CPUs until the last minute,
