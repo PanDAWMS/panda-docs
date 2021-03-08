@@ -76,11 +76,13 @@ There are three parameters in ``panda_server.cfg``.
 The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
 parameter. The filename should be `\<name of virtual organization\>_auth_config.json`.
 The configuration file contains
+
  * "audience"
  * "client_id"
  * "client_secret"
  * "oidc_config_url"
  * and "vo"
+
 The first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
 the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
 Those configuration files must be reachable through Web interface of the PanDA server, so that make sure that

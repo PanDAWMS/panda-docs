@@ -31,11 +31,12 @@ on the load to optimize resource usages on the machine.
 MPM workers receive requests from actors such as users and the pilot. The requests are passed
 to PanDA Web applications through an internal request queue and WSGI daemons.
 There are two types of requests:
- * synchronous requests: actors are blocked for a while and receive responses when PanDA Web applications
-complete processing the requests.
- * asynchronous requests: actors immediately receive a response and the requests are
-asynchronously processed. This is typically done when the requests invoke heavy procedures like access
-to external services. This mode avoids the HTTP server from being clogged.
+
+* Synchronous requests: Actors are blocked for a while and receive responses when PanDA Web applications
+  complete processing the requests.
+* Asynchronous requests: Actors immediately receive a response and the requests are
+  asynchronously processed. This is typically done when the requests invoke heavy procedures like access
+  to external services. This mode avoids the HTTP server from being clogged.
 
 When the entire PanDA server is composed of `M` machines receiving requests at rate `R` Hz and each PanDA server
 machine runs `W` PanDA Web applications, the average processing time of the request is `A` sec, the following formula

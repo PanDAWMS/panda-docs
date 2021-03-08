@@ -54,6 +54,7 @@ and another for connections to the data management system. Agents share connecti
 The number of connections to the database or data management system is limited
 even if their accesses are quite busy so that those external services are protected.
 When ``JEDI Master`` gets started, it
+
  * initializes connection pools first
  * launches agents
  * provides access to the connection pools to the agents
@@ -69,76 +70,38 @@ Agents
 --------------
 
 Task Refiner
-  Clients specify tasks in json dictionaries and feed them into the database through the RESTful
-  interface of the PanDA server.
-  ``Task Refiner`` parses them to instantiate ``JediTaskSpec`` objects.
-  Each ``JediTaskSpec`` object represents a task.
-  The core code defines common attributes of ``JediTaskSpec``, while plugins set experiment/activity specific attributes.
-  One of the crucial attributes is ``splitRule`` concatenating two-letter codes to specify
-  various characteristics and requirements of the task.
-  ``JediTaskSpec`` objects are inserted into the database once they are successfully instantiated.
+^^^^^^^^^^^^^^
+
+Clients specify tasks in json dictionaries and feed them into the database through the RESTful
+interface of the PanDA server.
+``Task Refiner`` parses them to instantiate ``JediTaskSpec`` objects.
+Each ``JediTaskSpec`` object represents a task.
+The core code defines common attributes of ``JediTaskSpec``, while plugins set experiment/activity specific attributes.
+One of the crucial attributes is ``splitRule`` concatenating two-letter codes to specify
+various characteristics and requirements of the task.
+``JediTaskSpec`` objects are inserted into the database once they are successfully instantiated.
 
 Contents Feeder
-  The ``Contents Feeder`` retrieves the contents of input data, such as a list of data filenames,
-  from the external data management service and records them to the database for subsequent processing
-  by other agents. If the input data is not a collection of data files, e.g. a list of random seeds,
-  ``Contents Feeder`` records a list of pseudo files in the database.
+^^^^^^^^^^^^^^^^^^^^
+
+The ``Contents Feeder`` retrieves the contents of input data, such as a list of data filenames,
+from the external data management service and records them to the database for subsequent processing
+by other agents. If the input data is not a collection of data files, e.g. a list of random seeds,
+``Contents Feeder`` records a list of pseudo files in the database.
 
 Task Broker
-  When tasks specify to aggregate their output, but the final destination is undefined, then the ``Task Broker``
-  will decide the final destinations of the task output. It is skipped otherwise. The final destination
-  is chosen for each site by considering its input data locality, free disk spaces and downtime of storage resources,
-  transfer backlog over the network, and requirements on data processing.
+^^^^^^^^^^^^^^
 
-Job Generator
-  The ``Job Generator`` is the busiest agent in JEDI. It chooses the computing resources for each task,
-  generates jobs, and submits them to the PanDA server. The details are described in the next section.
-
-Post Processor
-  Once tasks process all their input data, they are passed to the ``Post Processor`` to be finalized.
-  The post-processing step includes various procedures like validation, cleanup, duplication removal of output data,
-  dispatch of email notifications to task owners, trigger processing of child tasks, etc.
-
-Watch Dog
-  ``Watch Dog`` periodically takes actions throughout the task lifetime.
-
-Task Commando
-  Users send the following commands to JEDI through the RESTful interface of the PanDA server.
-  ``Task Commando`` takes actions based on those commands.
-
-    * kill
-       To kill a task. All running jobs of the task are killed.
-
-    * finish
-       To finish a task. There are two modes of this command. The soft finish command disables to generate new jobs
-       for the task and waits until all running jobs are done, while the hard finish command kills all jobs and finishes
-       the task immediately.
-
-    * retry
-       To retry a task. The task will process only input data that were unsuccessful in the previous attempt.
-       Hopeless tasks such as broken and failed tasks reject the retry command since there is no reason to retry.
-
-    * incexec
-       To retry a task with new task parameters after looking up the input data. This is typically useful
-       when new data are appended to the input data and require changes in some task parameters.
-
-    * pause
-       To pause processing of a task. This command disables generating new jobs for the task and pauses queued jobs.
-
-    * resume
-       To resume a paused task. This command enables to generate new jobs for the task and releases paused jobs.
-
-    * avalanche
-       To skip the scouting state for a task. This command changes the task status to running and triggers
-       generation of remaining jobs for the task.
-
-Message Processor
-  ``Message Processor`` consumes messages sent from various external components through ActiveMQ.
+When tasks specify to aggregate their output, but the final destination is undefined, then the ``Task Broker``
+will decide the final destinations of the task output. It is skipped otherwise. The final destination
+is chosen for each site by considering its input data locality, free disk spaces and downtime of storage resources,
+transfer backlog over the network, and requirements on data processing.
 
 
 Job Generator
 ^^^^^^^^^^^^^^^
-
+The ``Job Generator`` is the busiest agent in JEDI. It chooses the computing resources for each task,
+generates jobs, and submits them to the PanDA server.
 ``Job Generator`` is composed of ``Job Throttler``, ``Job Broker``, ``Job Splitter``, ``Task Setupper``,  and
 the job submission code. It is highly parallelized since the performance of ``Job Generator``
 directly affects the throughput of the whole system. It must scale well since, for example, a single task
@@ -152,10 +115,12 @@ for the partition.
 If not, the agent spawns multiple threads. The ``Job Broker`` running on each thread
 takes one task in the partition based on its priority and selects appropriate computing resources.
 The selection algorithm takes into consideration multiple factors such as
+
  * data locality
  * requirements for data processing and transfers
  * constraints and downtime of computing resources
  * and transfer backlog over the network
+
 If one or more computing resources are available, ``Job Broker`` passes the task to ``Job Splitter``
 which generates jobs to respect task requirements and various constraints of computing resources.
 Finally, the job submission code submits those jobs to the PanDA server after ``Task Setupper`` prepares
@@ -163,6 +128,56 @@ output data collections.
 Then ``Job Broker`` takes the next task.
 Once enough tasks are processed in the partition, the threads are terminated and the
 ``Job Generator`` agent takes another partition.
+
+Post Processor
+^^^^^^^^^^^^^^^^
+
+Once tasks process all their input data, they are passed to the ``Post Processor`` to be finalized.
+The post-processing step includes various procedures like validation, cleanup, duplication removal of output data,
+dispatch of email notifications to task owners, trigger processing of child tasks, etc.
+
+Watch Dog
+^^^^^^^^^^^^^
+
+``Watch Dog`` periodically takes actions throughout the task lifetime.
+
+Task Commando
+^^^^^^^^^^^^^^^^
+
+Users send the following commands to JEDI through the RESTful interface of the PanDA server.
+``Task Commando`` takes actions based on those commands.
+
+* kill
+   To kill a task. All running jobs of the task are killed.
+
+* finish
+   To finish a task. There are two modes of this command. The soft finish command disables to generate new jobs
+   for the task and waits until all running jobs are done, while the hard finish command kills all jobs and finishes
+   the task immediately.
+
+* retry
+   To retry a task. The task will process only input data that were unsuccessful in the previous attempt.
+   Hopeless tasks such as broken and failed tasks reject the retry command since there is no reason to retry.
+
+* incexec
+   To retry a task with new task parameters after looking up the input data. This is typically useful
+   when new data are appended to the input data and require changes in some task parameters.
+
+* pause
+   To pause processing of a task. This command disables generating new jobs for the task and pauses queued jobs.
+
+* resume
+   To resume a paused task. This command enables to generate new jobs for the task and releases paused jobs.
+
+* avalanche
+   To skip the scouting state for a task. This command changes the task status to running and triggers
+   generation of remaining jobs for the task.
+
+Message Processor
+^^^^^^^^^^^^^^^^^^^^
+
+``Message Processor`` consumes messages sent from various external components through ActiveMQ.
+:doc:`/advanced/msg_processor` describes it in detail.
 
 --------
 
