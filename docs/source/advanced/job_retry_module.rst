@@ -1,5 +1,5 @@
 ===================================
-Job retry module
+Job Retry Module
 ===================================
 
 Jobs can fail for different reasons and operations are greatly simplified when automated

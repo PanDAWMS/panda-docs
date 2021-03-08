@@ -10,5 +10,6 @@ are relevant for the payload (e.g. size checks). The Information System componen
 to a database containing knowledge about the resource where the Pilot is running
 (e.g. which copy tool to use and where to read and write data).
 
-The Pilot architecture is described on `a wiki page <https://github.com/PanDAWMS/pilot2/wiki/Pilot-architecture>`_
+The Pilot architecture is described on
+`an external wiki page <https://github.com/PanDAWMS/pilot2/wiki/Pilot-architecture>`_
 in details.
