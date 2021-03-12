@@ -15,6 +15,14 @@ package or software. In order to install all python modules, command-line tools 
 
     pip install panda-client
 
+If you install panda-client in JupyterLab,
+
+.. prompt:: bash
+
+    pip install panda-client[jupyter]
+
+will install extra packages in addition to panda-client.
+
 
 Setup
 ==============
