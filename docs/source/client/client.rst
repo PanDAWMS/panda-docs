@@ -17,6 +17,7 @@ For end-users
    :maxdepth: 1
 
    panda-client
+   monitoring
    prun
    phpo
    pbook

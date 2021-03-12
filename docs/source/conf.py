@@ -28,7 +28,11 @@ extensions = [
     'sphinx-prompt',
     'nbsphinx',
     'sphinx.ext.autosectionlabel',
+    'sphinx_tabs.tabs',
 ]
+
+sphinx_tabs_disable_tab_closing = True
+sphinx_tabs_valid_builders = ['linkcheck']
 
 nbsphinx_execute = 'never'
 autosectionlabel_prefix_document = True
