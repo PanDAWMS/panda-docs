@@ -131,7 +131,7 @@ An individual job is accessible by its ID:
 
    .. tab:: Arbitary monitoring instance
 
-      `https://<monitoringhost>/job?pandaid=<panda_id>`_
+      `https://<monitoringhost>/job?pandaid=<panda_id> <https://\<monitoringhost\>/job?pandaid=\<panda_id\>>`_
 
 
 
