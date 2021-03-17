@@ -10,6 +10,9 @@ The first part of this page is for end-users to use PanDA for their analysis,
 while the second part is for developers and can be skipped unless you
 intend to develop applications on top of Python API.
 
+PanDA also provides advanced Web-based monitoring, so-called PanDA monitoring, for all kinds of users.
+The third part of this page describes how to use PanDA monitoring.
+
 For end-users
 ==============
 
@@ -17,14 +20,13 @@ For end-users
    :maxdepth: 1
 
    panda-client
-   monitoring
    prun
    phpo
    pbook
    notebooks/python.ipynb
    jupyter
 
-For developers
+Python API references
 ==========================
 
 .. toctree::
@@ -32,3 +34,11 @@ For developers
 
    rest
    rest_idds
+
+Monitoring
+==================
+
+.. toctree::
+   :maxdepth: 1
+
+   monitoring

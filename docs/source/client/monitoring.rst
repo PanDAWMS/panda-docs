@@ -1,6 +1,6 @@
-===========
-Monitoring
-===========
+=================
+PanDA Monitoring
+=================
 
 PanDA provides advanced Web based monitoring for different groups of PanDA users: scientists, developers, operators,
 managers, shifters. Panda monitor can also serve a data source for users scripts and custom automatizing.
@@ -131,7 +131,7 @@ An individual job is accessible by its ID:
 
    .. tab:: Arbitary monitoring instance
 
-      `https://<monitoringhost>/job?pandaid=<panda_id> <https://\<monitoringhost\>/job?pandaid=\<panda_id\>>`_
+      `<https://\<monitoringhost\>/job?pandaid=\<panda_id\>>`_
 
 
 
