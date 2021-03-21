@@ -34,3 +34,28 @@ the required environment.
 
     source $VIRTUAL_ENV/etc/panda/panda_setup.sh
 
+The following environent variables need to change if nessesary.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Name
+     - Description
+     - Example
+   * - PANDA_URL_SSL
+     - Base HTTPS URL of PanDA server
+     - https://ai-idds-01.cern.ch:25443/server/panda
+   * - PANDA_URL
+     - Base HTTP URL of PanDA server
+     - http://ai-idds-01.cern.ch:25080/server/panda
+   * - PANDA_AUTH_VO
+     - Virtual organization name
+     - wlcg
+   * - PANDA_AUTH
+     - Authentication mechanism. Set oidc to enable OIDC/OAuth2.0
+     - oidc
+   * - PANDA_VERIFY_HOST
+     - Set off to disable the host verification
+     - off
+
+|br|
