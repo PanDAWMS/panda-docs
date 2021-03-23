@@ -65,7 +65,7 @@ Here is the description of ``pandatools.idds_api.get_api()``.
         args:
             dumper: function object to json-serialize data
             verbose: True to see verbose messages
-            idds_host: iDDS hostname
+            idds_host: iDDS host. e.g. https://aipanda160.cern.ch:443/idds
         return:
             an API object
 
