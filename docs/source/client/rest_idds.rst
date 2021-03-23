@@ -59,12 +59,13 @@ Here is the description of ``pandatools.idds_api.get_api()``.
 
 .. code-block:: text
 
-    get_api(dumper=None, verbose=False)
+    get_api(dumper=None, verbose=False, idds_host=None)
         Get an API object to access iDDS through PanDA
 
         args:
             dumper: function object to json-serialize data
             verbose: True to see verbose messages
+            idds_host: iDDS hostname
         return:
             an API object
 
