@@ -57,5 +57,8 @@ The following environent variables need to change if nessesary.
    * - PANDA_VERIFY_HOST
      - Set off to disable the host verification
      - off
+   * - PANDA_USE_NATIVE_HTTPLIB
+     - Set 1 to use native http lib instead of curl
+     - 1
 
 |br|
