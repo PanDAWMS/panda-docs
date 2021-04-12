@@ -2,4 +2,4 @@
 PanDA monitor
 =============
 
-[Sergey is working on this page]
+Under construction.
