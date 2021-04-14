@@ -221,25 +221,28 @@ Each queue publishes something like
     ]
   }
 
-This dictionary can define the ``architecture`` key in addition and take a list of supported architectures as its value.
+This dictionary can define the ``architecture`` attribute in addition and take a list of supported architectures as its value.
 
 Checks for Fat Containers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the task uses a container, i.e., the ``container_name`` attribute is set, checks are as follows:
+If the task uses a container, i.e., the ``container_name`` attribute is set, the brokerage checks as follows:
 
-* The task ``architecture`` must be included in the ``architecture`` list if the queue defines the ``architecture``
-  key-value.
+* The task ``architecture`` must be included in the ``architecture`` list of the queue if the queue defines
+  the ``architecture`` attribute as mentioned in the previous sub-section.
 
 * If the task uses only tags, i.e., it sets ``onlyTagsForFC``, the ``container_name`` must be equal to
-  *container_name* of a tag in the ``tags`` list or be included in ``sources`` of a tag in the ``tags`` list.
+  the *container_name* of a tag in the ``tags`` list or must be included in the ``sources`` of a tag in
+  the ``tags`` list.
 
 * If the task doesn't set ``onlyTagsForFC``,
 
    * 'any' or '/cvmfs' must be included in the ``containers`` list, or
 
-   * ``container_name`` is resolved to the source path using the dictionary for "ALL" queue and one of strings
-     in the ``containers`` list must be forward-matched.
+   * ``container_name`` must be forward-matched with one of strings in the ``containers`` list, or
+
+   * ``container_name`` is resolved to the source path using the dictionary of the "ALL" queue and
+     the resolved source path must be forward-matched with one of strings in the ``containers`` list.
 
 Checks for Releases, Caches, or Nightlies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
