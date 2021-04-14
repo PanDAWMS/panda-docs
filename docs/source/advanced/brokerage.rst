@@ -239,10 +239,10 @@ If the task uses a container, i.e., the ``container_name`` attribute is set, the
 
    * 'any' or '/cvmfs' must be included in the ``containers`` list, or
 
-   * ``container_name`` must be forward-matched with one of strings in the ``containers`` list, or
+   * ``container_name`` must be forward-matched with one of the strings in the ``containers`` list, or
 
-   * ``container_name`` is resolved to the source path using the dictionary of the "ALL" queue and
-     the resolved source path must be forward-matched with one of strings in the ``containers`` list.
+   * ``container_name`` is resolved to the source path using the dictionary of the "ALL" queue, and
+     the resolved source path must be forward-matched with one of the strings in the ``containers`` list.
 
 Checks for Releases, Caches, or Nightlies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
