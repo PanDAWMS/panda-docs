@@ -209,7 +209,7 @@ running
 holding
    The job finished processing, released the computing resource, reported the final metrics to the PanDA server,
    uploaded output files to the local storage. Note that jobs don't use any computing resources
-   any longer in this and subsequent job statues.
+   any longer in this and subsequent job statuses.
 
 merging
    Output data are being merged. This status is skipped unless the task is configured to merge job output.
