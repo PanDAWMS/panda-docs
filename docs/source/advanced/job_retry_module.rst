@@ -3,7 +3,7 @@ Job Retry Module
 ===================================
 
 Jobs can fail for different reasons. The Job Retry Module
-grately simplifies operations by taking actions based on error codes/messages.
+greatly simplifies operations by taking actions based on error codes/messages.
 
 Actions
 --------
