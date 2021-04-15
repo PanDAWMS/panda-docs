@@ -2,12 +2,12 @@
 Job Retry Module
 ===================================
 
-Jobs can fail for different reasons and operations are greatly simplified when automated
-actions run for certain error codes/messages.
+Jobs can fail for different reasons. The Job Retry Module
+grately simplifies operations by taking actions based on error codes/messages.
 
 Actions
 --------
-Here is a description of the currently available actions for ATLAS.
+Here is a description of the currently available actions.
 
 .. list-table::
    :header-rows: 1
