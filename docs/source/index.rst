@@ -46,3 +46,4 @@ computing middleware.
    advanced/iam
    advanced/idds
    advanced/job_retry_module
+   advanced/jedi_watchdogs
