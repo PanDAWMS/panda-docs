@@ -167,11 +167,21 @@ The following SQL statement adds a test resource.
 
 .. code-block:: sql
 
- INSERT INTO PANDAMETA.SCHEDCONFIG (NAME,NICKNAME,SYSTEM,SITE,LASTMOD,NQUEUE,NODES,STATUS,QUEUEHOURS,
-     MEMORY,MAXTIME,SPACE,TSPACE) VALUES('TEST_SITE','TEST_SITE','NA','NA',CURRENT_DATE,0,0,'online',
-     0,0,0,0,CURRENT_DATE)
+ INSERT INTO PANDA.SITE (SITE_NAME) VALUES('TEST_SITE')
 
-where *NAME* and *NICKNAME* are the resource name, and *STATUS* needs to be 'online'.
+ INSERT INTO PANDA.PANDA_SITE (PANDA_SITE_NAME,SITE_NAME) VALUES('TEST_SITE','TEST_SITE')
+
+ INSERT INTO PANDAMETA.SCHEDCONFIG_JSON (PANDA_QUEUE,DATA) values('TEST_TEST','{"status": "online", "cloud": "WLCG"}')
+
+where *cloud* is the group name, and *status* needs to be 'online'.
+
+4.4. Resource Type Registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You need the catchall resource type at least.
+
+.. code-block:: sql
+
+  INSERT INTO PANDA.RESOURCE_TYPES (RESOURCE_NAME) VALUES('Undefined')
 
 -----------------
 
