@@ -46,7 +46,7 @@ The following code snippets show how iDDS native codes migrate to panda-client b
         'request_metadata': {},
     }
 
-    c = pandatools.idds_api.get_api(idds.common.utils.json_dumps)
+    c = pandatools.idds_api.get_api(idds.common.utils.json_dumps, compress=True)
     ret = c.add_request(**req)
     if ret[0] == 0 and ret[0][0]:
         ret = ret[0][-1]
@@ -59,13 +59,14 @@ Here is the description of ``pandatools.idds_api.get_api()``.
 
 .. code-block:: text
 
-    get_api(dumper=None, verbose=False, idds_host=None)
+    get_api(dumper=None, verbose=False, idds_host=None, compress=False)
         Get an API object to access iDDS through PanDA
 
         args:
             dumper: function object to json-serialize data
             verbose: True to see verbose messages
             idds_host: iDDS host. e.g. https://aipanda160.cern.ch:443/idds
+            compress: True to compress request body
         return:
             an API object
 
