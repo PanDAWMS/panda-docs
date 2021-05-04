@@ -223,6 +223,7 @@ Schedule Jobs
 
   $psql
 
+  >> SELECT cron.schedule('0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
   >> SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
   >> UPDATE cron.job SET database='panda_db',username='panda' WHERE jobid=<id>;
   >> SELECT * FROM cron.job_run_details;
