@@ -113,6 +113,9 @@ Testing
 Exporting Schemas
 ===========================
 
+It is possible to export tables and sequences almost automatically. Procedures need many patches, while
+functions need few since their usage is very limited.
+
 Tables and Sequences
 ^^^^^^^^^^^^^^^^^^^^^^
 
