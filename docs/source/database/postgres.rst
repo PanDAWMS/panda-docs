@@ -7,13 +7,13 @@ PostgreSQL Setup
 
 Information about the yum repository is at `<https://www.postgresql.org/download/linux/redhat/>`_.
 
-Here is an example of PostgreSQL setup on a puppet-managed CC7.
+Here is an example of PostgreSQL 13 setup on a puppet-managed CC7.
 
 .. prompt:: bash
 
   yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
   cp /etc/yum.repos.d/pgdg-redhat-all.repo /etc/yum-puppet.repos.d/
-  yum install -y postgresql13-server
+  yum install -y postgresql13-server pg_cron_13
   /usr/pgsql-13/bin/postgresql-13-setup initdb
   systemctl enable postgresql-13
 
@@ -24,24 +24,33 @@ Edit /var/lib/pgsql/13/data/postgresql.conf
   password_encryption = md5
   listen_addresses = '*'
   # port = 3130
+  shared_preload_libraries = 'pg_cron'
+  cron.database_name = 'postgres'
 
 Add
 
 .. code-block:: text
 
-  host  all  all 0.0.0.0/0 md5
-  host  all  all ::0/0 md5
+  local  all  panda trust
+  host   all  panda localhost trust
+  host   all  all 0.0.0.0/0 md5
+  host   all  all ::0/0 md5
 
 to /var/lib/pgsql/13/data/pg_hba.conf.
 
-Start PostgreSQL and make the database and the user.
+Start PostgreSQL, make the database and the user, and enable pg_cron.
 
-.. prompt:: bash
+.. prompt:: bash $ auto
 
-  systemctl start postgresql-13
-  su - postgres
-  psql -c "CREATE DATABASE panda_db"
-  psql -c "CREATE USER panda PASSWORD 'password'"
+  $ systemctl start postgresql-13
+  $ su - postgres
+  $ psql << EOF
+  CREATE DATABASE panda_db;
+  CREATE USER panda PASSWORD 'password'
+  ALTER ROLE panda SET search_path = doma_panda,public;
+  CREATE EXTENSION pg_cron;
+  GRANT USAGE ON SCHEMA cron TO panda;
+  EOF
 
 |br|
 
@@ -72,13 +81,9 @@ Preparation of Config File
 
     # Oracle database connection
     ORACLE_DSN dbi:Oracle:INT8R
-    ORACLE_USER <user>
-    ORACLE_PWD <password>
 
     # Schema
     EXPORT_SCHEMA   1
-    SCHEMA ATLAS_PANDA
-    PG_SCHEMA DOMA_PANDA
 
     # Non-privileged Oracle access
     USER_GRANTS 1
@@ -108,44 +113,113 @@ Testing
 Exporting Schemas
 ===========================
 
-PANDA Schema
+Tables and Sequences
 ^^^^^^^^^^^^^^^^^^^^^^
+
+Loop over PANDA, PANDAARCH, and PANDAMETA.
+
+.. prompt:: bash $, auto
+
+    $# set the password and the core name of the Oracle schema
+    $export ORA2PG_PASSWD=<the password>
+    $export PANDA_SCHEMA=<core name of schema>
+
+    $# make DLL to create tables and sequences
+    $./usr/local/bin/ora2pg -t "TABLE SEQUENCE" -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
+          -N DOMA_${PANDA_SCHEMA} -c ora2pg.conf -o ${PANDA_SCHEMA}.sql
+
+    $# reset sequence values
+    $mv SEQUENCE_${PANDA_SCHEMA}.sql a.sql
+    $sed -E "s/START +[0-9]+/START 1/" a.sql | sed  -E "s/MINVALUE +([0-9]+)/MINVALUE 1/" \
+      > SEQUENCE_${PANDA_SCHEMA}.sql
+
+    $# create tables
+    $qsql -d panda_db -f TABLE_${PANDA_SCHEMA}.sql
+
+    $# create sequences
+    $qsql -d panda_db -f SEQUENCE_${PANDA_SCHEMA}.sql
+
+    $# delete tables when failed
+    $psql -d panda_db -c \
+      "select 'drop table doma_"${PANDA_SCHEMA,,}".' || table_name || ' cascade;'
+      FROM information_schema.tables  where table_schema='doma_"${PANDA_SCHEMA,,}"'" \
+      | grep drop | psql -d panda_db
+
+    $# delete sequences when failed
+    $psql -d panda_db -c \
+      "select 'drop sequence doma_"${PANDA_SCHEMA,,}".' || sequence_name || ' cascade;'
+      FROM information_schema.sequences where sequence_schema='doma_"${PANDA_SCHEMA,,}"'" \
+      | grep drop | psql -d panda_db
+
+
+Functions
+^^^^^^^^^^^^^^^^^^^^^^
+
+Only PANDA.
 
 .. prompt:: bash $ auto
 
-    $ # make DLL to create tables
-    $ ./usr/local/bin/ora2pg -t TABLE -c ora2pg.conf -o table.sql
+   $psql -d panda_db << EOF
+   CREATE OR REPLACE FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) RETURNS integer AS \$body$
+   BEGIN
+         RETURN P_BITS1 | P_BITS2;
+   END;
+   \$body$
+   LANGUAGE PLPGSQL
+   ;
+   ALTER FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) OWNER TO panda;
+   EOF
 
-    $ # patch some
-    $ patch --dry-run table.sql << 'EOF'
-    652c652
-    < CREATE UNIQUE INDEX jedi_job_retry_history_uq ON jedi_job_retry_history (jeditaskid, newpandaid, oldpandaid, originpandaid);
-    ---
-    > CREATE UNIQUE INDEX jedi_job_retry_history_uq ON jedi_job_retry_history (jeditaskid, newpandaid, oldpandaid, originpandaid, ins_utc_tstamp);
-    655c655
-    < ALTER TABLE jedi_job_retry_history ADD UNIQUE (jeditaskid,oldpandaid,newpandaid,originpandaid);
-    ---
-    > ALTER TABLE jedi_job_retry_history ADD UNIQUE (jeditaskid,oldpandaid,newpandaid,originpandaid, ins_utc_tstamp);
+
+Procedures
+^^^^^^^^^^^^^^^^^^
+
+Only PANDA.
+
+.. prompt:: bash $, auto
+
+    $export ORA2PG_PASSWD=<the password of Oracle PANDA>
+    $export PANDA_SCHEMA=PANDA
+
+    $# make DLL to create procedures
+    $./usr/local/bin/ora2pg -t PROCEDURE -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
+          -N DOMA_${PANDA_SCHEMA} -c ora2pg.conf -o a.sql
+
+    $# patch for namespace
+    $sed -E "s/atlas_panda/doma_panda/i" a.sql | sed -E "s/ default [0-9]+\) owner/\) owner/i" \
+      > PROCEDURE_${PANDA_SCHEMA}.sql
+
+    $# create procedures
+    $qsql -d panda_db -f PROCEDURE_${PANDA_SCHEMA}.sql
+
+    $# patch for MERGE
+    $psql -d panda_db << EOF
+    SET search_path = doma_panda,public;
+    CREATE OR REPLACE PROCEDURE doma_panda.jedi_refr_mintaskids_bystatus () AS \$body$
+    BEGIN
+
+    INSERT INTO JEDI_AUX_STATUS_MINTASKID
+    (status, min_jeditaskid)
+    SELECT status, MIN(jeditaskid) min_taskid from JEDI_TASKS WHERE status NOT IN ('broken', 'aborted', 'finished', 'failed') GROUP By status
+    ON CONFLICT (status)
+    DO
+      UPDATE SET min_jeditaskid=EXCLUDED.min_jeditaskid;
+
+    END;
+    \$body$
+    LANGUAGE PLPGSQL
+    SECURITY DEFINER
+    ;
+    ALTER PROCEDURE jedi_refr_mintaskids_bystatus () OWNER TO panda;
     EOF
 
-    $ # create tables
-    $ qsql -d <database name> -f table.sql
+Schedule Jobs
+^^^^^^^^^^^^^^^^^^^
 
-    $ # delete tables when failed
-    $ psql -d panda_db -c \
-      "select 'drop table doma_panda.' || table_name || ' cascade;' FROM information_schema.tables  where table_schema='doma_panda'" \
-      | grep drop | psql -d panda_db
+.. prompt:: bash $,>>, auto
 
-    $ # make DLL to sequences
-    $ ./usr/local/bin/ora2pg -t SEQUENCE -c ora2pg.conf -o seq_tmp.sql
+  $psql
 
-    $ # reset values
-    $ sed -E "s/START +[0-9]+/START 1/" seq_tmp.sql | sed  -E "s/MINVALUE +([0-9]+)/MINVALUE 1/" > seq.sql
-
-    $ # create sequences
-    $ qsql -d <database name> -f seq.sql
-
-    $ # delete sequences when failed
-    $ psql -d panda_db -c \
-      "select 'drop sequence doma_panda.' || sequence_name || ' cascade;' FROM information_schema.sequences where sequence_schema='doma_panda'" \
-      | grep drop | psql -d panda_db
+  >> SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
+  >> UPDATE cron.job SET database='panda_db',username='panda' WHERE jobid=<id>;
+  >> SELECT * FROM cron.job_run_details;
