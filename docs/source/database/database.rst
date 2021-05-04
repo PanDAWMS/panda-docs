@@ -22,4 +22,5 @@ You can find more information in the following sections.
    er_diagrams
    partitioning
    archival
+   postgres
 
