@@ -114,7 +114,7 @@ Exporting Schemas
 ===========================
 
 It is possible to export tables and sequences almost automatically. Procedures need many patches, while
-functions need few since their usage is very limited.
+functions are directory created since they are very few.
 
 Tables and Sequences
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -188,8 +188,12 @@ Only PANDA.
     $./usr/local/bin/ora2pg -t PROCEDURE -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
           -N DOMA_${PANDA_SCHEMA} -c ora2pg.conf -o a.sql
 
-    $# patch for namespace
-    $sed -E "s/atlas_panda/doma_panda/i" a.sql | sed -E "s/ default [0-9]+\) owner/\) owner/i" \
+    $# patches
+    $sed -E "s/atlas_(panda[^\.]*)/doma_\L\1/gi" a.sql | sed -E "s/ default [0-9]+\) owner/\) owner/gi" \
+      | sed "s/DBMS_APPLICATION_INFO/--DBMS_APPLICATION_INFO/gi" | sed "s/COMMIT;/--COMMIT;/ig" \
+      | sed -E "s/MEDIAN\(([^\)]+)\)/PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY \1)/gi" \
+      | sed -E "s/(GROUP BY vo, gshare, prodsourcelabel, resource_type,) [^ +]/\1 agg_type/gi" \
+      | sed -E "s/(vo, workqueue_id::varchar, prodsourcelabel, resource_type,) [^ +]/\1 agg_type/gi" \
       > PROCEDURE_${PANDA_SCHEMA}.sql
 
     $# create procedures
@@ -216,14 +220,26 @@ Only PANDA.
     ALTER PROCEDURE jedi_refr_mintaskids_bystatus () OWNER TO panda;
     EOF
 
-Schedule Jobs
-^^^^^^^^^^^^^^^^^^^
+|br|
 
-.. prompt:: bash $,>>, auto
+Registration of Scheduler Jobs
+================================
 
-  $psql
+Aggregation jobs are functional, while backup and deletion jobs to be studied.
 
-  >> SELECT cron.schedule('0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
-  >> SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
-  >> UPDATE cron.job SET database='panda_db',username='panda' WHERE jobid=<id>;
-  >> SELECT * FROM cron.job_run_details;
+.. prompt:: bash $ auto
+
+    $psql << EOF
+    SELECT cron.schedule('0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
+    SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
+    SELECT cron.schedule ('update_jobsdef_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsdef_stats_by_gshare()');
+    SELECT cron.schedule ('update_jobsact_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsact_stats_by_gshare()');
+    SELECT cron.schedule ('update_jobsactive_stats', '* * * * *', 'call doma_panda.update_jobsactive_stats()');
+    SELECT cron.schedule ('update_num_input_data_files', '* * * * *', 'call doma_panda.update_num_input_data_files()');
+    SELECT cron.schedule ('update_total_walltime', '* * * * *', 'call doma_panda.update_total_walltime()');
+    SELECT cron.schedule ('update_ups_stats', '* * * * *', 'call doma_panda.update_ups_statss()');
+    SELECT cron.schedule ('update_job_stats_hp', '* * * * *', 'call doma_panda.update_job_stats_hp()');
+    UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%doma_panda.%';
+    EOF
+
+|br|
