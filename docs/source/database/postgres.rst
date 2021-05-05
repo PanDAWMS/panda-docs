@@ -40,19 +40,19 @@ to /var/lib/pgsql/13/data/pg_hba.conf.
 
 Start PostgreSQL, make the database and the user, and enable pg_cron.
 
-.. prompt:: bash $, auto
+.. prompt:: bash $ auto
 
   $ systemctl start postgresql-13
   $ su - postgres
   $ psql << EOF
 
-   CREATE DATABASE panda_db;
-   CREATE USER panda PASSWORD 'password'
-   ALTER ROLE panda SET search_path = doma_panda,public;
-   CREATE EXTENSION pg_cron;
-   GRANT USAGE ON SCHEMA cron TO panda;
+  CREATE DATABASE panda_db;
+  CREATE USER panda PASSWORD 'password'
+  ALTER ROLE panda SET search_path = doma_panda,public;
+  CREATE EXTENSION pg_cron;
+  GRANT USAGE ON SCHEMA cron TO panda;
 
-   EOF
+  EOF
 
 |br|
 
@@ -162,20 +162,20 @@ Functions
 
 Only PANDA.
 
-.. prompt:: bash $, auto
+.. prompt:: bash $ auto
 
    $ psql -d panda_db << EOF
 
-    CREATE OR REPLACE FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) RETURNS integer AS \$body$
-    BEGIN
-         RETURN P_BITS1 | P_BITS2;
-    END;
-    \$body$
-    LANGUAGE PLPGSQL
-    ;
-    ALTER FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) OWNER TO panda;
+   CREATE OR REPLACE FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) RETURNS integer AS \$body$
+   BEGIN
+        RETURN P_BITS1 | P_BITS2;
+   END;
+   \$body$
+   LANGUAGE PLPGSQL
+   ;
+   ALTER FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) OWNER TO panda;
 
-    EOF
+   EOF
 
 
 Procedures
@@ -183,7 +183,7 @@ Procedures
 
 Only PANDA.
 
-.. prompt:: bash $, auto
+.. prompt:: bash $ auto
 
     $ export ORA2PG_PASSWD=<the password of Oracle PANDA>
     $ export PANDA_SCHEMA=PANDA
@@ -206,83 +206,83 @@ Only PANDA.
     $ # patch for MERGE
     $ psql -d panda_db << EOF
 
-     SET search_path = doma_panda,public;
-     CREATE OR REPLACE PROCEDURE doma_panda.jedi_refr_mintaskids_bystatus () AS \$body$
-     BEGIN
+    SET search_path = doma_panda,public;
+    CREATE OR REPLACE PROCEDURE doma_panda.jedi_refr_mintaskids_bystatus () AS \$body$
+    BEGIN
 
-     INSERT INTO JEDI_AUX_STATUS_MINTASKID
-     (status, min_jeditaskid)
-     SELECT status, MIN(jeditaskid) min_taskid from JEDI_TASKS WHERE status NOT IN ('broken', 'aborted', 'finished', 'failed') GROUP By status
-     ON CONFLICT (status)
-     DO
-       UPDATE SET min_jeditaskid=EXCLUDED.min_jeditaskid;
-     END;
-     \$body$
-     LANGUAGE PLPGSQL
-     SECURITY DEFINER
-     ;
-     ALTER PROCEDURE jedi_refr_mintaskids_bystatus () OWNER TO panda;
+    INSERT INTO JEDI_AUX_STATUS_MINTASKID
+    (status, min_jeditaskid)
+    SELECT status, MIN(jeditaskid) min_taskid from JEDI_TASKS WHERE status NOT IN ('broken', 'aborted', 'finished', 'failed') GROUP By status
+    ON CONFLICT (status)
+    DO
+      UPDATE SET min_jeditaskid=EXCLUDED.min_jeditaskid;
+    END;
+    \$body$
+    LANGUAGE PLPGSQL
+    SECURITY DEFINER
+    ;
+    ALTER PROCEDURE jedi_refr_mintaskids_bystatus () OWNER TO panda;
 
-     EOF
+    EOF
 
 
 DEFT
 ^^^^^^^^^
 
-.. prompt:: bash $, auto
+.. prompt:: bash $ auto
 
     $ psql -d panda_db << EOF
 
-     CREATE SCHEMA IF NOT EXISTS doma_deft;
-     ALTER SCHEMA doma_deft OWNER TO panda;
+    CREATE SCHEMA IF NOT EXISTS doma_deft;
+    ALTER SCHEMA doma_deft OWNER TO panda;
 
-     CREATE TABLE DOMA_DEFT.T_TASK
-     (
-     TASKID bigint NOT NULL,
-     PARENT_TID bigint ,
-     STATUS VARCHAR(12),
-     TOTAL_DONE_JOBS bigint ,
-     SUBMIT_TIME TIMESTAMP (0) NOT NULL,
-     START_TIME TIMESTAMP (0),
-     TIMESTAMP TIMESTAMP (0),
-     VO VARCHAR(16),
-     PRODSOURCELABEL VARCHAR(20),
-     TASKNAME VARCHAR(256),
-     USERNAME VARCHAR(128),
-     PRIORITY bigint ,
-     CURRENT_PRIORITY bigint ,
-     TOTAL_REQ_JOBS bigint ,
-     CHAIN_TID bigint ,
-     TOTAL_EVENTS bigint ,
-     JEDI_TASK_PARAMETERS TEXT ,
-     TOTAL_INPUT_EVENTS bigint ,
-       CONSTRAINT T_TASK_TASKID_NN CHECK (TASKID IS NOT NULL),
-       CONSTRAINT T_TASK_SUBMIT_TIME_NN CHECK (SUBMIT_TIME IS NOT NULL)
-     )
-     PARTITION BY RANGE (TASKID) ;
+    CREATE TABLE DOMA_DEFT.T_TASK
+    (
+    TASKID bigint NOT NULL,
+    PARENT_TID bigint ,
+    STATUS VARCHAR(12),
+    TOTAL_DONE_JOBS bigint ,
+    SUBMIT_TIME TIMESTAMP (0) NOT NULL,
+    START_TIME TIMESTAMP (0),
+    TIMESTAMP TIMESTAMP (0),
+    VO VARCHAR(16),
+    PRODSOURCELABEL VARCHAR(20),
+    TASKNAME VARCHAR(256),
+    USERNAME VARCHAR(128),
+    PRIORITY bigint ,
+    CURRENT_PRIORITY bigint ,
+    TOTAL_REQ_JOBS bigint ,
+    CHAIN_TID bigint ,
+    TOTAL_EVENTS bigint ,
+    JEDI_TASK_PARAMETERS TEXT ,
+    TOTAL_INPUT_EVENTS bigint ,
+      CONSTRAINT T_TASK_TASKID_NN CHECK (TASKID IS NOT NULL),
+      CONSTRAINT T_TASK_SUBMIT_TIME_NN CHECK (SUBMIT_TIME IS NOT NULL)
+    )
+    PARTITION BY RANGE (TASKID) ;
 
-     ALTER TABLE DOMA_DEFT.T_TASK OWNER TO panda;
-     CREATE UNIQUE INDEX T_TASK_PK_PART ON DOMA_DEFT.T_TASK (TASKID);
+    ALTER TABLE DOMA_DEFT.T_TASK OWNER TO panda;
+    CREATE UNIQUE INDEX T_TASK_PK_PART ON DOMA_DEFT.T_TASK (TASKID);
 
-     CREATE INDEX T_TASK_STATUS_PRODLABEL_IDX ON DOMA_DEFT.T_TASK (STATUS, PRODSOURCELABEL);
-     CREATE INDEX T_TASK_TASKNAME_IDX ON DOMA_DEFT.T_TASK (TASKNAME);
-     CREATE INDEX T_TASK_USERNAME_IDX ON DOMA_DEFT.T_TASK (USERNAME);
+    CREATE INDEX T_TASK_STATUS_PRODLABEL_IDX ON DOMA_DEFT.T_TASK (STATUS, PRODSOURCELABEL);
+    CREATE INDEX T_TASK_TASKNAME_IDX ON DOMA_DEFT.T_TASK (TASKNAME);
+    CREATE INDEX T_TASK_USERNAME_IDX ON DOMA_DEFT.T_TASK (USERNAME);
 
-     CREATE TABLE DOMA_DEFT.PRODSYS_COMM
-     (
-     COMM_TASK bigint NOT NULL,
-     COMM_META bigint ,
-     COMM_OWNER VARCHAR(16),
-     COMM_CMD VARCHAR(256),
-     COMM_TS bigint ,
-     COMM_COMMENT VARCHAR(128),
-     COMM_PARAMETERS TEXT
-     )
-     PARTITION BY RANGE (COMM_TASK) ;
+    CREATE TABLE DOMA_DEFT.PRODSYS_COMM
+    (
+    COMM_TASK bigint NOT NULL,
+    COMM_META bigint ,
+    COMM_OWNER VARCHAR(16),
+    COMM_CMD VARCHAR(256),
+    COMM_TS bigint ,
+    COMM_COMMENT VARCHAR(128),
+    COMM_PARAMETERS TEXT
+    )
+    PARTITION BY RANGE (COMM_TASK) ;
 
-     ALTER TABLE DOMA_DEFT.PRODSYS_COMM OWNER TO panda;
+    ALTER TABLE DOMA_DEFT.PRODSYS_COMM OWNER TO panda;
 
-     EOF
+    EOF
 
 |br|
 
@@ -291,21 +291,21 @@ Registration of Scheduler Jobs
 
 Aggregation jobs are functional, while backup and deletion jobs to be studied.
 
-.. prompt:: bash $, auto
+.. prompt:: bash $ auto
 
     $ psql << EOF
 
-     SELECT cron.schedule('0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
-     SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
-     SELECT cron.schedule ('update_jobsdef_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsdef_stats_by_gshare()');
-     SELECT cron.schedule ('update_jobsact_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsact_stats_by_gshare()');
-     SELECT cron.schedule ('update_jobsactive_stats', '* * * * *', 'call doma_panda.update_jobsactive_stats()');
-     SELECT cron.schedule ('update_num_input_data_files', '* * * * *', 'call doma_panda.update_num_input_data_files()');
-     SELECT cron.schedule ('update_total_walltime', '* * * * *', 'call doma_panda.update_total_walltime()');
-     SELECT cron.schedule ('update_ups_stats', '* * * * *', 'call doma_panda.update_ups_statss()');
-     SELECT cron.schedule ('update_job_stats_hp', '* * * * *', 'call doma_panda.update_job_stats_hp()');
-     UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%doma_panda.%';
+    SELECT cron.schedule('0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
+    SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
+    SELECT cron.schedule ('update_jobsdef_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsdef_stats_by_gshare()');
+    SELECT cron.schedule ('update_jobsact_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsact_stats_by_gshare()');
+    SELECT cron.schedule ('update_jobsactive_stats', '* * * * *', 'call doma_panda.update_jobsactive_stats()');
+    SELECT cron.schedule ('update_num_input_data_files', '* * * * *', 'call doma_panda.update_num_input_data_files()');
+    SELECT cron.schedule ('update_total_walltime', '* * * * *', 'call doma_panda.update_total_walltime()');
+    SELECT cron.schedule ('update_ups_stats', '* * * * *', 'call doma_panda.update_ups_statss()');
+    SELECT cron.schedule ('update_job_stats_hp', '* * * * *', 'call doma_panda.update_job_stats_hp()');
+    UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%doma_panda.%';
 
-     EOF
+    EOF
 
 |br|
