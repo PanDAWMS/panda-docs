@@ -1,6 +1,6 @@
-=========================================
-Exporting Database Schemas to PostgreSQL
-=========================================
+===================================================
+Exporting Oracle Database Schemas to PostgreSQL
+===================================================
 
 PostgreSQL Setup
 ======================
@@ -51,6 +51,7 @@ Start PostgreSQL, make the database and the user, and enable pg_cron.
   ALTER ROLE panda SET search_path = doma_panda,public;
   CREATE EXTENSION pg_cron;
   GRANT USAGE ON SCHEMA cron TO panda;
+
   EOF
 
 |br|
@@ -173,6 +174,7 @@ Only PANDA.
    LANGUAGE PLPGSQL
    ;
    ALTER FUNCTION doma_panda.bitor ( P_BITS1 integer, P_BITS2 integer ) OWNER TO panda;
+
    EOF
 
 
@@ -221,6 +223,7 @@ Only PANDA.
     SECURITY DEFINER
     ;
     ALTER PROCEDURE jedi_refr_mintaskids_bystatus () OWNER TO panda;
+
     EOF
 
 
@@ -300,6 +303,7 @@ Aggregation jobs are functional, while backup and deletion jobs to be studied.
     SELECT cron.schedule ('update_ups_stats', '* * * * *', 'call doma_panda.update_ups_statss()');
     SELECT cron.schedule ('update_job_stats_hp', '* * * * *', 'call doma_panda.update_job_stats_hp()');
     UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%doma_panda.%';
+
     EOF
 
 |br|
