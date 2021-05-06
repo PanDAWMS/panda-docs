@@ -39,9 +39,10 @@ Then
 
 .. prompt:: bash
 
- pip install panda-server
+ pip install panda-server[<database type>]
 
-which will install panda-server, panda-common, and dependent python packages.
+which will install panda-server, panda-common, and dependent python packages. The ``<database type>`` is
+oracle, postgres, or mysql depending on your database backend.
 
 If the latest panda-server in the git master repository is required,
 
@@ -57,7 +58,7 @@ Configuration
 -----------------
 
 
-There are two python and one httpd configuration files under ``${VIRTUAL_ENV}/etc/panda``.
+There are two python, one httpd, and one system configuration files under ``${VIRTUAL_ENV}/etc/panda``.
 
 panda_common.cfg
 =====================
@@ -178,6 +179,26 @@ directive.
    * - WSGIDaemonProcess
      - Config of WSGI daemons. Change ``processes`` and ``home`` if any
 
+
+panda_server.sysconfig
+=========================
+
+.. prompt:: bash
+
+ cd ${VIRTUAL_ENV}/etc/panda
+ mv panda_server.sysconfig.rpmnew panda_server.sysconfig
+
+.. list-table:: httpd parameters
+   :header-rows: 1
+
+   * - Name
+     - Description
+   * - HOME
+     - The non-NFS home directory to run the service
+   * - X509_USER_PROXY
+     - Proxy file path
+
+
 ------------
 
 |br|
@@ -188,7 +209,11 @@ Then you need to register the PanDA server as a system service, make some direct
 
 .. prompt:: bash
 
- # register the PanDA server
+ # register the PanDA server in the system
+ mkdir -p /etc/panda
+ ln -s ${VIRTUAL_ENV}/etc/panda/*.cfg /etc/panda/
+ ln -s ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
+ mv ${VIRTUAL_ENV}/etc/idds/idds.cfg.client.template ${VIRTUAL_ENV}/etc/idds/idds.cfg
  ln -fs ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
  ln -fs ${VIRTUAL_ENV}/etc/init.d/panda_server /etc/rc.d/init.d/httpd-pandasrv
  /sbin/chkconfig --add httpd-pandasrv

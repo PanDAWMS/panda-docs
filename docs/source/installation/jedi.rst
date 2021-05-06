@@ -55,7 +55,7 @@ Configuration
 -----------------
 
 
-There are two configuration files under ``${VIRTUAL_ENV}/etc/panda``.
+There are two python and one system configuration files under ``${VIRTUAL_ENV}/etc/panda``.
 
 panda_common.cfg
 =====================
@@ -163,6 +163,26 @@ This configuration file sets various JEDI parameters.
     If activity names are concatenated in the activity field those activities share the same processes.
 
     Parameters of Message Processor are described in :doc:`/advanced/msg_processor`.
+
+
+
+panda_jedi.sysconfig
+=========================
+
+.. prompt:: bash
+
+ cd ${VIRTUAL_ENV}/etc/panda
+ mv ../sysconfig/panda_jedi panda_jedi.sysconfig
+
+.. list-table:: httpd parameters
+   :header-rows: 1
+
+   * - Name
+     - Description
+   * - HOME
+     - The non-NFS home directory to run the service
+   * - X509_USER_PROXY
+     - Proxy file path
 
 
 ------------
