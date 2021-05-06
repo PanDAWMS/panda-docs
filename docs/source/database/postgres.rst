@@ -107,8 +107,9 @@ Testing
 
 .. prompt:: bash
 
-  ./usr/local/bin/ora2pg -t SHOW_VERSION -c ora2pg.conf
-  ./usr/local/bin/ora2pg -t SHOW_REPORT --estimate_cost -c ora2pg.conf
+  export ORA2PG_PASSWD=<Oracle password>
+  ./usr/local/bin/ora2pg -t SHOW_VERSION -u <Oracle user> -c ora2pg.conf
+  ./usr/local/bin/ora2pg -t SHOW_REPORT -u <Oracle user> --estimate_cost -c ora2pg.conf
 
 |br|
 
@@ -125,9 +126,9 @@ Loop over PANDA, PANDAARCH, and PANDAMETA.
 
 .. prompt:: bash $, auto
 
-    $ # set the password and the core name of the Oracle schema
-    $ export ORA2PG_PASSWD=<the password>
+    $ # set the core name of the Oracle schema and its password
     $ export PANDA_SCHEMA=<core name of schema>
+    $ export ORA2PG_PASSWD=<the password>
 
     $ # make DLL to create tables and sequences
     $ ./usr/local/bin/ora2pg -t "TABLE SEQUENCE" -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
