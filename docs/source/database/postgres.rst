@@ -105,11 +105,13 @@ Preparation of Config File
 Testing
 ^^^^^^^^^^^^^^^^
 
+The DBA or schema owner account is required to access Oracle since only they can export database objects in the schema.
+
 .. prompt:: bash
 
   export ORA2PG_PASSWD=<Oracle password>
-  ./usr/local/bin/ora2pg -t SHOW_VERSION -u <Oracle user> -c ora2pg.conf
-  ./usr/local/bin/ora2pg -t SHOW_REPORT -u <Oracle user> --estimate_cost -c ora2pg.conf
+  ./usr/local/bin/ora2pg -t SHOW_VERSION -u <Oracle schema> -c ora2pg.conf
+  ./usr/local/bin/ora2pg -t SHOW_REPORT -u <Oracle schema> --estimate_cost -c ora2pg.conf
 
 |br|
 
