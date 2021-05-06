@@ -157,6 +157,19 @@ Loop over PANDA, PANDAARCH, and PANDAMETA.
        | grep drop | psql -d panda_db
 
 
+Note that the DDL script to create the PANDA tables requires small correction.
+
+.. code-block:: text
+
+    652c652
+    < CREATE UNIQUE INDEX jedi_job_retry_history_uq ON jedi_job_retry_history (jeditaskid, newpandaid, oldpandaid, originpandaid);
+    ---
+    > CREATE UNIQUE INDEX jedi_job_retry_history_uq ON jedi_job_retry_history (jeditaskid, newpandaid, oldpandaid, originpandaid, ins_utc_tstamp);
+    655c655
+    < ALTER TABLE jedi_job_retry_history ADD UNIQUE (jeditaskid,oldpandaid,newpandaid,originpandaid);
+    ---
+    > ALTER TABLE jedi_job_retry_history ADD UNIQUE (jeditaskid,oldpandaid,newpandaid,originpandaid,ins_utc_tstamp);
+
 Functions
 ^^^^^^^^^^^^^^^^^^^^^^
 
