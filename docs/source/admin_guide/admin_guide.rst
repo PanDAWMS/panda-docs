@@ -171,7 +171,7 @@ The following SQL statement adds a test resource.
 
  INSERT INTO PANDA.PANDA_SITE (PANDA_SITE_NAME,SITE_NAME) VALUES('TEST_SITE','TEST_SITE')
 
- INSERT INTO PANDAMETA.SCHEDCONFIG_JSON (PANDA_QUEUE,DATA) values('TEST_TEST','{"status": "online", "cloud": "WLCG"}')
+ INSERT INTO PANDA.SCHEDCONFIG_JSON (PANDA_QUEUE,DATA) values('TEST_TEST','{"status": "online", "cloud": "WLCG"}')
 
 where *cloud* is the group name, and *status* needs to be 'online'.
 
