@@ -193,22 +193,24 @@ System Setup
 -------------------
 Then you need to register JEDI as a system service, make some directories, and setup log rotation if any.
 Check contents in ``/etc/sysconfig/panda_server`` and ``/etc/sysconfig/panda_jedi`` just in case.
+Also make sure that log rotate scripts of JEDI and the PanDA server don't interfere with each other
+when they are installed on the same machine.
 
-.. prompt:: bash
+.. prompt:: bash $, auto
 
- # register the PanDA server
- ln -fs ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
- ln -fs ${VIRTUAL_ENV}/etc/panda/panda_jedi.sysconfig /etc/sysconfig/panda_jedi
- ln -fs ${VIRTUAL_ENV}/etc/init.d/panda_jedi /etc/rc.d/init.d/panda_jedi
- /sbin/chkconfig --add panda_jedi
- /sbin/chkconfig panda_jedi on
+ $ # register the PanDA server
+ $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
+ $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_jedi.sysconfig /etc/sysconfig/panda_jedi
+ $ ln -fs ${VIRTUAL_ENV}/etc/init.d/panda_jedi /etc/rc.d/init.d/panda_jedi
+ $ /sbin/chkconfig --add panda_jedi
+ $ /sbin/chkconfig panda_jedi on
 
- # make dirs
- mkdir -p <logdir in panda_common.cfg>
- chown -R <userid in panda_jedi.cfg>:<group in panda_jedi.cfg> <logdir in panda_common.cfg>
+ $ # make dirs
+ $ mkdir -p <logdir in panda_common.cfg>
+ $ chown -R <userid in panda_jedi.cfg>:<group in panda_jedi.cfg> <logdir in panda_common.cfg>
 
- # setup log rotation if necessary
- ln -fs ${VIRTUAL_ENV}/etc/panda/panda_jedi.logrotate /etc/logrotate.d/panda_jedi
+ $ # setup log rotation if necessary
+ $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_jedi.logrotate /etc/logrotate.d/panda_jedi
 
 --------------
 
@@ -217,13 +219,13 @@ Check contents in ``/etc/sysconfig/panda_server`` and ``/etc/sysconfig/panda_jed
 Service Control
 ----------------------------------
 
-.. prompt:: bash
+.. prompt:: bash $, auto
 
- # start
- /sbin/service panda_jedi start
+ $ # start
+ $ /sbin/service panda_jedi start
 
- # stop
- /sbin/service panda_jedi stop
+ $ # stop
+ $ /sbin/service panda_jedi stop
 
 There should be log files in ``logdir``.
 If it doesn't get started there could be clues in ``panda_jedi_stdout.log`` and ``panda_jedi_stderr.log``.

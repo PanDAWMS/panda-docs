@@ -233,7 +233,7 @@ Then you need to register the PanDA server as a system service, make some direct
 Service Control
 ----------------------------------
 
-.. prompt:: bash $ auto
+.. prompt:: bash $, auto
 
  $ # start
  $ /sbin/service httpd-pandasrv start
