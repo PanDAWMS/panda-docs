@@ -139,9 +139,9 @@ using the following SQL statement.
 
 .. code-block:: sql
 
-  INSERT INTO PANDAMETA.CLOUDCONFIG (NAME,DESCRIPTION,TIER1,TIER1SE,WEIGHT,SERVER,STATUS,
+  INSERT INTO DOMA_PANDAMETA.CLOUDCONFIG (NAME,DESCRIPTION,TIER1,TIER1SE,WEIGHT,SERVER,STATUS,
      TRANSTIMELO,TRANSTIMEHI,WAITTIME,SPACE,MODTIME,MCSHARE,NPRESTAGE)
-     VALUES('A_GROUP0','some description','NA','NA',0,'NA','online',0,0,0,0,CURRENT_DATE,0,0)
+     VALUES('A_GROUP0','some description','NA','NA',0,'NA','online',0,0,0,0,CURRENT_DATE,0,0);
 
 where *NAME* is an arbitrary group name and *STATUS* needs to be set to "online". Replace "PANDAMETA" with your
 schema name for the meta tables.
@@ -155,8 +155,8 @@ adds a special test share.
 
 .. code-block:: sql
 
- INSERT INTO PANDA.JEDI_WORK_QUEUE (QUEUE_ID,QUEUE_NAME,QUEUE_TYPE,VO,QUEUE_FUNCTION)
-     VALUES(1,'test_queue','test','wlcg','Resource')
+ INSERT INTO DOMA_PANDA.JEDI_WORK_QUEUE (QUEUE_ID,QUEUE_NAME,QUEUE_TYPE,VO,QUEUE_FUNCTION)
+     VALUES(1,'test_queue','test','wlcg','Resource');
 
 where *VO* and *QUEUE_TYPE* are organization and activity names, respectively. Replace "PANDA" with your
 schema name for the JEDI tables.
@@ -167,11 +167,11 @@ The following SQL statement adds a test resource.
 
 .. code-block:: sql
 
- INSERT INTO PANDA.SITE (SITE_NAME) VALUES('TEST_SITE')
+ INSERT INTO DOMA_PANDA.SITE (SITE_NAME) VALUES('TEST_SITE');
 
- INSERT INTO PANDA.PANDA_SITE (PANDA_SITE_NAME,SITE_NAME) VALUES('TEST_SITE','TEST_SITE')
+ INSERT INTO DOMA_PANDA.PANDA_SITE (PANDA_SITE_NAME,SITE_NAME) VALUES('TEST_SITE','TEST_SITE');
 
- INSERT INTO PANDA.SCHEDCONFIG_JSON (PANDA_QUEUE,DATA) values('TEST_TEST','{"status": "online", "cloud": "WLCG"}')
+ INSERT INTO DOMA_PANDA.SCHEDCONFIG_JSON (PANDA_QUEUE,DATA) values('TEST_TEST','{"status": "online", "cloud": "WLCG"}');
 
 where *cloud* is the group name, and *status* needs to be 'online'.
 
@@ -181,7 +181,7 @@ You need the catchall resource type at least.
 
 .. code-block:: sql
 
-  INSERT INTO PANDA.RESOURCE_TYPES (RESOURCE_NAME) VALUES('Undefined')
+  INSERT INTO DOMA_PANDA.RESOURCE_TYPES (RESOURCE_NAME) VALUES('Undefined');
 
 -----------------
 
@@ -280,7 +280,7 @@ registered in the database of JEDI and the PanDA server (i.e., not the harvester
 
 .. code-block:: sql
 
- INSERT INTO PANDA.HARVESTER_INSTANCES (HARVESTER_ID,DESCRIPTION) VALUES('your_harvester_id','some description')
+ INSERT INTO DOMA_PANDA.HARVESTER_INSTANCES (HARVESTER_ID,DESCRIPTION) VALUES('your_harvester_id','some description')
 
 6.1. Queue Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
