@@ -331,3 +331,12 @@ Aggregation jobs are functional, while backup and deletion jobs to be studied.
     EOF
 
 |br|
+
+To Do
+====================
+
+* To enable partitioning
+* Automatic partition creation
+* Partition-based backup and deletion
+
+|br|
