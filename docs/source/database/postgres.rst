@@ -13,7 +13,7 @@ Here is an example of PostgreSQL 13 setup on a puppet-managed CC7.
 
   yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
   cp /etc/yum.repos.d/pgdg-redhat-all.repo /etc/yum-puppet.repos.d/
-  yum install -y postgresql13-server pg_cron_13
+  yum install -y postgresql13-server pg_cron_13 pg_partman13
   /usr/pgsql-13/bin/postgresql-13-setup initdb
   systemctl enable postgresql-13
 
@@ -24,8 +24,10 @@ Edit /var/lib/pgsql/13/data/postgresql.conf
   password_encryption = md5
   listen_addresses = '*'
   # port = 3130
-  shared_preload_libraries = 'pg_cron'
+  shared_preload_libraries = 'pg_cron, pg_partman_bgw'
   cron.database_name = 'postgres'
+  pg_partman_bgw.dbname = 'panda_db'
+  pg_partman_bgw.role = 'panda'
 
 Add
 
@@ -51,6 +53,9 @@ Start PostgreSQL, make the database and the user, and enable pg_cron.
   ALTER ROLE panda SET search_path = doma_panda,public;
   CREATE EXTENSION pg_cron;
   GRANT USAGE ON SCHEMA cron TO panda;
+  \c panda_db;
+  CREATE SCHEMA partman;
+  CREATE EXTENSION pg_partman SCHEMA partman;
 
   EOF
 
@@ -135,10 +140,6 @@ Loop over PANDA, PANDAARCH, and PANDAMETA.
     $ # make DLL to create tables and sequences
     $ ./usr/local/bin/ora2pg -t "TABLE SEQUENCE" -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
           -N DOMA_${PANDA_SCHEMA} -c ora2pg.conf -o ${PANDA_SCHEMA}.sql
-
-    $ remove partitioning for now
-    $ mv TABLE_${PANDA_SCHEMA}.sql a.sql
-    $ sed -E "s/PARTITION BY [^;]+//" a.sql > TABLE_${PANDA_SCHEMA}.sql
 
     $ # reset sequence values
     $ mv SEQUENCE_${PANDA_SCHEMA}.sql a.sql
@@ -317,26 +318,272 @@ Aggregation jobs are functional, while backup and deletion jobs to be studied.
 
     $ psql << EOF
 
-    SELECT cron.schedule('0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
-    SELECT cron.schedule ('jedi_refr_mintaskids_bystatus', '* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
-    SELECT cron.schedule ('update_jobsdef_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsdef_stats_by_gshare()');
-    SELECT cron.schedule ('update_jobsact_stats_by_gshare', '* * * * *', 'call doma_panda.update_jobsact_stats_by_gshare()');
-    SELECT cron.schedule ('update_jobsactive_stats', '* * * * *', 'call doma_panda.update_jobsactive_stats()');
-    SELECT cron.schedule ('update_num_input_data_files', '* * * * *', 'call doma_panda.update_num_input_data_files()');
-    SELECT cron.schedule ('update_total_walltime', '* * * * *', 'call doma_panda.update_total_walltime()');
-    SELECT cron.schedule ('update_ups_stats', '* * * * *', 'call doma_panda.update_ups_statss()');
-    SELECT cron.schedule ('update_job_stats_hp', '* * * * *', 'call doma_panda.update_job_stats_hp()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.jedi_refr_mintaskids_bystatus()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_jobsdef_stats_by_gshare()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_jobsact_stats_by_gshare()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_jobsactive_stats()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_num_input_data_files()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_total_walltime()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_ups_statss()');
+    SELECT cron.schedule ('* * * * *', 'call doma_panda.update_job_stats_hp()');
     UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%doma_panda.%';
+    SELECT cron.schedule ('@daily', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
+    SELECT cron.schedule ('@daily', 'call partman.run_maintenance_proc()');
+    UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%partman.run_maintenance_proc%';
 
     EOF
 
 |br|
 
-To Do
+Partitioning
 ====================
 
-* To enable partitioning
-* Automatic partition creation
-* Partition-based backup and deletion
+.. prompt:: bash $ auto
+
+    $ psql -d panda_db << EOF
+
+    -- PANDA tables with sliding windows
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.datasets',
+    p_control => 'modificationdate',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '3 months',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.datasets'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jobs_statuslog',
+    p_control => 'modificationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '30 days',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.jobs_statuslog'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.tasks_statuslog',
+    p_control => 'modificationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '30 days',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.tasks_statuslog'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.harvester_dialogs',
+    p_control => 'creationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '7 days',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.harvester_dialogs'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.harvester_metrics',
+    p_control => 'creation_time',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '7 days',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.harvester_metrics'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.harvester_workers',
+    p_control => 'lastupdate',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '3 months',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.harvester_workers'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_job_retry_history',
+    p_control => 'ins_utc_tstamp',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '3 months',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_panda.jedi_job_retry_history'
+    ;
+
+    -- PANDA tables with backup
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jobsarchived4',
+    p_control => 'modificationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '30 days',
+    retention_schema = 'doma_pandaarch'
+    WHERE parent_table = 'doma_panda.jobsarchived4'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.filestable4',
+    p_control => 'modificationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '30 days',
+    retention_schema = 'doma_pandaarch'
+    WHERE parent_table = 'doma_panda.filestable4'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.metatable',
+    p_control => 'modificationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '30 days',
+    retention_schema = 'doma_pandaarch'
+    WHERE parent_table = 'doma_panda.metatable'
+    ;
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jobparamstable',
+    p_control => 'modificationtime',
+    p_type => 'native',
+    p_interval=> 'daily',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '30 days',
+    retention_schema = 'doma_pandaarch'
+    WHERE parent_table = 'doma_panda.jobparamstable'
+    ;
+
+    -- PANDA tables with partitions
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_tasks',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_datasets',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_dataset_contents',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_events',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_jobparams_template',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_output_template',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.jedi_taskparams',
+    p_control => 'jeditaskid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_panda.harvester_rel_jobs_workers',
+    p_control => 'pandaid',
+    p_type => 'native',
+    p_interval=> '1000000',
+    p_premake => 3
+    );
+
+    -- PANDAMETA tables with sliding windows
+
+    SELECT partman.create_parent(
+    p_parent_table => 'doma_pandameta.usercacheusage',
+    p_control => 'creationtime',
+    p_type => 'native',
+    p_interval=> 'monthly',
+    p_premake => 3
+    );
+    UPDATE partman.part_config
+    SET infinite_time_partitions = true,
+    retention = '3 months',
+    retention_keep_table = false
+    WHERE parent_table = 'doma_pandameta.usercacheusage'
+    ;
+
+    EOF
+
+--------------
 
 |br|
