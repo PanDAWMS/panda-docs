@@ -280,7 +280,7 @@ registered in the database of JEDI and the PanDA server (i.e., not the harvester
 
 .. code-block:: sql
 
- INSERT INTO DOMA_PANDA.HARVESTER_INSTANCES (HARVESTER_ID,DESCRIPTION) VALUES('your_harvester_id','some description')
+ INSERT INTO DOMA_PANDA.HARVESTER_INSTANCES (HARVESTER_ID,DESCRIPTION) VALUES('your_harvester_id','some description');
 
 6.1. Queue Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
