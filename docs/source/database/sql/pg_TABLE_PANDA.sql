@@ -2464,3 +2464,12 @@ COMMENT ON COLUMN ups_stats.resource_type IS E'Resource type (SCORE, MCORE...)';
 COMMENT ON COLUMN ups_stats.ts IS E'Timestamp for the entry';
 COMMENT ON COLUMN ups_stats.vo IS E'Virtual organization';
 ALTER TABLE ups_stats OWNER TO panda;
+
+CREATE TABLE network_matrix_kv_temp (
+	src varchar(256) NOT NULL,
+	dst varchar(256) NOT NULL,
+	key varchar(256) NOT NULL,
+	value bigint,
+    ts timestamp
+) ;
+ALTER TABLE network_matrix_kv_temp OWNER TO panda;

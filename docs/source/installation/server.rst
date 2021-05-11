@@ -261,7 +261,7 @@ It will show the following message if successful.
 
   alive=yes
 
-If not see log files under ``logdir``, especially ``panda_server_access_log``, ``panda_server_error_log``,
+If not, see log files under ``logdir``, especially ``panda_server_access_log``, ``panda_server_error_log``,
 ``panda-Entry.log``, ``panda-DBProxyPool.log``, and ``panda-DBProxy.log`` would help.
 
 |br|
