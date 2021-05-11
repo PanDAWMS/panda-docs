@@ -181,7 +181,7 @@ You need the catchall resource type at least.
 
 .. code-block:: sql
 
-  INSERT INTO DOMA_PANDA.RESOURCE_TYPES (RESOURCE_NAME) VALUES('Undefined');
+  INSERT INTO DOMA_PANDA.RESOURCE_TYPES (RESOURCE_NAME,MINCORE) VALUES('Undefined',1);
 
 -----------------
 
