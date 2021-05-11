@@ -27,7 +27,6 @@ Edit /var/lib/pgsql/13/data/postgresql.conf
   shared_preload_libraries = 'pg_cron, pg_partman_bgw'
   cron.database_name = 'postgres'
   pg_partman_bgw.dbname = 'panda_db'
-  pg_partman_bgw.role = 'panda'
 
 Add
 
@@ -277,7 +276,7 @@ Aggregation jobs are functional, while backup and deletion jobs to be studied.
     UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%doma_panda.%';
     SELECT cron.schedule ('@daily', $$DELETE FROM cron.job_run_details WHERE end_time < now() – interval '3 days'$$);
     SELECT cron.schedule ('@daily', 'call partman.run_maintenance_proc()');
-    UPDATE cron.job SET database='panda_db',username='panda' WHERE command like '%partman.run_maintenance_proc%';
+    UPDATE cron.job SET database='panda_db' WHERE command like '%partman.run_maintenance_proc%';
 
     EOF
 
