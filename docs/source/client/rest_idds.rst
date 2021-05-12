@@ -12,10 +12,11 @@ The following code snippets show how iDDS native codes migrate to panda-client b
 .. code-block:: python
 
     from idds.client.client import Client
+    from idds.client.clientmanager import ClientManager
     import idds.common.constants
     import idds.common.utils
 
-    req = {
+    data = {
         'requester': 'panda',
         'request_type': idds.common.constants.RequestType.HyperParameterOpt,
         'transform_tag': idds.common.constants.RequestType.HyperParameterOpt.value,
@@ -25,8 +26,19 @@ The following code snippets show how iDDS native codes migrate to panda-client b
         'request_metadata': {},
     }
 
-    c = Client(idds.common.utils.get_rest_host())
-    ret = c.add_request(**req)
+    # using Client API
+    cl = Client(idds.common.utils.get_rest_host())
+    try:
+        request_id = cl.add_request(**data)
+    except Except:
+        # error
+
+    # using ClientManager
+    cm = ClientManager(idds.common.utils.get_rest_host())
+    try:
+        req = cm.get_requests(request_id=request_id)
+    except Exception:
+        # error
 
 * panda-client based
 
@@ -36,7 +48,7 @@ The following code snippets show how iDDS native codes migrate to panda-client b
     import idds.common.constants
     import idds.common.utils
 
-    req = {
+    data = {
         'requester': 'panda',
         'request_type': idds.common.constants.RequestType.HyperParameterOpt,
         'transform_tag': idds.common.constants.RequestType.HyperParameterOpt.value,
@@ -46,20 +58,32 @@ The following code snippets show how iDDS native codes migrate to panda-client b
         'request_metadata': {},
     }
 
-    c = pandatools.idds_api.get_api(idds.common.utils.json_dumps, compress=True)
-    ret = c.add_request(**req)
+    # using Client API
+    cl = pandatools.idds_api.get_api(idds.common.utils.json_dumps, compress=True)
+    ret = cl.add_request(**data)
     if ret[0] == 0 and ret[0][0]:
-        ret = ret[0][-1]
+        request_id = ret[0][-1]
+    else:
+        # error
+
+    # using ClientManager
+    cm = pandatools.idds_api.get_api(idds.common.utils.json_dumps, compress=True, manager=True)
+    ret = cm.get_requests(request_id=request_id)
+    if ret[0] == 0 and ret[0][0]:
+        req = ret[0][-1]
+    else:
+        # error
 
 
-All client functions of ``idds.client.client.Client`` are available in the API object given by
-``pandatools.idds_api.get_api()``
+All client functions of ``idds.client.client.Client`` and ``idds.client.clientmanager.ClientManager``
+are available in the API object, which is returned by
+``pandatools.idds_api.get_api()``,
 with the same arguments. Check with iDDS documentation for the details of iDDS API.
 Here is the description of ``pandatools.idds_api.get_api()``.
 
 .. code-block:: text
 
-    get_api(dumper=None, verbose=False, idds_host=None, compress=False)
+    get_api(dumper=None, verbose=False, idds_host=None, compress=False, manager=False)
         Get an API object to access iDDS through PanDA
 
         args:
@@ -67,6 +91,7 @@ Here is the description of ``pandatools.idds_api.get_api()``.
             verbose: True to see verbose messages
             idds_host: iDDS host. e.g. https://aipanda160.cern.ch:443/idds
             compress: True to compress request body
+            manager: True to use ClientManager API. False by default to use Client API
         return:
             an API object
 
