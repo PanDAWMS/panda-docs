@@ -34,6 +34,8 @@ Add
 
   local  all  panda trust
   host   all  panda localhost trust
+  local  all  postgres trust
+  host   all  postgres localhost trust
   host   all  all 0.0.0.0/0 md5
   host   all  all ::0/0 md5
 
