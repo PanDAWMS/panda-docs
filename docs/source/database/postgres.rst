@@ -13,7 +13,7 @@ Here is an example of PostgreSQL 13 setup on a puppet-managed CC7.
 
   yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
   cp /etc/yum.repos.d/pgdg-redhat-all.repo /etc/yum-puppet.repos.d/
-  yum install -y postgresql13-server pg_cron_13 pg_partman13
+  yum install -y postgresql13-server pg_cron_13 pg_partman13 postgresql13-contrib
   /usr/pgsql-13/bin/postgresql-13-setup initdb
   systemctl enable postgresql-13
 
@@ -148,10 +148,10 @@ Loop over PANDA, PANDAARCH, and PANDAMETA.
        > SEQUENCE_${PANDA_SCHEMA}.sql
 
     $ # create tables
-    $ qsql -d panda_db -f TABLE_${PANDA_SCHEMA}.sql
+    $ psql -d panda_db -f TABLE_${PANDA_SCHEMA}.sql
 
     $ # create sequences
-    $ qsql -d panda_db -f SEQUENCE_${PANDA_SCHEMA}.sql
+    $ psql -d panda_db -f SEQUENCE_${PANDA_SCHEMA}.sql
 
     $ # delete tables when failed
     $ psql -d panda_db -c \
@@ -182,7 +182,7 @@ Note that the DDL script to create the PANDA tables requires small correction.
 Functions
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Only PANDA.
+For PANDA.
 
 .. prompt:: bash $ auto
 
@@ -223,7 +223,7 @@ Only PANDA.
        > PROCEDURE_${PANDA_SCHEMA}.sql
 
     $ # create procedures
-    $ qsql -d panda_db -f PROCEDURE_${PANDA_SCHEMA}.sql
+    $ psql -d panda_db -f PROCEDURE_${PANDA_SCHEMA}.sql
 
     $ # patch for MERGE
     $ psql -d panda_db << EOF
@@ -248,13 +248,83 @@ Only PANDA.
     EOF
 
 
+BIGPANDAMON
+^^^^^^^^^^^^^^^^^
+
+
+For PANDABIGMON.
+
+.. prompt:: bash $ auto
+
+    $ export ORA2PG_PASSWD=<the password of Oracle PANDABIGMON>
+    $ export PANDA_SCHEMA=PANDABIGMON
+
+    $ # make DLL to create procedures
+    $ ./usr/local/bin/ora2pg -t "TABLE SEQUENCE FUNCTION TYPE TRIGGER VIEW " -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
+           -N DOMA_${PANDA_SCHEMA} -c ora2pg.conf -o a.sql
+
+    $ # reset sequence values
+    $ sed -E "s/START +[0-9]+/START 1/" SEQUENCE_a.sql | sed  -E "s/MINVALUE +([0-9]+)/MINVALUE 1/" \
+       > SEQUENCE_${PANDA_SCHEMA}.sql
+
+    $ # create tables
+    $ mv  TABLE_a.sql TABLE_${PANDA_SCHEMA}.sql
+    $ psql -d panda_db -f TABLE_${PANDA_SCHEMA}.sql
+
+    $ # create sequences
+    $ psql -d panda_db -f SEQUENCE_${PANDA_SCHEMA}.sql
+
+    $ # patch views
+    $ sed -E "s/atlas_(panda[^\.]*)/doma_\L\1/gi" VIEW_a.sql | sed "s/@ADCR_ADG//ig" > VIEW_${PANDA_SCHEMA}.sql
+
+    $ # create views
+    $ psql -d panda_db -f VIEW_${PANDA_SCHEMA}.sql
+
+    $ # patches types since pandamon_jobpage_* are not correctly exported
+    $ grep -v pandamon_jobspage TYPE_a.sql > TYPE_${PANDA_SCHEMA}.sql
+    $ echo << EOF >> TYPE_${PANDA_SCHEMA}.sql
+
+    CREATE TYPE pandamon_jobpage_obj AS (
+        PANDA_ATTRIBUTE VARCHAR(100),
+        ATTR_VALUE VARCHAR(300),
+        NUM_OCCURRENCES bigint
+    );
+    ALTER TYPE pandamon_jobpage_obj OWNER TO panda;
+
+    CREATE TYPE pandamon_jobspage_coll AS (pandamon_jobspage_coll pandamon_jobpage_obj[]);
+    ALTER TYPE pandamon_jobspage_coll OWNER TO panda;
+
+    EOF
+
+    $ # create types before triggers, functions, and procedures
+    $ psql -d panda_db -f TYPE_${PANDA_SCHEMA}.sql
+
+    $ # create triggers
+    $ mv TRIGGER_a.sql TRIGGER_${PANDA_SCHEMA}.sql
+    $ psql -d panda_db -f TRIGGER_${PANDA_SCHEMA}.sql
+
+    $ # create functions
+    $ sed -E "s/atlas_(panda[^\.]*)/doma_\L\1/gi" FUNCTION_a.sql \
+       | awk 'BEGIN{IGNORECASE=1}/ALTER FUNCTION/ {gsub(" default ('\''[^'\'']+'\'')", "", $0); print $0;next}{print $0}' \
+       | sed "s/default TO_CHAR(CURRENT_TIMESTAMP,'DD-MM-YYYY HH24:MI:SS.FF TZR') DEFAULT NULL/DEFAULT NULL/" \
+       | awk 'BEGIN{IGNORECASE=1}/ALTER FUNCTION/ {gsub(" default [^,)]+","", $0); print $0;next}{print $0}' \
+       > FUNCTION_${PANDA_SCHEMA}.sql
+    $ psql -d panda_db -f FUNCTION_${PANDA_SCHEMA}.sql
+
+   $ create procedures
+   $ sed -E "s/atlas_(panda[^\.]*)/doma_\L\1/gi" PROCEDURE_a.sql | sed "s/ATL DEFAULT NULL/ATL text DEFAULT NULL/" \
+      | awk 'BEGIN{IGNORECASE=1}/ALTER PROCEDURE/ {gsub(" default ('\''[^'\'']+'\'')", "", $0); print $0;next}{print $0}' \
+      | sed "s/default TO_CHAR(CURRENT_TIMESTAMP,'DD-MM-YYYY HH24:MI:SS.FF TZR') DEFAULT NULL/DEFAULT NULL/" \
+      | awk 'BEGIN{IGNORECASE=1}/ALTER PROCEDURE/ {gsub(" default [^,)]+","", $0); print $0;next}{print $0}' \
+      | sed "s/(( REQUEST_TOKEN/( REQUEST_TOKEN/" > PROCEDURE_${PANDA_SCHEMA}.sql
+
 DEFT
 ^^^^^^^^^
 
 .. prompt:: bash $ auto
 
-    $ wget https://raw.githubusercontent.com/PanDAWMS/panda-docs/main/docs/source/database/sql/pg_TABLE_DEFT.sql
-    $ psql -d panda_db -f pg_TABLE_DEFT.sql
+    $ wget https://raw.githubusercontent.com/PanDAWMS/panda-docs/main/docs/source/database/sql/pg_DEFT_TABLE.sql
+    $ psql -d panda_db -f pg_DEFT_TABLE.sql
 
 |br|
 
@@ -290,7 +360,7 @@ Partitioning
 .. prompt:: bash $ auto
 
     $ wget https://raw.githubusercontent.com/PanDAWMS/panda-docs/main/docs/source/database/sql/pg_PARTITION.sql
-    $ psql -d panda_db -f pg_PROCEDURE_PANDA.sql
+    $ psql -d panda_db -f pg_PANDA_SCHEDULER_JOBS.sql
 
 --------------
 
