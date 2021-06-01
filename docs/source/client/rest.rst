@@ -238,3 +238,15 @@ System API
               4: irrelevant task status
             100: non SSL connection
             101: irrelevant taskID
+
+    send_command_to_job(panda_id, com)
+        args:
+            panda_id: PandaID of the job
+            com: a command string passed to the pilot. max 250 chars
+        returns:
+            status code
+                  0: communication succeeded to the panda server
+                  255: communication failure
+            return: a tuple of return code and message
+                  False: failed
+                  True: the command received
