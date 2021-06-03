@@ -377,3 +377,20 @@ or in pbook
 or through end-user python API.
 
 |br|
+
+How to run the task in parallel while the parent task is still running
+-------------------------------------------------------------------------
+
+It is possible to sequentially chain tasks using the ``--parentTaskID`` option. A typical use-case is as follows:
+
+1. A parent task is running to produce some datasets.
+2. A child task is submitted to use one or more datasets as input which the parent is producing.
+3. The child task periodically checks the input datasets and generates jobs if new files are available.
+4. Finally, the child task is finished once the parent is finished and all files produced by the parent
+   have been processed.
+
+The ``--parentTaskID`` option takes the taskID of the parent task which produces ``--inDS``.
+Note that if the child task is submitted without the ``--parentTaskID`` option,
+it will run only on the available files when the task is submitted.
+
+|br|
