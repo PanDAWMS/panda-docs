@@ -250,3 +250,15 @@ System API
             return: a tuple of return code and message
                   False: failed
                   True: the command received
+
+    send_file_recovery_request(task_id, dry_run=False, verbose=False)
+        Send a file recovery request
+        args:
+           task_id: task ID
+           dry_run: True to run in the dry run mode
+           verbose: True to see verbose message
+        returns:
+           status code
+              0: communication succeeded to the panda server
+            255: communication failure
+           a tuple of (True/False and diagnostic message). True if the request was accepted

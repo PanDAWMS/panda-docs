@@ -389,7 +389,7 @@ It is possible to sequentially chain tasks using the ``--parentTaskID`` option. 
 4. Finally, the child task is finished once the parent is finished and all files produced by the parent
    have been processed.
 
-The ``--parentTaskID`` option takes the taskID of the parent task which produces ``--inDS``.
+The ``--parentTaskID`` option takes the taskID of the parent task that is producing ``--inDS``.
 Note that if the child task is submitted without the ``--parentTaskID`` option,
 it will run only on the available files when the task is submitted.
 
