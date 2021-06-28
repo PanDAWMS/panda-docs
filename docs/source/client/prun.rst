@@ -323,8 +323,16 @@ For example,
   prun --exec "test %IN %IN2 %IN3" --secondaryDSs IN2:3:data19.106017.gg2WW0240_JIMMY_WW_taunutaunu.recon.AOD.e371_s462_r563/,IN3:2:mc08.105200.T1_McAtNlo_Jimmy.recon.AOD.e357_s462_r541/ --inDS ...
 
 `%IN2` and `%IN3` will be replaced with actual filenames in data19.blah and mc08.blah, respectively,
-when jobs get started.
-Note that `%IN` is replaced with files in ``--inDS``.
+when jobs get started, while `%IN` is replaced with files in ``--inDS``.
+
+Note that when dataset containers are used for secondaryDSs like `StreamName:nFilesPerJob:ContainerName` they
+are expanded to constituent datasets and each job takes `nFilesPerJob` files from each constituent dataset.
+This means that if a dataset container has `M` constituent datasets a single job cound take `M` x `nFilesPerJob`
+files from the dataset
+container. There are ``--notExpandInDS`` and ``--notExpandSecDS`` options so that jobs don't expand dataset containers,
+use files across dataset boundaries in dataset containers, and take only `nFilesPerJob` files from each
+dataset container.
+
 
 |br|
 
