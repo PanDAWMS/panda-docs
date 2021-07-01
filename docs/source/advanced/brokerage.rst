@@ -114,6 +114,22 @@ This is the general ATLAS production job brokerage flow:
      ``maxtime`` of the queue.
 
    * ``wnconnectivity`` of the queue must be consistent if the task specifies ``ipConnectivity``.
+     The format of ``wnconnectivity`` and ``ipConnectivity`` is ``network_connectivity#ip_stack``.
+     *network_connectivity* of the queue is
+
+      * full: to accept any tasks since outbound network connectivity is fully available,
+
+      * http: to accept tasks with *network_connectivity=http* or *none* since only http access is available, or
+
+      * none: to accept tasks with *network_connectivity=none* since no outbound network connectivity is available,
+
+     *ip_stack* of the queue is
+
+      * IPv4: to accept tasks with *ip_stack=IPv4*,
+
+      * IPv6: to accept tasks with *ip_stack=IPv6*, or
+
+      * '' (unset): to accept tasks without specifying *ip_stack*.
 
    * Settings for event service and the dynamic number of events.
 
@@ -201,6 +217,19 @@ Each queue publishes something like
       "atlas",
       "nightlies"
     ],
+    "architectures": [
+      {
+        "arch": ["x86_64"],
+        "instr": ["avx2"],
+        "type": "cpu",
+        "vendor": ["intel","excl"]
+      },
+      {
+        "type": "gpu",
+        "vendor": ["nvidia","excl"],
+        "model":["kt100"]
+      }
+    ],
     "tags": [
       {
         "cmtconfig": "x86_64-slc6-gcc62-opt",
@@ -221,15 +250,26 @@ Each queue publishes something like
     ]
   }
 
-This dictionary can define the ``architecture`` attribute in addition and take a list of supported architectures as its value.
+
+Checks for CPU and/or GPU Hardware
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The format of task ``architecture`` is ``sw_platform<@base_platform><#host_cpu_spec><&host_gpu_spec>`` where
+``host_cpu_spec`` is ``architecture<-vendor<-instruction_set>>`` and
+``host_gpu_spec`` is ``vendor<-model>``.
+If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the ``architectures`` of the queue is checked.
+The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications.
+All attributes of the
+dictionaries except for the *type* attribute take lists of strings. If 'attribute': ['blah'], the queue
+accepts tasks with attribute='blah' or without specifying the attribute. If 'excl' is included in the list,
+the queue accepts only tasks with attribute='blah'.
+For example, tasks with *#x86_64* are accepted by queues with "arch": ["x86_64"], "arch": [""],
+or "arch": ["x86_64", "excl"], but not by "arch": ["arm64"].
 
 Checks for Fat Containers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If the task uses a container, i.e., the ``container_name`` attribute is set, the brokerage checks as follows:
-
-* The task ``architecture`` must be included in the ``architecture`` list of the queue if the queue defines
-  the ``architecture`` attribute as mentioned in the previous sub-section.
 
 * If the task uses only tags, i.e., it sets ``onlyTagsForFC``, the ``container_name`` must be equal to
   the *container_name* of a tag in the ``tags`` list or must be included in the ``sources`` of a tag in
@@ -254,9 +294,9 @@ Checks are as follows for releases, caches, and nightlies:
 
    * 'any' or '/cvmfs' must be included in the ``containers`` list, or
 
-   * the task ``architecture`` must be included in the ``cmtconfigs`` list.
+   * the task ``sw_platform`` is extracted from the task ``architecture`` and must be included in the ``cmtconfigs`` list.
 
-* If the above is not the case, 'any' must be in the ``containers`` list and the task ``architecture``,
+* If the above is not the case, 'any' must be in the ``containers`` list and the task ``sw_platform``,
   ``sw_project``, and ``sw_version`` must be equal to ``cmtconfig``, ``project``, and ``release`` of a tag
   in the ``tags`` list.
 
