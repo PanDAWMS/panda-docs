@@ -9,7 +9,9 @@ and limited. System administrators or developers should refer to :doc:`API refer
 Installation
 ==============
 panda-client works either python 2 and 3, and is self-contained so that you don't have to install an external
-package or software. In order to install all python modules, command-line tools and configuration files, simply run:
+package or software. The installation step can be skipped if panda-client has been centrally installed like ATLAS.
+Otherwise, simply run the following pip command in a virtual environment to install all python modules,
+command-line tools and configuration files:
 
 .. prompt:: bash
 
@@ -27,12 +29,20 @@ will install extra packages in addition to panda-client.
 Setup
 ==============
 The setup file ``panda_setup.(c)sh`` is automatically generated under *$VIRTUAL_ENV/etc/panda* when panda-client
-is installed. The file needs to be sourced before using the python modules and command-line tools, in order to setup
-the required environment.
+is installed via pip. You need to source the file to setup the required environment variables before using the
+python modules and command-line tools.
 
-.. prompt:: bash
+.. tabs::
 
-    source $VIRTUAL_ENV/etc/panda/panda_setup.sh
+   .. code-tab:: bash pip-installed
+
+       source $VIRTUAL_ENV/etc/panda/panda_setup.sh
+
+   .. code-tab:: bash ATLAS users
+
+       export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+       setupATLAS
+       lsetup panda
 
 The following environment variables need to change if necessary.
 
