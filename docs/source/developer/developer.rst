@@ -10,6 +10,7 @@ adding new features, improving documentation, and fixing bugs.
 
    contribution
    document
+   document_light
    repository
 
 |br|

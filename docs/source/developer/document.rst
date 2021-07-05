@@ -3,6 +3,8 @@ Writing Documentation
 =====================
 
 This section explains how to write PanDA documentation.
+If you just want to add changes to existing documentation see
+:doc:`Adding Changes to Documentation </developer/document_light>`.
 
 1. Preparation
 ---------------
@@ -66,7 +68,7 @@ by opening panda-docs/docs/build/html/index.html via your web browser.
 
 Once you are comfortable with the changes, you should push them to your forked repository and submit a pull request following
 `the github doc <https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_ .
-Then requests are reviewed, and the changes will be merged to the main branch once the requests are approved.
+Then requests are reviewed, and the changes will be merged to the main branch once approved.
 
 5. Publish the latest documents
 ----------------------------------

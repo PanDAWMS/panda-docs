@@ -28,28 +28,27 @@ How to install your local changes to your instances
 You can install and test your changes locally before submitting pull requests.
 The following example shows how to install local changes to your own PanDA server.
 
-.. prompt:: bash
+.. prompt:: bash $, auto
 
- # checkout the repository
- git clone https://github.com/PanDAWMS/panda-server.git
+ $ # checkout the repository
+ $ git clone https://github.com/PanDAWMS/panda-server.git
 
- # add changes in panda-server
- cd panda-server
- ...
+ $ # add changes in panda-server
+ $ cd panda-server
+ $ ...
 
- # stop the PanDA server
- /sbin/service httpd-pandasrv stop
+ $ # stop the PanDA server
+ $ /sbin/service httpd-pandasrv stop
 
- # go to virtual env if necessary
- . <venv_dir>/bin/activate
+ $ # go to virtual env if necessary
+ $ . <venv_dir>/bin/activate
 
- # make sdist and install it twice with different pip options since pip doesn't install it
- # without those steps when the version number is incremented
- cd panda-server
- rm -rf dist
- python setup.py sdist
- pip install dist/p*.tar.gz --upgrade --force-reinstall --no-deps
- pip install dist/p*.tar.gz --upgrade
+ $ # make sdist and install it twice with different pip options since pip doesn't install it
+ $ # without those steps when the version number is incremented
+ $ cd panda-server
+ $ rm -rf dist
+ $ python setup.py sdist
+ $ pip install dist/p*.tar.gz --upgrade --force-reinstall --no-deps; pip install dist/p*.tar.gz --upgrade
 
 |br|
 

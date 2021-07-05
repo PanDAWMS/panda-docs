@@ -30,7 +30,8 @@ Setup
 ==============
 The setup file ``panda_setup.(c)sh`` is automatically generated under *$VIRTUAL_ENV/etc/panda* when panda-client
 is installed via pip. You need to source the file to setup the required environment variables before using the
-python modules and command-line tools.
+python modules and command-line tools. It is good to define a shell function to source the setup file as shown
+in the ATLAS users tag.
 
 .. tabs::
 
