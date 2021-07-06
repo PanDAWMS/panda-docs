@@ -22,6 +22,7 @@ For end-users
    panda-client
    prun
    phpo
+   pathena
    pbook
    notebooks/python.ipynb
    jupyter

@@ -25,7 +25,7 @@ How to run
 
 .. prompt:: bash
 
- prun -h
+ prun --helpGroup ALL
 
 shows all available options.
 
