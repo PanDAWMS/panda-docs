@@ -184,6 +184,34 @@ AtlasG4_trf.py uses it as an output filename while Digi_trf.py uses it as an inp
 
 |br|
 
+Reading particular events for data
+-------------------------------------
+
+You can specify a run/event list as an input. First you need to prepare a list of runs/events of interest.
+You may get a list by analysing D3PD, browsing event display, using ELSSI, and so on. A list looks like
+
+.. code-block:: bash
+
+ $ cat rrr.txt
+ 154514 21179
+ 154514 29736
+ 154558 448080
+
+where each line contains a run number and an event number. Then, e.g.,
+
+.. prompt:: bash
+
+  pathena AnalysisSkeleton_topOptions.py --eventPickEvtList rrr.txt --eventPickDataType AOD \
+     --eventPickStreamName physics_CosmicCaloEM --outDS user...
+
+where events in the input file are internally converted to AOD (specifid by ``--eventPickDataType``) with
+the physics_CosmicCaloEM stream (specified by ``--eventPickStreamName``).
+Your jobO is dynamically configured to use event selection, so you don't need to change your jobO.
+In principle, you can run any arbitrary jobO.
+
+----------------
+
+|br|
 
 FAQ
 =======
