@@ -82,9 +82,12 @@ def setup (app):
     app.add_css_file('custom.css')
     # adjust location of action file depending on build mechanism
     action_file = 'extra_actions.sh'
-    if not os.getcwd().endswith('source'):
-        action_file = os.path.join('source', action_file)
+    src_dir = 'source'
+    if not os.getcwd().endswith(src_dir):
+        action_file = os.path.join(src_dir, action_file)
+    else:
+        src_dir = '.'
     # extra actions
     if os.path.exists(action_file):
-        subprocess.run('/bin/bash {}'.format(action_file), universal_newlines=True,
+        subprocess.run('/bin/bash {} {}'.format(action_file, src_dir), universal_newlines=True,
                        shell=True, stdout=sys.stdout, stderr=sys.stderr)
