@@ -77,12 +77,14 @@ rst_prolog = """
     :format: html   
 """
 
-action_file = 'source/extra_actions.sh'
 
 def setup (app):
     app.add_css_file('custom.css')
+    # adjust location of action file depending on build mechanism
+    action_file = 'extra_actions.sh'
+    if not os.getcwd().endswith('source'):
+        action_file = os.path.join('source', action_file)
+    # extra actions
     if os.path.exists(action_file):
-        st = os.stat(action_file)
-        os.chmod(action_file, st.st_mode | stat.S_IEXEC)
-        subprocess.run('/bin/bash -c {}'.format(action_file), universal_newlines=True,
+        subprocess.run('/bin/bash {}'.format(action_file), universal_newlines=True,
                        shell=True, stdout=sys.stdout, stderr=sys.stderr)
