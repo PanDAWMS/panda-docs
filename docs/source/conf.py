@@ -12,6 +12,9 @@
 #
 import os
 import sys
+import stat
+import subprocess
+
 sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -74,6 +77,12 @@ rst_prolog = """
     :format: html   
 """
 
+action_file = 'source/extra_actions.sh'
 
 def setup (app):
     app.add_css_file('custom.css')
+    if os.path.exists(action_file):
+        st = os.stat(action_file)
+        os.chmod(action_file, st.st_mode | stat.S_IEXEC)
+        subprocess.run('/bin/bash -c {}'.format(action_file), universal_newlines=True,
+                       shell=True, stdout=sys.stdout, stderr=sys.stderr)
