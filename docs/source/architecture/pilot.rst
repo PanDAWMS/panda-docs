@@ -13,3 +13,19 @@ to a database containing knowledge about the resource where the Pilot is running
 The Pilot architecture is described on
 `an external wiki page <https://github.com/PanDAWMS/pilot2/wiki/Pilot-architecture>`_
 in details.
+
+-----
+
+|br|
+
+Pilot components
+==================
+
+.. toctree::
+   :maxdepth: 2
+
+   pilot_components/index
+
+------
+
+|br|

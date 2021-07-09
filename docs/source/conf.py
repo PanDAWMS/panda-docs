@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
@@ -29,6 +29,14 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.autosectionlabel',
     'sphinx_tabs.tabs',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode'
 ]
 
 sphinx_tabs_disable_tab_closing = True
@@ -36,6 +44,7 @@ sphinx_tabs_valid_builders = ['linkcheck']
 
 nbsphinx_execute = 'never'
 autosectionlabel_prefix_document = True
+todo_include_todos = True
 
 html_theme = "sphinx_rtd_theme"
 

@@ -484,7 +484,7 @@ My task got exhausted due to over_cpu_consumption
 This message means that jobs may have abused more CPU cores than allocation since the CPU time of your jobs was longer
 than their total execution time.
 Jobs can use more than
-one core even if they run on single-core queues since they physically run on multi-core CPUs.
+one CPU core even if they run on single-core queues since they physically run on multi-core CPUs.
 This typically happens when your application internally spawns multiple threads/processes
 and spreads over multiple CPU cores.
 If this is the case, it would help send jobs to multi-core queues using the ``--nCore`` option.
