@@ -18,13 +18,12 @@ in details.
 
 |br|
 
-Pilot components
-==================
-
 .. toctree::
    :maxdepth: 2
+   :caption: Table of Contents:
 
-   pilot_components/index
+   pilot_docs/getting_started/index
+   pilot_docs/components/index
 
 ------
 
