@@ -355,7 +355,12 @@ hadd for ROOT hist and ntuple, gzip for log and text, or the application specifi
 Adding job metadata
 ----------------------
 
-Users can add metadata to each job in PanDA. If jobs produce json files userJobMetadata.json in the run directory it is uploaded to PanDA and you can see it in pandamon or pbook. This is typically useful if jobs have very small outputs, such as hyperparameter optimization for machine learning where each job could produce only one value. Users can get results directly from PanDA rather than uploading/downloading small files to/from storages. Note that the size of each metadata must be less than 1MB and metadata are available only for successfully finished jobs.
+Users can add metadata to each job in PanDA. If jobs produce json files userJobMetadata.json in the run directory
+it is uploaded to PanDA and you can see it in pandamon or pbook. This is typically useful if jobs have very small
+outputs, such as hyperparameter optimization for machine learning where each job could produce only one value.
+Users can get results directly from PanDA rather than uploading/downloading small files to/from storages.
+Note that the size of each metadata must be less than 1MB and metadata are available only for successfully
+finished jobs.
 First you need to change your application to produce a json file, e.g.
 
 .. code-block:: bash
@@ -402,3 +407,12 @@ Note that if the child task is submitted without the ``--parentTaskID`` option,
 it will run only on the available files when the task is submitted.
 
 |br|
+
+Difference between ``--useAthenaPackage`` and ``--athenaTag``
+----------------------------------------------------------------
+Both options set up Athena on remote compute nodes. The main difference is as follows.
+``--useAthenaPackage`` requires Athena runtime environment on your local computer to automatically
+configure tasks by parsing environment variables and make sandbox files by using cpack,
+which is included in Athena, according to Athena's directory structure.
+On the other hand, ``--athenaTag`` doesn't need Athena locally. It gathers files in current directories
+when making sandbox files and passes the argument string to asetup executed on remote compute nodes.
