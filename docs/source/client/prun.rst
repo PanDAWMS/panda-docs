@@ -412,7 +412,9 @@ Difference between ``--useAthenaPackage`` and ``--athenaTag``
 ----------------------------------------------------------------
 Both options set up Athena on remote compute nodes. The main difference is as follows.
 ``--useAthenaPackage`` requires Athena runtime environment on your local computer to automatically
-configure tasks by parsing environment variables and make sandbox files by using cpack,
+configure the task by parsing environment variables and make a sandbox file by using cpack,
 which is included in Athena, according to Athena's directory structure.
-On the other hand, ``--athenaTag`` doesn't need Athena locally. It gathers files in current directories
-when making sandbox files and passes the argument string to asetup executed on remote compute nodes.
+On the other hand, ``--athenaTag`` doesn't need Athena locally. It gathers files in the current directory
+when making a sandbox file and passes the argument string to asetup executed on remote compute nodes.
+
+|br|
