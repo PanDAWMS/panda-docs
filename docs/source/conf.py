@@ -73,7 +73,14 @@ rst_prolog = """
    <br />
    
 .. role:: raw-html(raw)
-    :format: html   
+    :format: html
+    
+.. role:: red
+
+.. role:: blue
+
+.. role:: green
+   
 """
 
 

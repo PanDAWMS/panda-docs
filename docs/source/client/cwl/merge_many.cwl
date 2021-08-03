@@ -16,7 +16,7 @@ outputs:
 
 
 steps:
-  sig_bg_comb:
+  many_sig_bg_comb:
     run: sig_bg_comb.cwl
     scatter: [signal, background]
     scatterMethod: dotproduct
@@ -28,7 +28,7 @@ steps:
   merge:
     run: prun.cwl
     in:
-      opt_inDS: sig_bg_comb/outDS
+      opt_inDS: many_sig_bg_comb/outDS
       opt_exec:
         default: "python merge.py --type aaa --level 3 %IN"
       opt_args:

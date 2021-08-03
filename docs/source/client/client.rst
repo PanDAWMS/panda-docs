@@ -26,6 +26,7 @@ For end-users
    pbook
    notebooks/python.ipynb
    jupyter
+   pflow
 
 Python API references
 ==========================
