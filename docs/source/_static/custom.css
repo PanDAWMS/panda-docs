@@ -16,15 +16,23 @@
 
 .hblue {
     color:blue;
-    background-color:lightyellow;
-    font-size: 90%;
+    background-color:lightcyan;
+    font-size: 95%;
 }
 
 .orange {
     color:darkorange;
-    font-size: 90%;
+    font-size: 95%;
 }
 
 .green {
     color:green;
+}
+
+.purple {
+    color:purple;
+}
+
+.brown {
+    color:brown;
 }

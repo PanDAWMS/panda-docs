@@ -44,7 +44,7 @@ The ``outputSource`` connects the output parameter of the *bottom* step to the w
 
 In the ``steps`` section, each step represents a task with an arbitrary task name, such as :blue:`top`
 and :blue:`bottom`.
-The ``run`` filed of a prun task is :green:`prun.cwl`. The ``in`` section specifies a set of parameters
+The ``run`` filed of a prun task is :brown:`prun.cwl`. The ``in`` section specifies a set of parameters
 correspond to command-line options of prun.
 
 Here is a list of parameters in the ``in`` section to run a prun task.
@@ -73,7 +73,7 @@ Here is a list of parameters in the ``in`` section to run a prun task.
    * - opt_args
      - all other prun options except for listed above (string)
 
-All options ``opt_xyz`` except ``opt_args`` and ``opt_xyzDsTypes`` can be mapped to :blue:`---xyz` of prun.
+All options ``opt_xyz`` except ``opt_args`` and ``opt_xyzDsTypes`` can be mapped to :hblue:`---xyz` of prun.
 ``opt_args`` specifies all other prun options such as :hblue:`---outputs`, :hblue:`---nFilesPerJob`,
 and :hblue:`---nJobs`.
 Essentially,
@@ -101,7 +101,7 @@ waits if all data currently available has been processed but the :blue:`top` tas
 and finishes once all data from the :blue:`top` task is processed.
 
 The user can submit the workflow to PanDA using ``pflow`` that is included in panda-client.
-First, create a file called :green:`simple_chain.cwl` containing the cwl code above.
+First, create a file called :brown:`simple_chain.cwl` containing the cwl code above.
 Next, you need to create an empty yaml file since cwl files work with yaml files that describe workflow inputs.
 This example doesn't take an input, so the empty yaml file is enough.
 
@@ -113,11 +113,11 @@ This example doesn't take an input, so the empty yaml file is enough.
 ``--outDS`` is the basename of the datasets for output and log files. Once the workflow is submitted,
 the cwl and yaml files are parsed on the server side to generate tasks
 with sequential numbers in the workflow. The system uses a combination of the sequential number
-and the task name, such as :orange:`000_top` and :orange:`001_bottom`, as a unique identifier for each task.
+and the task name, such as :brown:`000_top` and :brown:`001_bottom`, as a unique identifier for each task.
 The actual output dataset name is a combination of ``--outDS``, the unique identifier, and :hblue:`---outputs`
 in ``opt_args``. For example, the output dataset name of the :blue:`top` task is
-:orange:`user.<your_nickname>.blah_000_top_seed.txt`
-and that of the :blue:`bottom` is :orange:`user.<your_nickname>.blah_001_bottom_results.root`.
+:brown:`user.<your_nickname>.blah_000_top_seed.txt`
+and that of the :blue:`bottom` is :brown:`user.<your_nickname>.blah_001_bottom_results.root`.
 If :hblue:`---outputs` is a comma-separate
 output list, one dataset is created for each output type.
 
@@ -145,10 +145,10 @@ the :blue:`make_signal`
 task, while the :blue:`background` is used as input for the :blue:`make_background_1` and
 :blue:`make_background_2` tasks.
 The :blue:`make_signal` task runs in the busybox container as specified in ``opt_containerImage``, to produce two
-types of output data, :hblue:`abc.dat` and :hblue:`def.zip`, as specified in :``opt_args``.
+types of output data, abc.dat and def.zip, as specified in :``opt_args``.
 If the parent task produces multiple types of output data and the child task uses some of them,
 their types need to be specified in ``opt_inDsType``.
-The :blue:`premix` task takes :blue:`def.zip` from the :blue:`make_signal` task and :blue:`xyz.pool`
+The :blue:`premix` task takes def.zip from the :blue:`make_signal` task and xyz.pool
 from the :blue:`make_background_1` task.
 
 Output data of parent tasks can be passed to a child task as secondary inputs. In this case, they are
@@ -156,7 +156,7 @@ specified in ``opt_secondaryDSs`` and their types are specified in ``opt_seconda
 Note that the stream name, the number of files per job, etc, for each secondary input are specified
 using :hblue:`---secondaryDSs` in ``opt_args`` where :hblue:`%%DSn%%` can
 be used as a placeholder for the n-th secondary dataset name.
-:blue:`MultipleInputFeatureRequirement` is required if ``opt_secondaryDsTypes`` take multiple input data.
+``MultipleInputFeatureRequirement`` is required if ``opt_secondaryDsTypes`` take multiple input data.
 
 The workflow inputs are described in a yaml file. E.g.,
 
@@ -181,7 +181,7 @@ Nested workflow and parallel execution with scatter
 ======================================================
 
 It is possible to use a workflow as a step in another workflow.
-The following cwl example uses the above :green:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
+The following cwl example uses the above :brown:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
 
 .. figure:: images/pflow_dag_scatter.png
 
@@ -189,10 +189,10 @@ The following cwl example uses the above :green:`sig_bg_comb.cwl` in the :blue:`
     :language: yaml
     :caption: merge_many.cwl
 
-Note that :blue:`SubworkflowFeatureRequirement` is required to use nested workflows.
+Note that ``SubworkflowFeatureRequirement`` is required to use nested workflows.
 
 It is possible to run a task or nested workflow multiple times over a list of inputs using
-:blue:`ScatterFeatureRequirement`.
+``ScatterFeatureRequirement``.
 A popular use-case is to perform the same analysis step on different samples in a single workflow.
 The step takes the input(s) as an array and will run on each element of the array as if it were a single input.
 The :blue:`many_sig_bg_comb` step above takes two string arrays, :blue:`signals` and :blue:`backgrounds`,
