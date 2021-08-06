@@ -10,8 +10,8 @@ or partially produces the output data, depending on the use-case.
 If a child task is configured as the latter both parent and child tasks
 will run in parallel for a while, which will reduce the total execution time of the workflow.
 Currently tasks have to be PanDA tasks, but future versions will support more backend systems such as local
-batch systems,
-k8s, and other workflow management systems, to run some tasks very quickly or outsource sub-workflows.
+batch systems, production system, kubernetes-based resources,
+and other workflow management systems, to run some tasks very quickly or outsource sub-workflows.
 
 The user describes a workflow using the Common Workflow Language (`CWL <https://www.commonwl.org/user_guide/>`_)
 and submits it to PanDA using ``pflow``.
@@ -29,7 +29,7 @@ This page explains how to use ``pflow`` as well as how to write workflows.
 Simple task chain
 ======================
 
-The following cwl code shows a chain of two prun tasks.
+The following cwl code shows a parent-child chain of two prun tasks.
 
 .. literalinclude:: cwl/test.cwl
     :language: yaml
@@ -44,10 +44,10 @@ The ``outputSource`` connects the output parameter of the *bottom* step to the w
 
 In the ``steps`` section, each step represents a task with an arbitrary task name, such as :blue:`top`
 and :blue:`bottom`.
-The ``run`` filed of a prun task is :blue:`prun.cwl`. The ``in`` section specifies a set of parameters
+The ``run`` filed of a prun task is :green:`prun.cwl`. The ``in`` section specifies a set of parameters
 correspond to command-line options of prun.
 
-Here is a list of parameters in the ``in`` section.
+Here is a list of parameters in the ``in`` section to run a prun task.
 
 .. list-table::
    :header-rows: 1
@@ -55,25 +55,27 @@ Here is a list of parameters in the ``in`` section.
    * - Parameter
      - Corresponding prun option
    * - opt_inDS
-     - --inDS (string)
+     - ---inDS (string)
    * - opt_inDsType
      - No correspondence. Type of inDS (a string array)
    * - opt_secondaryDSs
-     - --secondaryDSs (a list of strings)
+     - ---secondaryDSs (a list of strings)
    * - opt_secondaryDsTypes
      - No correspondence. Types of secondaryDSs (a string array)
    * - opt_exec
-     - --exec (string)
+     - ---exec (string)
+   * - opt_useAthenaPackages
+     - ---useAthenaPackages (bool)
    * - opt_architecture
-     - --architecture (string)
+     - ---architecture (string)
    * - opt_containerImage
-     - --containerImage (string)
+     - ---containerImage (string)
    * - opt_args
      - all other prun options except for listed above (string)
 
-All options :blue:`opt_xyz` except :blue:`opt_args` and :blue:`opt_xyzDsTypes` can be mapped to :blue:`--xyz` of prun.
-:blue:`opt_args` specifies all other prun options such as :blue:`--outputs`, :blue:`--nFilesPerJob`,
-and :blue:`--nJobs`.
+All options ``opt_xyz`` except ``opt_args`` and ``opt_xyzDsTypes`` can be mapped to :blue:`---xyz` of prun.
+``opt_args`` specifies all other prun options such as :hblue:`---outputs`, :hblue:`---nFilesPerJob`,
+and :hblue:`---nJobs`.
 Essentially,
 
 .. code-block:: yaml
@@ -93,13 +95,13 @@ corresponds to
 
 The ``out`` section specifies the task output with an arbitrary string surrendered by brackets.
 Note that it is always a single string even if the task produces multiple outputs.
-The output of the :blue:`top` task is passed to :blue:`opt_inDS` of the :blue:`bottom` task.
+The output of the :blue:`top` task is passed to ``opt_inDS`` of the :blue:`bottom` task.
 The :blue:`bottom` task starts processing once the *top* task produces enough output data,
 waits if all data currently available has been processed but the :blue:`top` task is still running,
 and finishes once all data from the :blue:`top` task is processed.
 
 The user can submit the workflow to PanDA using ``pflow`` that is included in panda-client.
-First, create a file called *simple_chain.cwl* containing the cwl code above.
+First, create a file called :green:`simple_chain.cwl` containing the cwl code above.
 Next, you need to create an empty yaml file since cwl files work with yaml files that describe workflow inputs.
 This example doesn't take an input, so the empty yaml file is enough.
 
@@ -111,15 +113,15 @@ This example doesn't take an input, so the empty yaml file is enough.
 ``--outDS`` is the basename of the datasets for output and log files. Once the workflow is submitted,
 the cwl and yaml files are parsed on the server side to generate tasks
 with sequential numbers in the workflow. The system uses a combination of the sequential number
-and the task name, such as :blue:`000_top` and :blue:`001_bottom`, as a unique identifier for each task.
-The actual output dataset name is a combination of ``--outDS``, the unique identifier, and :blue:`---outputs`
-in :blue:`opt_args`. For example, the output dataset name of the :blue:`top` task is
-:blue:`user.<your_nickname>.blah_000_top_seed.txt`
-and that of the :blue:`bottom` is :blue:`user.<your_nickname>.blah_001_bottom_results.root`.
-If :blue:`---outputs` is a comma-separate
+and the task name, such as :orange:`000_top` and :orange:`001_bottom`, as a unique identifier for each task.
+The actual output dataset name is a combination of ``--outDS``, the unique identifier, and :hblue:`---outputs`
+in ``opt_args``. For example, the output dataset name of the :blue:`top` task is
+:orange:`user.<your_nickname>.blah_000_top_seed.txt`
+and that of the :blue:`bottom` is :orange:`user.<your_nickname>.blah_001_bottom_results.root`.
+If :hblue:`---outputs` is a comma-separate
 output list, one dataset is created for each output type.
 
-To see all options
+To see all options of ``pflow``
 
 .. prompt:: bash
 
@@ -142,12 +144,19 @@ The workflow takes two inputs, :blue:`signal` and :blue:`background`. The :blue:
 the :blue:`make_signal`
 task, while the :blue:`background` is used as input for the :blue:`make_background_1` and
 :blue:`make_background_2` tasks.
-The :blue:`make_signal` task runs in the busybox container as specified in :blue:`opt_containerImage`, to produce two
-types of output data, :blue:`abc.dat` and :blue:`def.zip`, as specified in :blue:`opt_args`.
+The :blue:`make_signal` task runs in the busybox container as specified in ``opt_containerImage``, to produce two
+types of output data, :hblue:`abc.dat` and :hblue:`def.zip`, as specified in :``opt_args``.
 If the parent task produces multiple types of output data and the child task uses some of them,
-their types need to be specified in :blue:`opt_inDsType` or :blue:`opt_secondaryDsTypes`.
+their types need to be specified in ``opt_inDsType``.
 The :blue:`premix` task takes :blue:`def.zip` from the :blue:`make_signal` task and :blue:`xyz.pool`
 from the :blue:`make_background_1` task.
+
+Output data of parent tasks can be passed to a child task as secondary inputs. In this case, they are
+specified in ``opt_secondaryDSs`` and their types are specified in ``opt_secondaryDsTypes``.
+Note that the stream name, the number of files per job, etc, for each secondary input are specified
+using :hblue:`---secondaryDSs` in ``opt_args`` where :hblue:`%%DSn%%` can
+be used as a placeholder for the n-th secondary dataset name.
+:blue:`MultipleInputFeatureRequirement` is required if ``opt_secondaryDsTypes`` take multiple input data.
 
 The workflow inputs are described in a yaml file. E.g.,
 
@@ -172,7 +181,7 @@ Nested workflow and parallel execution with scatter
 ======================================================
 
 It is possible to use a workflow as a step in another workflow.
-The following cwl example uses the above :blue:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
+The following cwl example uses the above :green:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
 
 .. figure:: images/pflow_dag_scatter.png
 
@@ -209,5 +218,26 @@ Then submit the workflow.
 .. prompt:: bash
 
   pflow --cwl merge_many.cwl --yaml inputs2.yaml --outDS user.<your_nickname>.blah
+
+|br|
+
+Using Athena
+======================
+
+One or more tasks in a single workflow can use Athena as shown in the example below.
+
+.. literalinclude:: cwl/athena.cwl
+    :language: yaml
+    :caption: athena.cwl
+
+``opt_useAthenaPackages`` corresponds to ``--useAthenaPackages`` of prun to remotely setup Athena with your
+locally-built packages.
+
+To submit the task, first you need to setup Athena on local computer and execute ``pflow``
+with ``--useAthenaPackages``.
+
+.. prompt:: bash
+
+  pflow --cwl athena.cwl --yaml inputs.yaml --outDS user.<your_nickname>.blah --useAthenaPackages
 
 |br|

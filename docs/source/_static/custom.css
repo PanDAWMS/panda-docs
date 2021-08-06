@@ -14,6 +14,17 @@
     color:blue;
 }
 
+.hblue {
+    color:blue;
+    background-color:lightyellow;
+    font-size: 90%;
+}
+
+.orange {
+    color:darkorange;
+    font-size: 90%;
+}
+
 .green {
     color:green;
 }

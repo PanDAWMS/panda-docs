@@ -26,7 +26,5 @@ steps:
       opt_exec:
         default: "echo %IN > results.root"
       opt_args:
-        default: "--outputs results.root"
+        default: "--outputs results.root --forceStaged"
     out: [outDS]
-
-    

@@ -34,4 +34,3 @@ steps:
       opt_args:
         default: "--outputs merged.root"
     out: [outDS]
-

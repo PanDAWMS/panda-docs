@@ -90,5 +90,3 @@ steps:
       opt_args:
         default: "--outputs aaa.root --secondaryDSs %IN2:2:%%DS1%%,%IN3:5:%%DS2%%"
     out: [outDS]
-
-
