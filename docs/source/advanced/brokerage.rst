@@ -19,6 +19,12 @@ their needs and use-cases.
 
 This page explains the algorithms of some advanced plugins.
 
+|br|
+
+.. contents:: Table of Contents
+    :local:
+    :depth: 2
+
 ------------
 
 |br|
@@ -339,5 +345,36 @@ If there are no available network metrics, the AGIS closeness (0 best to 11 wors
 .. math::
 
   weightNwThroughput = 1+ \frac {MAX\_CLOSENESS - closeness} {MAX\_CLOSENESS - MIN\_CLOSENESS}
+
+|br|
+
+Timeout Rules
+==============
+
+* 1 hour for pending jobs
+* 4 hours for defined jobs
+* 12 hours for assigned jobs
+* 7 days for throttled jobs
+* 2 days for activated or starting jobs
+* 4 hours for activated or starting jobs with job.currentPriority>=800 at the queues where ``laststart`` in the
+  ``SiteData`` table is older than 2 hours
+* 30 min for sent jobs
+* 21 days for running jobs
+* 2 hours for heartbeats from running or starting jobs. Each ``workflow`` can define own timeout value using
+  :hblue:`HEARTBEAT_TIMEOUT_<workflow>` in :doc:`gdpconfig </advanced/gdpconfig>`
+* the above :hblue:`HEARTBEAT_TIMEOUT_<workflow>` for transferring jobs with the ``workflow`` and own stage-out
+  mechanism that sets not-null job.jobSubStatus
+* 3 hours for holding jobs with job.currentPriority>=800, while days for holding jobs with job.currentPriority<800
+* ``transtimehi`` days for transferring jobs with job.currentPriority>=800, while
+  ``transtimelo`` days for transferring jobs with job.currentPriority<800
+* disable all timeout rules when the queue status is :green:`paused` or the queue has :green:`disableReassign`
+  in ``catchall``
+* fast rebrokerage for defined, assigned, activated, or starting jobs at the queues
+  where
+   * nQueue_queue(gshare)/nRun_queue(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQNR_RATIO`
+   * nQueue_queue(gshare)/nQueue_total(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQUEUE_FRAC`
+   * nQueue_queue(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQUEUE_<gshare>`. Unless the gshare
+     defines the parameter it doesn't trigger the fast rebrokerage
+   * :hblue:`FAST_REBRO_THRESHOLD_blah` is defined in :doc:`gdpconfig </advanced/gdpconfig>`
 
 |br|

@@ -2,7 +2,7 @@
 System Configuration Parameters in Database
 =================================================
 
-There is the ``PANDA.CONFIG`` table, so-called ``gdpconfig`` table in the database where you can define
+There is the ``PANDA.CONFIG`` table, so-called :blue:`gdpconfig` table in the database where you can define
 any configuration parameter
 shared by all PanDA applications, so that system admins don't have to tweak the static cfg files every time
 they optimize the system.
