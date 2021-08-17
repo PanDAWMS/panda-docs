@@ -376,5 +376,6 @@ Timeout Rules
    * nQueue_queue(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQUEUE_<gshare>`. Unless the gshare
      defines the parameter it doesn't trigger the fast rebrokerage
    * :hblue:`FAST_REBRO_THRESHOLD_blah` is defined in :doc:`gdpconfig </advanced/gdpconfig>`
+   * nSlots is not defined in the ``Harvester_Slots`` table to attract jobs when nRun is small
 
 |br|
