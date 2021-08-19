@@ -6,7 +6,7 @@ inputs: []
 outputs:
   outDS:
     type: string
-    outputSource: second/outDS
+    outputSource: third/outDS
 
 
 steps:
@@ -31,4 +31,14 @@ steps:
         default: "--outputs results.txt"
     out: [outDS]
 
-    
+  third:
+    run: prun.cwl
+    in:
+      opt_inDS: second/outDS
+      opt_exec:
+        default: "echo %IN > poststep.txt"
+      opt_args:
+        default: "--outputs poststep.txt --athenaTag AnalysisBase,21.2.167"
+      opt_useAthenaPackages:
+        default: true
+    out: [outDS]

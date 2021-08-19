@@ -145,7 +145,7 @@ the :blue:`make_signal`
 task, while the :blue:`background` is used as input for the :blue:`make_background_1` and
 :blue:`make_background_2` tasks.
 The :blue:`make_signal` task runs in the busybox container as specified in ``opt_containerImage``, to produce two
-types of output data, abc.dat and def.zip, as specified in :``opt_args``.
+types of output data, abc.dat and def.zip, as specified in ``opt_args``.
 If the parent task produces multiple types of output data and the child task uses some of them,
 their types need to be specified in ``opt_inDsType``.
 The :blue:`premix` task takes def.zip from the :blue:`make_signal` task and xyz.pool
@@ -232,9 +232,11 @@ One or more tasks in a single workflow can use Athena as shown in the example be
 
 ``opt_useAthenaPackages`` corresponds to ``--useAthenaPackages`` of prun to remotely setup Athena with your
 locally-built packages.
+You can use a different Athena version by specifying :hblue:`---athenaTag` in ``opt_args``.
 
-To submit the task, first you need to setup Athena on local computer and execute ``pflow``
-with ``--useAthenaPackages``.
+To submit the task, first you need to setup Athena on local computer, and execute ``pflow``
+with ``--useAthenaPackages`` that automatically collect various Athena-related information
+from environment variables and uploads a sandbox file from your locally-built packages.
 
 .. prompt:: bash
 
