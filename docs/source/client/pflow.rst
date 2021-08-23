@@ -26,6 +26,9 @@ This page explains how to use ``pflow`` as well as how to write workflows.
 
 |br|
 
+Workflow examples
+^^^^^^^^^^^^^^^^^^^^^^
+
 Simple task chain
 ======================
 
@@ -35,7 +38,7 @@ The following cwl code shows a parent-child chain of two prun tasks.
     :language: yaml
     :caption: simple_chain.cwl
 
-The ``class`` field must be :blue:`Workflow` to indicate this code describes a workflow.
+The ``class`` field must be :brown:`Workflow` to indicate this code describes a workflow.
 There are two prun tasks in the workflow and defined as :blue:`top` and :blue:`bottom` steps in ``steps`` section.
 The ``inputs`` section is empty since the workflow doesn't take any input data.
 The ``outputs`` section describes the output parameter of the workflow, and it takes only one string type parameter
@@ -189,7 +192,7 @@ The following cwl example uses the above :brown:`sig_bg_comb.cwl` in the :blue:`
     :language: yaml
     :caption: merge_many.cwl
 
-Note that ``SubworkflowFeatureRequirement`` is required to use nested workflows.
+Note that nested workflows requires ``SubworkflowFeatureRequirement``.
 
 It is possible to run a task or nested workflow multiple times over a list of inputs using
 ``ScatterFeatureRequirement``.
@@ -241,5 +244,44 @@ from environment variables and uploads a sandbox file from your locally-built pa
 .. prompt:: bash
 
   pflow --cwl athena.cwl --yaml inputs.yaml --outDS user.<your_nickname>.blah --useAthenaPackages
+
+|br|
+
+Conditional workflow
+========================
+
+Workflows can contain conditional steps executed based on their input. This allows workflows
+to wait execution of subsequent tasks until previous tasks are done, and
+to skip subsequent tasks based on results of previous tasks.
+The following example contains conditional branching based on the result of the first step.
+Note that this workflows conditional branching require ``InlineJavascriptRequirement`` and CWL version 1.2 or higher.
+
+.. literalinclude:: cwl/cond.cwl
+    :language: yaml
+    :caption: cond.cwl
+
+Both :blue:`bottom_OK` and :blue:`bottom_NG` steps take output data of the :blue:`top` step as input.
+The new property ``when`` specifies the condition validation expression that is interpreted by JavaScript.
+:hblue:`self.blah` in the expression represents the input parameter :brown:`blah` of the step that is connected
+to output data of the parent step. If the parent step is successful :hblue:`self.blah` gives :brown:`True`
+while :hblue:`!self.blah` gives :brown:``. It is possible to create more complicated expressions using
+logical operators (:brown:`&&` for AND and :brown:`||` for OR) and parentheses. The step is executed when the
+whole expression gives :brown:`True`.
+
+The :blue:`bottom_NG` step is executed when the :blue:`top` step fails and :hblue:`$(!self.opt_inDS)` gives
+:brown:`True`. Note that in this case output data from the :blue:`top` step is empty and the :blue:`bottom_NG` step
+is executed without ``--inDS``.
+
+|br|
+
+How to check workflow descriptions locally
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
+
+|br|
+
+Monitoring workflows
+^^^^^^^^^^^^^^^^^^^^^^^
 
 |br|
