@@ -60,7 +60,7 @@ Here is a list of parameters in the ``in`` section to run a prun task.
    * - opt_inDS
      - ---inDS (string)
    * - opt_inDsType
-     - No correspondence. Type of inDS (a string array)
+     - No correspondence. Type of inDS (string)
    * - opt_secondaryDSs
      - ---secondaryDSs (a list of strings)
    * - opt_secondaryDsTypes
@@ -106,13 +106,14 @@ and finishes once all data from the :blue:`top` task is processed.
 The user can submit the workflow to PanDA using ``pflow`` that is included in panda-client.
 First, create a file called :brown:`simple_chain.cwl` containing the cwl code above.
 Next, you need to create an empty yaml file since cwl files work with yaml files that describe workflow inputs.
-This example doesn't take an input, so the empty yaml file is enough.
+This example doesn't take an input, so the yaml file can be empty.
 
 .. prompt:: bash
 
-  touch test.yaml
-  pflow --cwl simple_chain.cwl --yaml test.yaml --outDS user.<your_nickname>.blah
+  touch dummy.yaml
+  pflow --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
 
+``pflow`` automatically sends local *.cwl, *.yaml, and *.json files to PanDA together with the workflow.
 ``--outDS`` is the basename of the datasets for output and log files. Once the workflow is submitted,
 the cwl and yaml files are parsed on the server side to generate tasks
 with sequential numbers in the workflow. The system uses a combination of the sequential number
@@ -274,10 +275,58 @@ is executed without ``--inDS``.
 
 |br|
 
+Involving hyperparameter optimization
+==================================================
+
+It is possible to run Hyperparameter Optimization (HPO) and chain it with other tasks in the workflow.
+The following example shows a chain of HPO and prun tasks.
+
+.. literalinclude:: cwl/hpo.cwl
+    :language: yaml
+    :caption: hpo.cwl
+
+where output data of the :blue:`preproc` step is used as the training dataset for the :blue:`main_hpo` step.
+The :blue:`main_hpo` step specifies ``when`` since it waits until the :blue:`preproc` step is done.
+
+The ``run`` filed of a prun task is :brown:`phpo.cwl``.
+Here is a list of parameters in the ``in`` section to run a prun task.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Parameter
+     - Corresponding phpo option
+   * - opt_trainingDS
+     - ---trainingDS (string)
+   * - opt_trainingDsType
+     - No correspondence. Type of trainingDS (string)
+   * - opt_args
+     - all other phpo options except for listed above (string)
+
+``opt_trainingDS`` can be omitted if the HPO task doesn't take a training dataset.
+Note that you can put most phpo options in a json and specify the json filename in :hblue:`---loadJson`
+in ``opt_args``, rather than constructing a complicated string in ``opt_args``.
+
+.. prompt:: bash $ auto
+
+  $ cat config.json
+  {
+    "evaluationContainer": "docker://gitlab-registry.cern.ch/zhangruihpc/evaluationcontainer:mlflow",
+    "evaluationExec": "bash ./exec_in_container.sh",
+    "evaluationMetrics": "metrics.tgz",
+    "steeringExec": "run --rm -v \"$(pwd)\":/HPOiDDS gitlab-registry.cern.ch/zhangruihpc/steeringcontainer:0.0.1 /bin/bash -c \"hpogrid generate --n_point=%NUM_POINTS --max_point=%MAX_POINTS --infile=/HPOiDDS/%IN  --outfile=/HPOiDDS/%OUT -l nevergrad\""
+  }
+
+  $ pflow -cwl hpo.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+
+|br|
+
 How to check workflow descriptions locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
+
+-----------------
 
 |br|
 
