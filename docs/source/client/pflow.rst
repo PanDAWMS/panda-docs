@@ -15,7 +15,7 @@ and other workflow management systems, to run some tasks very quickly or outsour
 
 The user describes a workflow using the Common Workflow Language (`CWL <https://www.commonwl.org/user_guide/>`_)
 and submits it to PanDA using ``pflow``.
-This page explains how to use ``pflow`` as well as how to write workflows.
+This page explains how to use ``pflow`` as well as how to describe workflows.
 
 |br|
 
@@ -33,6 +33,8 @@ Simple task chain
 ======================
 
 The following cwl code shows a parent-child chain of two prun tasks.
+
+.. figure:: images/pflow_dag_simple.png
 
 .. literalinclude:: cwl/test.cwl
     :language: yaml
@@ -257,6 +259,8 @@ to skip subsequent tasks based on results of previous tasks.
 The following example contains conditional branching based on the result of the first step.
 Note that this workflows conditional branching require ``InlineJavascriptRequirement`` and CWL version 1.2 or higher.
 
+.. figure:: images/pflow_dag_cond.png
+
 .. literalinclude:: cwl/cond.cwl
     :language: yaml
     :caption: cond.cwl
@@ -288,7 +292,7 @@ The following example shows a chain of HPO and prun tasks.
 where output data of the :blue:`preproc` step is used as the training dataset for the :blue:`main_hpo` step.
 The :blue:`main_hpo` step specifies ``when`` since it waits until the :blue:`preproc` step is done.
 
-The ``run`` filed of a prun task is :brown:`phpo.cwl``.
+The ``run`` filed of a prun task is :brown:`phpo.cwl`.
 Here is a list of parameters in the ``in`` section to run a prun task.
 
 .. list-table::
@@ -321,7 +325,7 @@ in ``opt_args``, rather than constructing a complicated string in ``opt_args``.
 
 |br|
 
-How to check workflow descriptions locally
+How to check workflow description locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
