@@ -274,8 +274,8 @@ logical operators (:brown:`&&` for AND and :brown:`||` for OR) and parentheses. 
 whole expression gives :brown:`True`.
 
 The :blue:`bottom_NG` step is executed when the :blue:`top` step fails and :hblue:`$(!self.opt_inDS)` gives
-:brown:`True`. Note that in this case output data from the :blue:`top` step is empty and the :blue:`bottom_NG` step
-is executed without ``--inDS``.
+:brown:`True`. Note that in this case output data from the :blue:`top` step is empty and
+the prun task in the :blue:`bottom_NG` step is executed without ``--inDS``.
 
 |br|
 
