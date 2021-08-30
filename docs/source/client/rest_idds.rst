@@ -44,7 +44,7 @@ The following code snippets show how iDDS native codes migrate to panda-client b
 
 .. code-block:: python
 
-    import pandatools.idds_api
+    import pandaclient.idds_api
     import idds.common.constants
     import idds.common.utils
 
@@ -59,7 +59,7 @@ The following code snippets show how iDDS native codes migrate to panda-client b
     }
 
     # using Client API
-    cl = pandatools.idds_api.get_api(idds.common.utils.json_dumps, compress=True)
+    cl = pandaclient.idds_api.get_api(idds.common.utils.json_dumps, compress=True)
     ret = cl.add_request(**data)
     if ret[0] == 0 and ret[1][0]:
         request_id = ret[1][-1]
@@ -67,7 +67,7 @@ The following code snippets show how iDDS native codes migrate to panda-client b
         # error
 
     # using ClientManager
-    cm = pandatools.idds_api.get_api(idds.common.utils.json_dumps, compress=True, manager=True)
+    cm = pandaclient.idds_api.get_api(idds.common.utils.json_dumps, compress=True, manager=True)
     ret = cm.get_requests(request_id=request_id)
     if ret[0] == 0 and ret[1][0]:
         req = ret[1][-1]
@@ -77,9 +77,9 @@ The following code snippets show how iDDS native codes migrate to panda-client b
 
 All client functions of ``idds.client.client.Client`` and ``idds.client.clientmanager.ClientManager``
 are available in the API object, which is returned by
-``pandatools.idds_api.get_api()``,
+``pandaclient.idds_api.get_api()``,
 with the same arguments. Check with iDDS documentation for the details of iDDS API.
-Here is the description of ``pandatools.idds_api.get_api()``.
+Here is the description of ``pandaclient.idds_api.get_api()``.
 
 .. code-block:: text
 

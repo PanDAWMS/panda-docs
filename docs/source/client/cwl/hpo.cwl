@@ -24,7 +24,7 @@ steps:
     in:
       opt_trainingDS: pre_proc/outDS
       opt_args:
-        default: "--loadJson b.json"
+        default: "--loadJson conf.json"
     out: [outDS]
     when: $(self.opt_trainingDS)
 

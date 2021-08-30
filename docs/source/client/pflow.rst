@@ -331,6 +331,55 @@ How to check workflow description locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
+``pflow`` has the ``--check`` option to verify the workflow description locally using ``cwl-runner'.
+First you need to install the cwltool package if it is missing. E.g.
+
+.. prompt:: bash
+
+  python3 -m venv myenv
+  source myenv/bin/activate
+  pip install cwltool
+
+
+Once cwltool and panda-client are set up, you
+just need to add the option when running ``plfow``.
+For example,
+
+.. prompt:: bash
+
+  pflow --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+
+which should give a message like
+
+.. code-block:: text
+
+    INFO /opt/pandaserver/bin/cwl-runner 3.1.20210628163208
+    INFO Resolved 'test.cwl' to 'file:///.../test.cwl'
+    INFO [workflow ] start
+    INFO [workflow ] starting step top
+    INFO [step top] start
+    INFO :
+         type: prun
+         args: --outputs seed.txt --nJobs 2 --avoidVP --exec 'echo %RNDM:10 > seed.txt' --outDS 'user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>'
+        input: null
+       output: user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>_seed.txt/
+
+    INFO [step top] completed success
+    INFO [workflow ] starting step bottom
+    INFO [step bottom] start
+    INFO :
+         type: prun
+         args: --outputs results.root --forceStaged --exec 'echo %IN > results.root' --outDS 'user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>'
+        input: user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>_seed.txt/
+       output: user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>_results.root/
+
+    INFO [step bottom] completed success
+    INFO [workflow ] completed success
+    INFO Final process status is success
+    INFO : Successfully verified the workflow description
+
+The ``--check`` option checks whether the options in ``opt_args`` are correct, dependencies among steps are valid,
+and input and output data are properly resolved.
 
 -----------------
 

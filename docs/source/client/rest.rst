@@ -2,11 +2,11 @@
 PanDA system python API reference
 ==================================
 
-Low-level system API are available via the pandatools.Client module.
+Low-level system API are available via the pandaclient.Client module.
 
 .. code-block:: python
 
-  from pandatools import Client
+  from pandaclient import Client
   Client.function_xyz(...)
 
 System API
