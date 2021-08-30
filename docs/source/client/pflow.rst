@@ -289,10 +289,12 @@ The following example shows a chain of HPO and prun tasks.
     :language: yaml
     :caption: hpo.cwl
 
-where output data of the :blue:`preproc` step is used as the training dataset for the :blue:`main_hpo` step.
-The :blue:`main_hpo` step specifies ``when`` since it waits until the :blue:`preproc` step is done.
+where the output data of the :blue:`pre_proc` step is used as the training data for the :blue:`main_hpo` step,
+and the output data :brown:`metrics.tgz` of the :blue:`main_hpo` step is used as the input for the
+:blue:`post_proc` step.
+Both :blue:`main_hpo` and :blue:`post_proc` steps specify ``when`` since they waits until the upstream step is done.
 
-The ``run`` filed of a prun task is :brown:`phpo.cwl`.
+The ``run`` filed of a phpo task is :brown:`phpo.cwl`.
 Here is a list of parameters in the ``in`` section to run a prun task.
 
 .. list-table::

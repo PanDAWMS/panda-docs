@@ -1,19 +1,16 @@
-cwlVersion: v1.2
+cwlVersion: v1.0
 class: Workflow
-
-requirements:
-  InlineJavascriptRequirement: {}
 
 inputs: []
 
 outputs:
   outDS:
     type: string
-    outputSource: main_hpo/outDS
+    outputSource: post_proc/outDS
 
 
 steps:
-  preproc:
+  pre_proc:
     run: prun.cwl
     in:
       opt_exec:
@@ -25,8 +22,19 @@ steps:
   main_hpo:
     run: phpo.cwl
     in:
-      opt_trainingDS: preproc/outDS
+      opt_trainingDS: pre_proc/outDS
       opt_args:
-        default: "--loadJson config.json"
+        default: "--loadJson b.json"
     out: [outDS]
     when: $(self.opt_trainingDS)
+
+  post_proc:
+    run: prun.cwl
+    in:
+      opt_inDS: main_hpo/outDS
+      opt_exec:
+        default: "echo %IN > anal.txt"
+      opt_args:
+        default: "--outputs anal.txt --nFilesPerJob 100 --avoidVP"
+    out: [outDS]
+    when: $(self.opt_inDS)
