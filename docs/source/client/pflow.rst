@@ -332,22 +332,24 @@ How to check workflow description locally
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
 ``pflow`` has the ``--check`` option to verify the workflow description locally using ``cwl-runner'.
-First you need to install the cwltool package if it is missing. E.g.
+First you need to install the cwlref-runner package if it is missing. E.g.
 
-.. prompt:: bash
+.. prompt:: bash $ auto
 
-  python3 -m venv myenv
-  source myenv/bin/activate
-  pip install cwltool
+  $ cwl-runner
+  -bash: cwl-runner: command not found
 
+  $ python3 -m venv myenv
+  $ source myenv/bin/activate
+  $ pip install cwlref-runner
 
-Once cwltool and panda-client are set up, you
-just need to add the option when running ``plfow``.
+Once cwl-runner and panda-client are set up, you
+just need to add the --check option when running ``plfow``.
 For example,
 
 .. prompt:: bash
 
-  pflow --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+  pflow --cwl test.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah --check
 
 which should give a message like
 
