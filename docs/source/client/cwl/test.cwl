@@ -16,7 +16,7 @@ steps:
       opt_exec:
         default: "echo %RNDM:10 > seed.txt"
       opt_args:
-        default: "--outputs seed.txt --nJobs 3"
+        default: "--outputs seed.txt --nJobs 3 --avoidVP"
     out: [outDS]
 
   bottom:
@@ -26,5 +26,5 @@ steps:
       opt_exec:
         default: "echo %IN > results.root"
       opt_args:
-        default: "--outputs results.root --forceStaged"
+        default: "--outputs results.root --forceStaged --avoidVP"
     out: [outDS]
