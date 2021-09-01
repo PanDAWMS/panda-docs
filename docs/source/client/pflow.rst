@@ -344,7 +344,7 @@ First you need to install the cwlref-runner package if it is missing. E.g.
   $ pip install cwlref-runner
 
 Once cwl-runner and panda-client are set up, you
-just need to add the --check option when running ``plfow``.
+just need to add the ``--check`` option when running ``plfow``.
 For example,
 
 .. prompt:: bash
