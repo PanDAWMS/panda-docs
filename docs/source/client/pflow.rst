@@ -339,9 +339,12 @@ First you need to install the cwlref-runner package if it is missing. E.g.
   $ cwl-runner
   -bash: cwl-runner: command not found
 
+  $ sudo yum include python3-devel
   $ python3 -m venv myenv
   $ source myenv/bin/activate
   $ pip install cwlref-runner
+
+Note that cwlref-runner requires python3-devel.
 
 Once cwl-runner and panda-client are set up, you
 just need to add the ``--check`` option when running ``plfow``.
