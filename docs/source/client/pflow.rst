@@ -332,7 +332,8 @@ How to check workflow description locally
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
 ``pflow`` has the ``--check`` option to verify the workflow description locally using ``cwl-runner'.
-First you need to install the cwlref-runner package if it is missing. E.g.
+First you need to install the cwlref-runner package following the
+`instruction <https://github.com/common-workflow-language/cwltool#install>`_ if it is missing. E.g. on CentOS 7
 
 .. prompt:: bash $ auto
 
