@@ -71,8 +71,6 @@ Here is a list of parameters in the ``in`` section to run a prun task.
      - ---exec (string)
    * - opt_useAthenaPackages
      - ---useAthenaPackages (bool)
-   * - opt_architecture
-     - ---architecture (string)
    * - opt_containerImage
      - ---containerImage (string)
    * - opt_args
