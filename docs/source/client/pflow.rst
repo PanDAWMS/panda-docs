@@ -341,11 +341,15 @@ First you need to install the cwlref-runner package following the
   -bash: cwl-runner: command not found
 
   $ sudo yum include python3-devel
+  $ cd <somewhere_than_working_dir>
   $ python3 -m venv myenv
   $ source myenv/bin/activate
   $ pip install cwlref-runner
 
-Note that cwlref-runner requires python3-devel.
+cwlref-runner requires python3-devel. Note that you should not make the virtual environment directory under
+the working directory where panda-client tools like pflow and prun are executed.
+Otherwise, the directory will be included in sandbox files which panda-client tools create,
+and the sandbox file creation will be very slow due to the directory size.
 
 Once cwl-runner and panda-client are set up, you
 just need to add the ``--check`` option when running ``plfow``.
@@ -353,6 +357,7 @@ For example,
 
 .. prompt:: bash
 
+  cd <working_dir>
   pflow --cwl test.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah --check
 
 which should give a message like
