@@ -14,8 +14,8 @@ batch systems, production system, kubernetes-based resources,
 and other workflow management systems, to run some tasks very quickly or outsource sub-workflows.
 
 The user describes a workflow using the Common Workflow Language (`CWL <https://www.commonwl.org/user_guide/>`_)
-and submits it to PanDA using ``pflow``.
-This page explains how to use ``pflow`` as well as how to describe workflows.
+and submits it to PanDA using ``pchain``.
+This page explains how to use ``pchain`` as well as how to describe workflows.
 
 |br|
 
@@ -103,7 +103,7 @@ The :blue:`bottom` task starts processing once the *top* task produces enough ou
 waits if all data currently available has been processed but the :blue:`top` task is still running,
 and finishes once all data from the :blue:`top` task is processed.
 
-The user can submit the workflow to PanDA using ``pflow`` that is included in panda-client.
+The user can submit the workflow to PanDA using ``pchain`` that is included in panda-client.
 First, create a file called :brown:`simple_chain.cwl` containing the cwl code above.
 Next, you need to create an empty yaml file since cwl files work with yaml files that describe workflow inputs.
 This example doesn't take an input, so the yaml file can be empty.
@@ -111,9 +111,9 @@ This example doesn't take an input, so the yaml file can be empty.
 .. prompt:: bash
 
   touch dummy.yaml
-  pflow --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+  pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
 
-``pflow`` automatically sends local *.cwl, *.yaml, and *.json files to PanDA together with the workflow.
+``pchain`` automatically sends local *.cwl, *.yaml, and *.json files to PanDA together with the workflow.
 ``--outDS`` is the basename of the datasets for output and log files. Once the workflow is submitted,
 the cwl and yaml files are parsed on the server side to generate tasks
 with sequential numbers in the workflow. The system uses a combination of the sequential number
@@ -125,11 +125,11 @@ and that of the :blue:`bottom` is :brown:`user.<your_nickname>.blah_001_bottom_r
 If :hblue:`---outputs` is a comma-separate
 output list, one dataset is created for each output type.
 
-To see all options of ``pflow``
+To see all options of ``pchain``
 
 .. prompt:: bash
 
-  pflow --helpGroup ALL
+  pchain --helpGroup ALL
 
 |br|
 
@@ -175,7 +175,7 @@ Then submit the workflow.
 
 .. prompt:: bash
 
-  pflow --cwl sig_bg_comb.cwl --yaml inputs.yaml --outDS user.<your_nickname>.blah
+  pchain --cwl sig_bg_comb.cwl --yaml inputs.yaml --outDS user.<your_nickname>.blah
 
 If you need to run the workflow with different input data it enough to submit it with a different yaml file.
 
@@ -221,7 +221,7 @@ Then submit the workflow.
 
 .. prompt:: bash
 
-  pflow --cwl merge_many.cwl --yaml inputs2.yaml --outDS user.<your_nickname>.blah
+  pchain --cwl merge_many.cwl --yaml inputs2.yaml --outDS user.<your_nickname>.blah
 
 |br|
 
@@ -238,13 +238,13 @@ One or more tasks in a single workflow can use Athena as shown in the example be
 locally-built packages.
 You can use a different Athena version by specifying :hblue:`---athenaTag` in ``opt_args``.
 
-To submit the task, first you need to setup Athena on local computer, and execute ``pflow``
+To submit the task, first you need to setup Athena on local computer, and execute ``pchain``
 with ``--useAthenaPackages`` that automatically collect various Athena-related information
 from environment variables and uploads a sandbox file from your locally-built packages.
 
 .. prompt:: bash
 
-  pflow --cwl athena.cwl --yaml inputs.yaml --outDS user.<your_nickname>.blah --useAthenaPackages
+  pchain --cwl athena.cwl --yaml inputs.yaml --outDS user.<your_nickname>.blah --useAthenaPackages
 
 |br|
 
@@ -321,7 +321,7 @@ in ``opt_args``, rather than constructing a complicated string in ``opt_args``.
     "steeringExec": "run --rm -v \"$(pwd)\":/HPOiDDS gitlab-registry.cern.ch/zhangruihpc/steeringcontainer:0.0.1 /bin/bash -c \"hpogrid generate --n_point=%NUM_POINTS --max_point=%MAX_POINTS --infile=/HPOiDDS/%IN  --outfile=/HPOiDDS/%OUT -l nevergrad\""
   }
 
-  $ pflow -cwl hpo.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+  $ pchain -cwl hpo.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
 
 |br|
 
@@ -329,65 +329,36 @@ How to check workflow description locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
-``pflow`` has the ``--check`` option to verify the workflow description locally using ``cwl-runner``.
-First you need to install the cwlref-runner package following the
-`instruction <https://github.com/common-workflow-language/cwltool#install>`_ if it is missing. E.g. on CentOS 7
-
-.. prompt:: bash $ auto
-
-  $ cwl-runner
-  -bash: cwl-runner: command not found
-
-  $ sudo yum include python3-devel
-  $ cd <somewhere_than_working_dir>
-  $ python3 -m venv myenv
-  $ source myenv/bin/activate
-  $ pip install cwlref-runner
-
-cwlref-runner requires python3-devel. Note that you should not make the virtual environment directory under
-the working directory where panda-client tools like pflow and prun are executed.
-Otherwise, the directory will be included in sandbox files which panda-client tools create,
-and the sandbox file creation will be very slow due to the directory size.
-
-Once cwl-runner and panda-client are set up, you
-just need to add the ``--check`` option when running ``plfow``.
+``pchain`` has the ``--check`` option to verify the workflow description locally.
+You just need to add the ``--check`` option when running ``pchain``.
 For example,
 
 .. prompt:: bash
 
-  cd <working_dir>
-  pflow --cwl test.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah --check
+  pchain --cwl test.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah --check
 
 which should give a message like
 
 .. code-block:: text
 
-    INFO /opt/pandaserver/bin/cwl-runner 3.1.20210628163208
-    INFO Resolved 'test.cwl' to 'file:///.../test.cwl'
-    INFO [workflow ] start
-    INFO [workflow ] starting step top
-    INFO [step top] start
-    INFO :
-         type: prun
-         args: --outputs seed.txt --nJobs 2 --avoidVP --exec 'echo %RNDM:10 > seed.txt' --outDS 'user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>'
-        input: null
-       output: user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>_seed.txt/
+    INFO : uploading workflow sandbox
+    INFO : check workflow user.tmaeno.c63e2e54-df9e-402a-8d7b-293b587c4559
+    INFO : messages from the server
 
-    INFO [step top] completed success
-    INFO [workflow ] starting step bottom
-    INFO [step bottom] start
-    INFO :
-         type: prun
-         args: --outputs results.root --forceStaged --exec 'echo %IN > results.root' --outDS 'user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>'
-        input: user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>_seed.txt/
-       output: user.hoge.637f063b-3cd4-4f77-99b7-7cdb8b881733_<suffix>_results.root/
+    internally converted as follows
 
-    INFO [step bottom] completed success
-    INFO [workflow ] completed success
-    INFO Final process status is success
-    INFO : Successfully verified the workflow description
+    ID:0 Name:top Type:prun
+      Parent:
+      Input:
+         opt_args: --outputs seed.txt --nJobs 2 --avoidVP
+         opt_exec: echo %RNDM:10 > seed.txt
+      Output:
+    ...
 
-The ``--check`` option checks whether the options in ``opt_args`` are correct, dependencies among steps are valid,
+    INFO : Successfully verified workflow description
+
+Your workflow description is sent to the server to check
+whether the options in ``opt_args`` are correct, dependencies among steps are valid,
 and input and output data are properly resolved.
 
 -----------------
