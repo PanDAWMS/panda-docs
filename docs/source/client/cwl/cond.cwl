@@ -17,7 +17,7 @@ outputs:
 
 steps:
   top:
-    run: prun.cwl
+    run: prun
     in:
       opt_exec:
         default: "echo %RNDM:10 > seed.txt"
@@ -26,7 +26,7 @@ steps:
     out: [outDS]
 
   bottom_OK:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: top/outDS
       opt_exec:
@@ -37,7 +37,7 @@ steps:
     when: $(self.opt_inDS)
 
   bottom_NG:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: top/outDS
       opt_exec:

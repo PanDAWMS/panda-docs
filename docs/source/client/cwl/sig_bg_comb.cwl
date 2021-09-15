@@ -16,7 +16,7 @@ outputs:
 
 steps:
   make_signal:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: signal
       opt_containerImage:
@@ -28,7 +28,7 @@ steps:
     out: [outDS]
 
   make_background_1:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: background
       opt_exec:
@@ -38,7 +38,7 @@ steps:
     out: [outDS]
 
   premix:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: make_signal/outDS
       opt_inDsType:
@@ -53,7 +53,7 @@ steps:
     out: [outDS]
 
   generate_some:
-    run: prun.cwl
+    run: prun
     in:
       opt_exec:
         default: "echo %RNDM:10 > gen.root"
@@ -62,7 +62,7 @@ steps:
     out: [outDS]
     
   make_background_2:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: background
       opt_containerImage:
@@ -77,7 +77,7 @@ steps:
     out: [outDS]
 
   combine:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: make_signal/outDS
       opt_inDsType:

@@ -26,7 +26,7 @@ steps:
     out: [outDS]
 
   merge:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: many_sig_bg_comb/outDS
       opt_exec:

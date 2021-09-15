@@ -11,7 +11,7 @@ outputs:
 
 steps:
   pre_proc:
-    run: prun.cwl
+    run: prun
     in:
       opt_exec:
         default: "echo %RNDM:10 > seed.txt"
@@ -20,7 +20,7 @@ steps:
     out: [outDS]
 
   main_hpo:
-    run: phpo.cwl
+    run: phpo
     in:
       opt_trainingDS: pre_proc/outDS
       opt_args:
@@ -29,7 +29,7 @@ steps:
     when: $(self.opt_trainingDS)
 
   post_proc:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: main_hpo/outDS
       opt_exec:

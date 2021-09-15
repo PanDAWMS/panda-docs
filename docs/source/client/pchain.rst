@@ -49,7 +49,7 @@ The ``outputSource`` connects the output parameter of the *bottom* step to the w
 
 In the ``steps`` section, each step represents a task with an arbitrary task name, such as :blue:`top`
 and :blue:`bottom`.
-The ``run`` filed of a prun task is :brown:`prun.cwl`. The ``in`` section specifies a set of parameters
+The ``run`` filed of a prun task is :brown:`prun`. The ``in`` section specifies a set of parameters
 correspond to command-line options of prun.
 
 Here is a list of parameters in the ``in`` section to run a prun task.
@@ -83,7 +83,7 @@ Essentially,
 
 .. code-block:: yaml
 
-    run: prun.cwl
+    run: prun
     in:
       opt_exec:
         default: "echo %RNDM:10 > seed.txt"
@@ -292,7 +292,7 @@ and the output data :brown:`metrics.tgz` of the :blue:`main_hpo` step is used as
 :blue:`post_proc` step.
 Both :blue:`main_hpo` and :blue:`post_proc` steps specify ``when`` since they waits until the upstream step is done.
 
-The ``run`` filed of a phpo task is :brown:`phpo.cwl`.
+The ``run`` filed of a phpo task is :brown:`phpo`.
 Here is a list of parameters in the ``in`` section to run a prun task.
 
 .. list-table::

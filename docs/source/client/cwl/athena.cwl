@@ -11,7 +11,7 @@ outputs:
 
 steps:
   first:
-    run: prun.cwl
+    run: prun
     in:
       opt_exec:
         default: "Gen_tf.py --maxEvents=1000 --skipEvents=0 --ecmEnergy=5020 --firstEvent=1 --jobConfig=860059 --outputEVNTFile=evnt.pool.root --randomSeed=4 --runNumber=860059 --AMITag=e8201"
@@ -22,7 +22,7 @@ steps:
     out: [outDS]
 
   second:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: top/outDS
       opt_exec:
@@ -32,7 +32,7 @@ steps:
     out: [outDS]
 
   third:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: second/outDS
       opt_exec:
