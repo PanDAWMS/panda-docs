@@ -325,6 +325,64 @@ in ``opt_args``, rather than constructing a complicated string in ``opt_args``.
 
 |br|
 
+Loops
+===========
+
+Users can have loops in their workflows. Each loop is represented as a sub-workflow with a parameter dictionary.
+All steps in the sub-workflow share the dictionary to generate actual steps. There are special steps, called
+:brown:`junction`, which take outputs from upstream steps, update the parameter dictionary,
+and make a decision to escape from the sub-workflow based on values in the dictionary.
+The sub-workflow is iterated until one of :brown:`junctions` decides to escape. The new iteration is executed
+with the updated values in the parameter dictionary, so that each iteration can bring different results.
+
+For example, the following pseudo-code snippet has a single loop
+
+.. code-block:: python
+
+  out1 = work_start()
+  xxx = 123
+  yyy = 0.456
+  while True:
+      out2 = inner_work_top(out1, xxx)
+      out3 = inner_work_bottom(out2, yyy)
+      xxx = out2 + 1
+      yyy *= out3
+      if yyy > xxx:
+          break
+  out4 = work_end(out3)
+
+The code is described using CWL as follows:
+
+.. literalinclude:: cwl/loop.cwl
+    :language: yaml
+    :caption: loop.cwl
+
+The :hblue:`Where` block is described as the :blue:`work_loop` step
+which runs a separate CWL file :brown:`loop_body.cwl`.
+The :blue:`work_loop` step has :hblue:`loop` in the ``hints`` section to iterate.
+
+.. literalinclude:: cwl/loop_body.cwl
+    :language: yaml
+    :caption: loop_body.cwl
+
+The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
+of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and default values. They are translated to
+the parameter dictionary shared by steps in the sub-workflow.
+In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the value in the dictionary.
+A loop count is inserted to the names of output datasets from steps in a loop, like
+:brown:`user.<your_nickname>.blah_<loop_count>_<output>`.
+The loop count is incremented for each iteration.
+
+The :blue:`checkpoint` step runs :brown:`junction` to read outputs from :blue:`inner_work_top` and
+:blue:`inner_work_bottom` step in the iteration,
+and update values in the parameter dictionary. The payload in the :blue:`checkpoint` step produces
+a json file with key-values to update in the dictionary,
+and a special key-value :hblue:`to_terminate: True` to escape from the loop and execute subsequent steps
+outside of the loop.
+
+|br|
+
+
 How to check workflow description locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
