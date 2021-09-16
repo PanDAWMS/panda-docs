@@ -359,18 +359,18 @@ The code is described using CWL as follows.
     :language: yaml
     :caption: loop.cwl
 
-The :hblue:`Where` block is described as the :blue:`work_loop` step
-which runs a separate CWL file :brown:`loop_body.cwl`.
-The :blue:`work_loop` step has :hblue:`loop` in the ``hints`` section to iterate.
+The :blue:`work_loop` step describes the looping stuff in the :hblue:`while` block of the pseudo-code snippet.
+It runs a separate CWL file :brown:`loop_body.cwl` and
+has :hblue:`loop` in the ``hints`` section to iterate.
 
 .. literalinclude:: cwl/loop_body.cwl
     :language: yaml
     :caption: loop_body.cwl
 
 The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
-of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and default values. They are translated to
-the parameter dictionary shared by all tasks in the sub-workflow.
-In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the value in the dictionary.
+of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and their default values. They are internally
+translated to the parameter dictionary shared by all tasks in the sub-workflow.
+In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the actual value in the dictionary.
 A loop count is inserted to the output dataset names, like
 :brown:`user.<your_nickname>.blah_<loop_count>_<output>`.
 The loop count is incremented for each iteration, so tasks in a loop produce unique output datasets in each iteration.
