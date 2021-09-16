@@ -267,7 +267,7 @@ Both :blue:`bottom_OK` and :blue:`bottom_NG` steps take output data of the :blue
 The new property ``when`` specifies the condition validation expression that is interpreted by JavaScript.
 :hblue:`self.blah` in the expression represents the input parameter :brown:`blah` of the step that is connected
 to output data of the parent step. If the parent step is successful :hblue:`self.blah` gives :brown:`True`
-while :hblue:`!self.blah` gives :brown:``. It is possible to create more complicated expressions using
+while :hblue:`!self.blah` gives :brown:`False`. It is possible to create more complicated expressions using
 logical operators (:brown:`&&` for AND and :brown:`||` for OR) and parentheses. The step is executed when the
 whole expression gives :brown:`True`.
 
@@ -329,10 +329,10 @@ Loops in workflows
 ====================
 
 Users can have loops in their workflows. Each loop is represented as a sub-workflow with a parameter dictionary.
-All steps in the sub-workflow share the dictionary to generate actual steps. There are special steps, called
-:brown:`junction`, which take outputs from upstream steps, update the parameter dictionary,
-and make a decision to escape from the sub-workflow based on values in the dictionary.
-The sub-workflow is iterated until one of :brown:`junctions` decides to escape. The new iteration is executed
+All tasks in the sub-workflow share the dictionary to generate actual steps. There are special tasks, called
+:brown:`junction`, which read outputs from upstream tasks, update the parameter dictionary,
+and make a decision to exit from the sub-workflow.
+The sub-workflow is iterated until one of :brown:`junctions` decides to exit. The new iteration is executed
 with the updated values in the parameter dictionary, so that each iteration can bring different results.
 
 For example, the following pseudo-code snippet has a single loop
@@ -369,17 +369,17 @@ The :blue:`work_loop` step has :hblue:`loop` in the ``hints`` section to iterate
 
 The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
 of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and default values. They are translated to
-the parameter dictionary shared by steps in the sub-workflow.
+the parameter dictionary shared by all tasks in the sub-workflow.
 In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the value in the dictionary.
-A loop count is inserted to the names of output datasets from steps in a loop, like
+A loop count is inserted to the output dataset names, like
 :brown:`user.<your_nickname>.blah_<loop_count>_<output>`.
-The loop count is incremented for each iteration.
+The loop count is incremented for each iteration, so tasks in a loop produce unique output datasets in each iteration.
 
 The :blue:`checkpoint` step runs :brown:`junction` to read outputs from :blue:`inner_work_top` and
 :blue:`inner_work_bottom` step in the iteration,
 and update values in the parameter dictionary. The payload in the :blue:`checkpoint` step produces
 a json file with key-values to update in the dictionary,
-and a special key-value :hblue:`to_terminate: True` to escape from the loop and execute subsequent steps
+and a special key-value :hblue:`to_terminate: True` to exit from the loop and execute subsequent steps
 outside of the loop.
 
 |br|

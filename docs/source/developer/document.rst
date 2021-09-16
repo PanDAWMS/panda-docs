@@ -18,7 +18,7 @@ First, you need to install sphinx packages
     pip install sphinx-prompt
 
 and `pandoc <https://pandoc.org/installing.html>`_ .
-Then fork the `panda-docs <https://github.com/PanDAWMS/panda-docs.git>`_ repository following
+Then fork the main or dev branch of the `panda-docs <https://github.com/PanDAWMS/panda-docs.git>`_ repository following
 `GitHub HowTo <https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo>`_ .
 
 
@@ -73,5 +73,6 @@ Then requests are reviewed, and the changes will be merged to the main branch on
 5. Publish the latest documents
 ----------------------------------
 
-Actions on the git repository such as push and tagging trigger automatic-builds on the Read The Docs
-and the latest documents show up at https://panda-wms.readthedocs.io/en/latest/ .
+Actions on the git repository such as push and tagging trigger automatic-builds on the Read The Docs.
+The latest (main) and dev documents show up at https://panda-wms.readthedocs.io/en/latest/ and
+https://panda-wms.readthedocs.io/en/dev/ respectively.
