@@ -34,7 +34,7 @@ Simple task chain
 
 The following cwl code shows a parent-child chain of two prun tasks.
 
-.. figure:: images/pflow_dag_simple.png
+.. figure:: images/pchain_dag_simple.png
 
 .. literalinclude:: cwl/test.cwl
     :language: yaml
@@ -138,7 +138,7 @@ More complicated chain
 
 The following cwl example describes more complicated chain as shown in the picture below.
 
-.. figure:: images/pflow_dag_combine.png
+.. figure:: images/pchain_dag_combine.png
 
 .. literalinclude:: cwl/sig_bg_comb.cwl
     :language: yaml
@@ -187,7 +187,7 @@ Nested workflow and parallel execution with scatter
 It is possible to use a workflow as a step in another workflow.
 The following cwl example uses the above :brown:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
 
-.. figure:: images/pflow_dag_scatter.png
+.. figure:: images/pchain_dag_scatter.png
 
 .. literalinclude:: cwl/merge_many.cwl
     :language: yaml
@@ -257,7 +257,7 @@ to skip subsequent tasks based on results of previous tasks.
 The following example contains conditional branching based on the result of the first step.
 Note that this workflows conditional branching require ``InlineJavascriptRequirement`` and CWL version 1.2 or higher.
 
-.. figure:: images/pflow_dag_cond.png
+.. figure:: images/pchain_dag_cond.png
 
 .. literalinclude:: cwl/cond.cwl
     :language: yaml
@@ -325,8 +325,8 @@ in ``opt_args``, rather than constructing a complicated string in ``opt_args``.
 
 |br|
 
-Loops
-===========
+Loops in workflows
+====================
 
 Users can have loops in their workflows. Each loop is represented as a sub-workflow with a parameter dictionary.
 All steps in the sub-workflow share the dictionary to generate actual steps. There are special steps, called
@@ -351,7 +351,9 @@ For example, the following pseudo-code snippet has a single loop
           break
   out4 = work_end(out3)
 
-The code is described using CWL as follows:
+The code is described using CWL as follows.
+
+.. figure:: images/pchain_dag_loop.png
 
 .. literalinclude:: cwl/loop.cwl
     :language: yaml
