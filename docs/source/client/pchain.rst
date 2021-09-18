@@ -181,10 +181,10 @@ If you need to run the workflow with different input data it enough to submit it
 
 |br|
 
-Nested workflow and parallel execution with scatter
+Sub-workflow and parallel execution with scatter
 ======================================================
 
-It is possible to use a workflow as a step in another workflow.
+A workflow can be used as a step in another workflow.
 The following cwl example uses the above :brown:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
 
 .. figure:: images/pchain_dag_scatter.png
@@ -193,9 +193,9 @@ The following cwl example uses the above :brown:`sig_bg_comb.cwl` in the :blue:`
     :language: yaml
     :caption: merge_many.cwl
 
-Note that nested workflows requires ``SubworkflowFeatureRequirement``.
+Note that sub-workflows require ``SubworkflowFeatureRequirement``.
 
-It is possible to run a task or nested workflow multiple times over a list of inputs using
+It is possible to run a task or sub-workflow multiple times over a list of inputs using
 ``ScatterFeatureRequirement``.
 A popular use-case is to perform the same analysis step on different samples in a single workflow.
 The step takes the input(s) as an array and will run on each element of the array as if it were a single input.
@@ -368,7 +368,7 @@ has :hblue:`loop` in the ``hints`` section to iterate.
     :caption: loop_body.cwl
 
 The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
-of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and their default values. They are internally
+of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and their initial values. They are internally
 translated to the parameter dictionary shared by all tasks in the sub-workflow.
 In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the actual value in the dictionary.
 A loop count is inserted to the output dataset names, like
@@ -381,6 +381,55 @@ and update values in the parameter dictionary. The payload in the :blue:`checkpo
 a json file with key-values to update in the dictionary,
 and a special key-value :hblue:`to_terminate: True` to exit from the loop and execute subsequent steps
 outside of the loop.
+
+|br|
+
+Loop + scatter
+==================
+
+A loop is sequential iteration of a sub-workflow, while a scatter is a horizontal parallelization of
+independent sub-workflows. They can be combined to describe complex workflows.
+
+The following example runs multiple loops in parallel.
+
+.. figure:: images/pchain_dag_mloop.png
+
+.. literalinclude:: cwl/multi_loop.cwl
+    :language: yaml
+    :caption: multi_loop.cwl
+
+The :blue:`work_loop` step has the :hblue:`loop` hint and is scattered over the list of inputs.
+
+Here is another example of the loop+scatter combination that sequentially iterates parallel execution
+of multiple tasks.
+
+.. figure:: images/pchain_dag_sloop.png
+
+.. literalinclude:: cwl/sequential_loop.cwl
+    :language: yaml
+    :caption: sequential_loop.cwl
+
+The :blue:`seq_loop` step iterates :brown:`scatter_body.cwl` which defines an array of parameter dictionaries
+with the the :hblue:`param_` prefix and initial values; :hblue:`param_xxx` and :hblue:`param_xxx`.
+The :blue:`parallel_work` step is scattered over the dictionary array. The dictionary array is vertically sliced
+so that each execution of :brown:`loop_main.cwl` gets only one parameter dictionary.
+The :blue:`checkpoint` step takes all outputs from the blue:`parallel_work` step to update the entire dictionary array
+and make a decision to exit the sub-workflow.
+
+.. literalinclude:: cwl/scatter_body.cwl
+    :language: yaml
+    :caption: scatter_body.cwl
+
+The looping parameters like :hblue:`param_xxx` and :hblue:`param_xxx` must be redefined in :brown:`loop_main.cwl`
+as well, to have a parameter dictionary in the nested sub-workflow. Note that they must have the same names
+but their initial values are scalars instead of arrays.
+In each iteration the :blue:`checkpoint` step above updates the values in the parameter dictionary,
+so that :hblue:`%%blah%%` in ``opt_args`` is replaced with the updated value when the task is actually executed.
+
+.. literalinclude:: cwl/loop_main.cwl
+    :language: yaml
+    :caption: loop_main.cwl
+
 
 |br|
 

@@ -4,10 +4,10 @@ class: Workflow
 inputs:
   dataset:
     type: string
-  param_x:
+  param_xxx:
     type: int
     default: 123
-  param_y:
+  param_yyy:
     type: float
     default: 0.456
 
