@@ -26,8 +26,8 @@ The interactive session can be terminated by entering Ctrl+D.
 
 |br|
 
-Usage
--------
+Misc commands
+------------------
 
 Show all commands
 ^^^^^^^^^^^^^^^^^^
@@ -58,6 +58,11 @@ See help of each command
         >>> show('fin', days=7, limit=100)
         >>> show(format='json', sync=True)
 
+
+|br|
+
+Task bookkeeping
+------------------
 
 Kill tasks
 ^^^^^^^^^^^^^
@@ -146,6 +151,74 @@ where available formats are 'standard', 'long', 'json', 'plain'.
 |br|
 
 ----------
+
+Workflow bookkeeping
+-------------------------
+
+All workflow bookkeeping commands take the request ID of the workflow as the argument.
+
+Show status of a workflow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> show_workflow(request_id)
+
+This command shows the workflow status of interest.
+
+
+Finish a workflow
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> finish_workflow(request_id)
+
+This command enforces to finish all active tasks in the workflow.
+
+
+Kill a workflow
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> kill_workflow(request_id)
+
+This command kills all active tasks in the workflow.
+
+
+Retry a workflow
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> retry_workflow(request_id)
+
+This command retries tasks unsuccessful in the previous attempt and activate subsequent tasks if necessary.
+
+
+Pause a workflow
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> pause_workflow(request_id)
+
+This command pauses all active tasks in the workflow.
+
+
+Resume a workflow
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> resume_workflow(request_id)
+
+This command resume paused tasks in the workflow.
+
+-----
+
+|br|
 
 Trouble shooting
 -----------------

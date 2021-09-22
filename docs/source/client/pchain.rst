@@ -420,9 +420,10 @@ and make a decision to exit the sub-workflow.
     :language: yaml
     :caption: scatter_body.cwl
 
-The looping parameters like :hblue:`param_xxx` and :hblue:`param_xxx` must be redefined in :brown:`loop_main.cwl`
-as well, to have a parameter dictionary in the nested sub-workflow. Note that they must have the same names
-but their initial values are scalars instead of arrays.
+The looping parameters like :hblue:`param_xxx` and :hblue:`param_xxx` must be re-defined in :brown:`loop_main.cwl`
+as well as :brown:`scatter_body.cwl`, to have a parameter dictionary in the nested sub-workflow.
+Note that they must have the same names,
+while their initial values are scalars instead of arrays.
 In each iteration the :blue:`checkpoint` step above updates the values in the parameter dictionary,
 so that :hblue:`%%blah%%` in ``opt_args`` is replaced with the updated value when the task is actually executed.
 
@@ -434,8 +435,8 @@ so that :hblue:`%%blah%%` in ``opt_args`` is replaced with the updated value whe
 |br|
 
 
-How to check workflow description locally
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Debugging locally
+^^^^^^^^^^^^^^^^^^^^^^
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
 ``pchain`` has the ``--check`` option to verify the workflow description locally.
@@ -474,7 +475,27 @@ and input and output data are properly resolved.
 
 |br|
 
-Monitoring workflows
+Monitoring
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+-------
+
+|br|
+
+Bookkeeping
+^^^^^^^^^^^^^^^^^^^^^^^
+
+:doc:`pbook </client/pbook>` provides the following commands for workflow bookkeeping
+
+.. code-block:: text
+
+    show_workflow
+    kill_workflow
+    retry_workflow
+    finish_workflow
+    pause_workflow
+    resume_workflow
+
+Please refer to the pbook documentation for their details.
 
 |br|
