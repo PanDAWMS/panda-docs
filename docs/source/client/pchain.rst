@@ -34,7 +34,7 @@ Simple task chain
 
 The following cwl code shows a parent-child chain of two prun tasks.
 
-.. figure:: images/pflow_dag_simple.png
+.. figure:: images/pchain_dag_simple.png
 
 .. literalinclude:: cwl/test.cwl
     :language: yaml
@@ -138,7 +138,7 @@ More complicated chain
 
 The following cwl example describes more complicated chain as shown in the picture below.
 
-.. figure:: images/pflow_dag_combine.png
+.. figure:: images/pchain_dag_combine.png
 
 .. literalinclude:: cwl/sig_bg_comb.cwl
     :language: yaml
@@ -181,21 +181,21 @@ If you need to run the workflow with different input data it enough to submit it
 
 |br|
 
-Nested workflow and parallel execution with scatter
+Sub-workflow and parallel execution with scatter
 ======================================================
 
-It is possible to use a workflow as a step in another workflow.
+A workflow can be used as a step in another workflow.
 The following cwl example uses the above :brown:`sig_bg_comb.cwl` in the :blue:`many_sig_bg_comb` step.
 
-.. figure:: images/pflow_dag_scatter.png
+.. figure:: images/pchain_dag_scatter.png
 
 .. literalinclude:: cwl/merge_many.cwl
     :language: yaml
     :caption: merge_many.cwl
 
-Note that nested workflows requires ``SubworkflowFeatureRequirement``.
+Note that sub-workflows require ``SubworkflowFeatureRequirement``.
 
-It is possible to run a task or nested workflow multiple times over a list of inputs using
+It is possible to run a task or sub-workflow multiple times over a list of inputs using
 ``ScatterFeatureRequirement``.
 A popular use-case is to perform the same analysis step on different samples in a single workflow.
 The step takes the input(s) as an array and will run on each element of the array as if it were a single input.
@@ -257,7 +257,7 @@ to skip subsequent tasks based on results of previous tasks.
 The following example contains conditional branching based on the result of the first step.
 Note that this workflows conditional branching require ``InlineJavascriptRequirement`` and CWL version 1.2 or higher.
 
-.. figure:: images/pflow_dag_cond.png
+.. figure:: images/pchain_dag_cond.png
 
 .. literalinclude:: cwl/cond.cwl
     :language: yaml
@@ -267,7 +267,7 @@ Both :blue:`bottom_OK` and :blue:`bottom_NG` steps take output data of the :blue
 The new property ``when`` specifies the condition validation expression that is interpreted by JavaScript.
 :hblue:`self.blah` in the expression represents the input parameter :brown:`blah` of the step that is connected
 to output data of the parent step. If the parent step is successful :hblue:`self.blah` gives :brown:`True`
-while :hblue:`!self.blah` gives :brown:``. It is possible to create more complicated expressions using
+while :hblue:`!self.blah` gives :brown:`False`. It is possible to create more complicated expressions using
 logical operators (:brown:`&&` for AND and :brown:`||` for OR) and parentheses. The step is executed when the
 whole expression gives :brown:`True`.
 
@@ -325,8 +325,118 @@ in ``opt_args``, rather than constructing a complicated string in ``opt_args``.
 
 |br|
 
-How to check workflow description locally
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Loops in workflows
+====================
+
+Users can have loops in their workflows. Each loop is represented as a sub-workflow with a parameter dictionary.
+All tasks in the sub-workflow share the dictionary to generate actual steps. There are special tasks, called
+:brown:`junction`, which read outputs from upstream tasks, update the parameter dictionary,
+and make a decision to exit from the sub-workflow.
+The sub-workflow is iterated until one of :brown:`junctions` decides to exit. The new iteration is executed
+with the updated values in the parameter dictionary, so that each iteration can bring different results.
+
+For example, the following pseudo-code snippet has a single loop
+
+.. code-block:: python
+
+  out1 = work_start()
+  xxx = 123
+  yyy = 0.456
+  while True:
+      out2 = inner_work_top(out1, xxx)
+      out3 = inner_work_bottom(out2, yyy)
+      xxx = out2 + 1
+      yyy *= out3
+      if yyy > xxx:
+          break
+  out4 = work_end(out3)
+
+The code is described using CWL as follows.
+
+.. figure:: images/pchain_dag_loop.png
+
+.. literalinclude:: cwl/loop.cwl
+    :language: yaml
+    :caption: loop.cwl
+
+The :blue:`work_loop` step describes the looping stuff in the :hblue:`while` block of the pseudo-code snippet.
+It runs a separate CWL file :brown:`loop_body.cwl` and
+has :hblue:`loop` in the ``hints`` section to iterate.
+
+.. literalinclude:: cwl/loop_body.cwl
+    :language: yaml
+    :caption: loop_body.cwl
+
+The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
+of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and their initial values. They are internally
+translated to the parameter dictionary shared by all tasks in the sub-workflow.
+In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the actual value in the dictionary.
+A loop count is inserted to the output dataset names, like
+:brown:`user.<your_nickname>.blah_<loop_count>_<output>`.
+The loop count is incremented for each iteration, so tasks in a loop produce unique output datasets in each iteration.
+
+The :blue:`checkpoint` step runs :brown:`junction` to read outputs from :blue:`inner_work_top` and
+:blue:`inner_work_bottom` step in the iteration,
+and update values in the parameter dictionary. The payload in the :blue:`checkpoint` step produces
+a json file with key-values to update in the dictionary,
+and a special key-value :hblue:`to_terminate: True` to exit from the loop and execute subsequent steps
+outside of the loop.
+
+|br|
+
+Loop + scatter
+==================
+
+A loop is sequential iteration of a sub-workflow, while a scatter is a horizontal parallelization of
+independent sub-workflows. They can be combined to describe complex workflows.
+
+The following example runs multiple loops in parallel.
+
+.. figure:: images/pchain_dag_mloop.png
+
+.. literalinclude:: cwl/multi_loop.cwl
+    :language: yaml
+    :caption: multi_loop.cwl
+
+The :blue:`work_loop` step has the :hblue:`loop` hint and is scattered over the list of inputs.
+
+Here is another example of the loop+scatter combination that sequentially iterates parallel execution
+of multiple tasks.
+
+.. figure:: images/pchain_dag_sloop.png
+
+.. literalinclude:: cwl/sequential_loop.cwl
+    :language: yaml
+    :caption: sequential_loop.cwl
+
+The :blue:`seq_loop` step iterates :brown:`scatter_body.cwl` which defines an array of parameter dictionaries
+with the the :hblue:`param_` prefix and initial values; :hblue:`param_xxx` and :hblue:`param_xxx`.
+The :blue:`parallel_work` step is scattered over the dictionary array. The dictionary array is vertically sliced
+so that each execution of :brown:`loop_main.cwl` gets only one parameter dictionary.
+The :blue:`checkpoint` step takes all outputs from the blue:`parallel_work` step to update the entire dictionary array
+and make a decision to exit the sub-workflow.
+
+.. literalinclude:: cwl/scatter_body.cwl
+    :language: yaml
+    :caption: scatter_body.cwl
+
+The looping parameters like :hblue:`param_xxx` and :hblue:`param_xxx` must be re-defined in :brown:`loop_main.cwl`
+as well as :brown:`scatter_body.cwl`, to have a parameter dictionary in the nested sub-workflow.
+Note that they must have the same names,
+while their initial values are scalars instead of arrays.
+In each iteration the :blue:`checkpoint` step above updates the values in the parameter dictionary,
+so that :hblue:`%%blah%%` in ``opt_args`` is replaced with the updated value when the task is actually executed.
+
+.. literalinclude:: cwl/loop_main.cwl
+    :language: yaml
+    :caption: loop_main.cwl
+
+
+|br|
+
+
+Debugging locally
+^^^^^^^^^^^^^^^^^^^^^^
 
 Workflow descriptions can be error-prone. It is better to check workflow descriptions before submitting them.
 ``pchain`` has the ``--check`` option to verify the workflow description locally.
@@ -365,7 +475,27 @@ and input and output data are properly resolved.
 
 |br|
 
-Monitoring workflows
+Monitoring
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+-------
+
+|br|
+
+Bookkeeping
+^^^^^^^^^^^^^^^^^^^^^^^
+
+:doc:`pbook </client/pbook>` provides the following commands for workflow bookkeeping
+
+.. code-block:: text
+
+    show_workflow
+    kill_workflow
+    retry_workflow
+    finish_workflow
+    pause_workflow
+    resume_workflow
+
+Please refer to the pbook documentation for their details.
 
 |br|
