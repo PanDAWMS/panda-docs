@@ -36,7 +36,7 @@ Here is an Hello world example.
 
 .. prompt:: bash
 
- prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.hoge.`uuidgen` --nJos 3 --output myout.txt
+ prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.hoge.`uuidgen` --nJobs 3 --output myout.txt
 
 where ``--exec`` takes the execution string which is executed on remote computing resources,
 and ``--outDS`` takes the basename of the output collection.
