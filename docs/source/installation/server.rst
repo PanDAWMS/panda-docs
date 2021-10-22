@@ -212,10 +212,9 @@ Then you need to register the PanDA server as a system service, make some direct
     $ # register the PanDA server in the system
     $ mkdir -p /etc/panda
     $ ln -s ${VIRTUAL_ENV}/etc/panda/*.cfg /etc/panda/
-    $ ln -s ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
     $ mv ${VIRTUAL_ENV}/etc/idds/idds.cfg.client.template ${VIRTUAL_ENV}/etc/idds/idds.cfg
     $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
-    $ ln -fs ${VIRTUAL_ENV}/etc/init.d/panda_server /etc/rc.d/init.d/httpd-pandasrv
+    $ ln -fs ${VIRTUAL_ENV}/etc/rc.d/init.d/panda_server /etc/rc.d/init.d/httpd-pandasrv
     $ /sbin/chkconfig --add httpd-pandasrv
     $ /sbin/chkconfig httpd-pandasrv on
 
