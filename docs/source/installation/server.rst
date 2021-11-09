@@ -264,3 +264,49 @@ If not, see log files under ``logdir``, especially ``panda_server_access_log``, 
 ``panda-Entry.log``, ``panda-DBProxyPool.log``, and ``panda-DBProxy.log`` would help.
 
 |br|
+
+-------------
+
+Deployment with Helm
+-----------------------
+
+It is possible to deploy PanDA server instances on Kubernetes cluster using Helm.
+
+.. prompt:: bash
+
+  wget https://github.com/PanDAWMS/helm-k8s/raw/master/panda-server/panda-server-helm.tgz
+  tar xvfz panda-server-helm.tgz
+  cd panda-server-helm
+
+First, copy your host certificate and key files.
+
+.. prompt:: bash
+
+  cp /somewhere/hostcert.pem .
+  cp /somewhere/hostkey.pem .
+
+Next, edit ``panda_server_configmap.json`` where each json entry corresponds to the attribute in ``panda_server.cfg``.
+For example,
+
+.. code-block:: python
+
+    {
+        "server": {
+            ...
+            "dbuser": "FIXME",
+
+corresponds to
+
+.. code-block:: text
+
+    [server]
+    ...
+    dbuser = FIXME
+
+Now, you can install the PanDA server.
+
+.. prompt:: bash
+
+  helm install mysrv ./panda-server-helm
+
+|br|
