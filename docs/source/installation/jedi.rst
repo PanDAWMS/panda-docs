@@ -279,7 +279,7 @@ Finally, you can install JEDI.
   helm install myjedi ./
 
 The service doesn't get started automatically. To start it, set :green:`autoStart` to :hblue:`true` in
-`values.yaml`.
+`values.yaml` before installing JEDI.
 
 .. code-block:: yaml
 

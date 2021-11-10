@@ -338,7 +338,7 @@ Finally, you can install the PanDA server.
   helm install mysrv ./
 
 The service doesn't get started automatically. To start it, set :green:`autoStart` to :hblue:`true` in
-`values.yaml`.
+`values.yaml` before installing the PanDA server.
 
 .. code-block:: yaml
 
