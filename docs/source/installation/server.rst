@@ -179,6 +179,32 @@ directive.
    * - WSGIDaemonProcess
      - Config of WSGI daemons. Change ``processes`` and ``home`` if any
 
+Also you need to get/generate host certificate and key files and place them at ``/etc/grid-security/hostcert.pem``
+and ``/etc/grid-security/hostkey.pem``, respectively.
+
+The following httpd parameters can be configured dynamically by setting corresponding environment variables
+when the service gets started. The default values of those variables are defined in
+``${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig``.
+
+.. list-table:: httpd parameters dynamically configurable
+   :header-rows: 1
+
+   * - Name
+     - Environment variable
+     - Default value
+   * - PANDA_SERVER_CONF_SERVERNAME
+     - The common name of httpd service
+     - pandaserver.cern.ch
+   * - PANDA_SERVER_CONF_MIN_WORKERS
+     - The minimum number of httpd workers
+     - 25
+   * - PANDA_SERVER_CONF_MAX_WORKERS
+     - The maximum number of httpd workers
+     - 512
+   * - PANDA_SERVER_CONF_NUM_WSGI
+     - The number of WSGI deamons
+     - 12
+
 
 panda_server.sysconfig
 =========================
