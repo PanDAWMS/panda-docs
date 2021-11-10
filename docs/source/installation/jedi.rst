@@ -231,3 +231,51 @@ There should be log files in ``logdir``.
 If it doesn't get started there could be clues in ``panda_jedi_stdout.log`` and ``panda_jedi_stderr.log``.
 
 |br|
+
+-------------
+
+Deployment with Helm
+-----------------------
+
+It is possible to deploy JEDI instances on Kubernetes cluster using Helm.
+
+.. prompt:: bash
+
+  wget https://github.com/PanDAWMS/helm-k8s/raw/master/panda-jedi/panda-jedi-helm.tgz
+  tar xvfz panda-jedi-helm.tgz
+  cd panda-jedi-helm
+
+First, copy your host certificate and key files in the current directory.
+
+.. prompt:: bash
+
+  cp /somewhere/hostcert.pem .
+  cp /somewhere/hostkey.pem .
+
+Next, edit ``panda_server_configmap.json`` and ``panda_jedi_configmap.json``. Their json entries correspond to
+attributes in ``panda_server.cfg`` and ``panda_jedi.cfg``, respectively.
+For example,
+
+.. code-block:: python
+
+    {
+        "db": {
+            "dbhost": "FIXME",
+
+in ``panda_jedi_configmap.json`` corresponds to
+
+.. code-block:: text
+
+    [db]
+    ...
+    dbhost = FIXME
+
+in ``panda_jedi.cfg``.
+
+Finally, you can install JEDI.
+
+.. prompt:: bash
+
+  helm install myjedi ./
+
+|br|

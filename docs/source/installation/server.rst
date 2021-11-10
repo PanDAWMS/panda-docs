@@ -278,7 +278,7 @@ It is possible to deploy PanDA server instances on Kubernetes cluster using Helm
   tar xvfz panda-server-helm.tgz
   cd panda-server-helm
 
-First, copy your host certificate and key files.
+First, copy your host certificate and key files in the current directory.
 
 .. prompt:: bash
 
@@ -295,7 +295,7 @@ For example,
             ...
             "dbuser": "FIXME",
 
-corresponds to
+in ``panda_server_configmap.json`` corresponds to
 
 .. code-block:: text
 
@@ -303,10 +303,12 @@ corresponds to
     ...
     dbuser = FIXME
 
-Now, you can install the PanDA server.
+in ``panda_server.cfg``.
+
+Finally, you can install the PanDA server.
 
 .. prompt:: bash
 
-  helm install mysrv ./panda-server-helm
+  helm install mysrv ./
 
 |br|
