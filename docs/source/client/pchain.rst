@@ -370,7 +370,7 @@ has :hblue:`loop` in the ``hints`` section to iterate.
 The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
 of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and their initial values. They are internally
 translated to the parameter dictionary shared by all tasks in the sub-workflow.
-In each iteration, :hblue:`%%blah%%` in ``opt_args`` is replaced with the actual value in the dictionary.
+In each iteration, :hblue:`%{blah}` in ``opt_args`` is replaced with the actual value in the dictionary.
 A loop count is inserted to the output dataset names, like
 :brown:`user.<your_nickname>.blah_<loop_count>_<output>`.
 The loop count is incremented for each iteration, so tasks in a loop produce unique output datasets in each iteration.

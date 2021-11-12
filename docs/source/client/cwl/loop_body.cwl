@@ -23,7 +23,7 @@ steps:
     in:
       opt_inDS: dataset
       opt_exec:
-        default: "echo %IN %%xxx%% > seed.txt"
+        default: "echo %IN %{xxx} > seed.txt"
       opt_args:
         default: "--outputs seed.txt --avoidVP"
     out: [outDS]
@@ -33,7 +33,7 @@ steps:
     in:
       opt_inDS: inner_work_top/outDS
       opt_exec:
-        default: "echo %IN %%yyy%% > results.root"
+        default: "echo %IN %{yyy} > results.root"
       opt_args:
         default: "--outputs results.root --forceStaged"
     out: [outDS]
