@@ -158,7 +158,7 @@ from the :blue:`make_background_1` task.
 Output data of parent tasks can be passed to a child task as secondary inputs. In this case, they are
 specified in ``opt_secondaryDSs`` and their types are specified in ``opt_secondaryDsTypes``.
 Note that the stream name, the number of files per job, etc, for each secondary input are specified
-using :hblue:`---secondaryDSs` in ``opt_args`` where :hblue:`%%DSn%%` can
+using :hblue:`---secondaryDSs` in ``opt_args`` where :hblue:`%{DSn}` can
 be used as a placeholder for the n-th secondary dataset name.
 ``MultipleInputFeatureRequirement`` is required if ``opt_secondaryDsTypes`` take multiple input data.
 
@@ -425,7 +425,7 @@ as well as :brown:`scatter_body.cwl`, to have a parameter dictionary in the nest
 Note that they must have the same names,
 while their initial values are scalars instead of arrays.
 In each iteration the :blue:`checkpoint` step above updates the values in the parameter dictionary,
-so that :hblue:`%%blah%%` in ``opt_args`` is replaced with the updated value when the task is actually executed.
+so that :hblue:`%{blah}` in ``opt_args`` is replaced with the updated value when the task is actually executed.
 
 .. literalinclude:: cwl/loop_main.cwl
     :language: yaml

@@ -21,7 +21,7 @@ steps:
     in:
       opt_inDS: dataset
       opt_exec:
-        default: "echo %IN %%xxx%% %%yyy%% > seed.txt"
+        default: "echo %IN %{xxx} %{yyy} > seed.txt"
       opt_args:
         default: "--outputs seed.txt --avoidVP"
     out: [outDS]
