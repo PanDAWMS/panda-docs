@@ -27,6 +27,7 @@ For end-users
    notebooks/python.ipynb
    jupyter
    pchain
+   secret
 
 Python API references
 ==========================
