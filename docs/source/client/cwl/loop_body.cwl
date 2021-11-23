@@ -23,7 +23,7 @@ steps:
     in:
       opt_inDS: dataset
       opt_exec:
-        default: "echo %IN %{xxx} > seed.txt"
+        default: "echo %IN %{xxx} %{i} > seed.txt"
       opt_args:
         default: "--outputs seed.txt --avoidVP"
     out: [outDS]
@@ -46,5 +46,5 @@ steps:
         - inner_work_top/outDS
         - inner_work_bottom/outDS
       opt_exec:
-        default: "echo 1"
+        default: "echo %{DS0} %{DS1} aaaa; echo '{\"x\": 456, \"to_terminate\": true}' > results.json"
     out: []

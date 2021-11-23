@@ -329,11 +329,29 @@ Loops in workflows
 ====================
 
 Users can have loops in their workflows. Each loop is represented as a sub-workflow with a parameter dictionary.
-All tasks in the sub-workflow share the dictionary to generate actual steps. There are special tasks, called
-:brown:`junction`, which read outputs from upstream tasks, update the parameter dictionary,
-and make a decision to exit from the sub-workflow.
+All tasks in the sub-workflow share the dictionary to generate actual steps. There is a special type of tasks, called
+:brown:`junction`, which read outputs from upstream tasks, and produce json files to update the parameter dictionary
+and/or make a decision to exit from the sub-workflow.
 The sub-workflow is iterated until one of :brown:`junctions` decides to exit. The new iteration is executed
 with the updated values in the parameter dictionary, so that each iteration can bring different results.
+
+The ``run`` filed of a junction is :brown:`junction`.
+Essentially, a junction is a simplified prun task that processes all input files in a single job
+to produce a json file, so there are only a few parameters in the ``in`` section of a junction, as shown below.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Parameter
+     - Corresponding prun option
+   * - opt_inDS
+     - Input datasets (a list of strings)
+   * - opt_inDsType
+     - Types of input datasets (a list of strings. optional)
+   * - opt_exec
+     - The execution string
+   * - opt_containerImage
+     - Container image name (string. optional)
 
 For example, the following pseudo-code snippet has a single loop
 
@@ -369,18 +387,23 @@ has :hblue:`loop` in the ``hints`` section to iterate.
 
 The local variables in the loop like :brown:`xxx` and :brown:`yyy` are defined in the ``inputs`` section
 of :brown:`loop_body.cwl` with the :hblue:`param_` prefix and their initial values. They are internally
-translated to the parameter dictionary shared by all tasks in the sub-workflow.
-In each iteration, :hblue:`%{blah}` in ``opt_args`` is replaced with the actual value in the dictionary.
-A loop count is inserted to the output dataset names, like
-:brown:`user.<your_nickname>.blah_<loop_count>_<output>`.
-The loop count is incremented for each iteration, so tasks in a loop produce unique output datasets in each iteration.
+translated to a parameter dictionary shared by all tasks in the sub-workflow.
+In the execution, :hblue:`%{blah}` in ``opt_args`` is replaced with the actual value in the dictionary.
+A loop count is incremented for each iteration and is inserted to the output dataset names, like
+:brown:`user.<your_nickname>.blah_<loop_count>_<output>`,
+so tasks always produce unique output datasets.
+It is possible to specify the loop count explicitly in ``opt_exec`` using :blue:`%{i}`.
+In other words, :hblue:`param_i` is reserved and thus cannot be used as user's local variable.
 
-The :blue:`checkpoint` step runs :brown:`junction` to read outputs from :blue:`inner_work_top` and
-:blue:`inner_work_bottom` step in the iteration,
-and update values in the parameter dictionary. The payload in the :blue:`checkpoint` step produces
-a json file with key-values to update in the dictionary,
-and a special key-value :hblue:`to_terminate: True` to exit from the loop and execute subsequent steps
-outside of the loop.
+In each iteration, the :blue:`checkpoint` step runs a :brown:`junction` to read outputs from :blue:`inner_work_top`
+and :blue:`inner_work_bottom` steps, and produce a json file to update values in the parameter dictionary
+and/or make a decision to exit from the loop.
+The actual dataset names are passed to the execution string through placeholders, :hblue:`%{DSn}`
+in ``opt_exec``, which represents the n-th dataset name.
+The json filename must be :brown:`results.json`.
+The file contains key-values to update the local variables in the parameter dictionary.
+It can also contain a special key-value, :hblue:`to_terminate: True`, to exit from the loop
+and proceed to subsequent steps outside of the loop. The loop is repeated if it is :hblue:`False` or omitted.
 
 |br|
 
