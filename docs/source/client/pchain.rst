@@ -454,9 +454,47 @@ so that :hblue:`%{blah}` in ``opt_args`` is replaced with the updated value when
     :language: yaml
     :caption: loop_main.cwl
 
-
 |br|
 
+Using REANA
+======================
+
+The following example offloads a part of workflow to REANA.
+
+.. literalinclude:: cwl/reana.cwl
+    :language: yaml
+    :caption: reana.cwl
+
+The :blue:`ain` and :blue:`twai` steps are executed on PanDA, while the :blue:`drai` step reads outputs from
+those steps and produce the final output on REANA.
+The ``run`` filed of a REANA step is :brown:`reana`.
+A REANA step is a simplified prun task composed of a single job that
+tells input dataset names to the payload through the execution string.
+The payload dynamically customizes the sub-workflow description to processes files in those datasets,
+submit it to REANA using :doc:`secrets </client/secrets>`,
+and downloads the results from REANA.
+
+Similarly to junctions, there are only a few parameters in the ``in`` section of a REANA step, as shown below.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Parameter
+     - Corresponding prun option
+   * - opt_inDS
+     - Input datasets (a list of strings)
+   * - opt_inDsType
+     - Types of input datasets (a list of strings. optional)
+   * - opt_exec
+     - The execution string
+   * - opt_containerImage
+     - Container image name (string. optional)
+
+The actual dataset names are passed to the execution string through placeholders, :hblue:`%{DSn}`
+in ``opt_exec``, which represents the n-th dataset name. Note that the container image in ``opt_containerImage``
+submits the sub-workflow description to REANA, so it is generally not the container image that processes input files.
+
+|br|
 
 Debugging locally
 ^^^^^^^^^^^^^^^^^^^^^^
