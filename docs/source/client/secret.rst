@@ -7,8 +7,12 @@ Introduction
 
 A secret is a small amount of sensitive data such as an access token and a password.
 PanDA allows users to define arbitrary key-value strings to feed secrets to jobs.
-Note that they are random strings from PanDA’s point of view, and users can even encrypt
-those strings as they like, so the system should not abuse the sensitive information.
+They are encrypted in PanDA and decrypted on the compute node, and jobs
+get a json file which contains the original key-value strings.
+Note that the key-values are random strings from PanDA’s point of view, and users can further encrypt
+those strings by themselves, so the system should not abuse the sensitive information.
+
+.. figure:: images/secrets.png
 
 How to manage secrets
 ---------------------------
