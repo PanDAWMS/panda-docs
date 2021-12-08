@@ -390,7 +390,8 @@ I want to process the whole dataset with N events per job. (integer N>0)
 
 Use ``--nEventsPerJob`` that splits input files per nEventsPerJob and generates a job for each input chunk.
 Note that the value of ``--nEventsPerJob``
-is used only to split files, but the value is not automatically propagated to the payload.
+is used only to split files, but the value is not automatically propagated to the payload
+since how to configure the number of events in the payload can depend on user's customization of Athena.
 You need to specify *maxEvents=XYZ* or something consistently in your jobOptions file,
 or the execution string if the ``--trf`` option is used.
 
