@@ -402,7 +402,7 @@ The actual dataset names are passed to the execution string through placeholders
 in ``opt_exec``, which represents the n-th dataset name.
 The json filename must be :brown:`results.json`.
 The file contains key-values to update the local variables in the parameter dictionary.
-It can also contain a special key-value, :hblue:`to_terminate: True`, to exit from the loop
+It can also contain a special key-value, :hblue:`to_exit: True`, to exit from the loop
 and proceed to subsequent steps outside of the loop. The loop is repeated if it is :hblue:`False` or omitted.
 
 |br|
