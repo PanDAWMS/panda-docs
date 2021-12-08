@@ -388,9 +388,11 @@ Then shift people and the SE admin will take care of it.
 I want to process the whole dataset with N events per job. (integer N>0)
 --------------------------------------------------------------------------
 
-Use ``--nEventsPerJob``. This option checks with Rucio to retrieve the information about the number
-of events for each file. Generally the information is available for official datasets.
-You may have to register the information for private datasets if you want to use them.
+Use ``--nEventsPerJob`` that splits input files per nEventsPerJob and generates a job for each input chunk.
+Note that the value of ``--nEventsPerJob``
+is used only to split files, but the value is not automatically propagated to the payload.
+You need to specify *maxEvents=XYZ* or something consistently in your jobOptions file,
+or the execution string if the ``--trf`` option is used.
 
 I want to launch M jobs, each with N events per job
 -------------------------------------------------------
