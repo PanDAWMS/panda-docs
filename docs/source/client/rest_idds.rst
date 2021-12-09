@@ -67,7 +67,8 @@ The following code snippets show how iDDS native codes migrate to panda-client b
         # error
 
     # using ClientManager
-    cm = pandaclient.idds_api.get_api(idds.common.utils.json_dumps, compress=True, manager=True)
+    cm = pandaclient.idds_api.get_api(dumper=idds.common.utils.json_dumps, loader=idds.common.utils.json_loads,
+        compress=True, manager=True)
     ret = cm.get_requests(request_id=request_id)
     if ret[0] == 0 and ret[1][0]:
         req = ret[1][-1]
