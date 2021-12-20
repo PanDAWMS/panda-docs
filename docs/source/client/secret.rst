@@ -33,17 +33,19 @@ You can define a set of key-value strings using :blue:`set_secret`.
    >>> set_secret('MY_SECRET', 'random_string')
    INFO : OK
 
-The value must be a string. If you want to define non-string data, serialize it using ``json.dumps``, base64,
-or something. E.g.,
+The value must be a string. If you want to define non-string secrets, serialize them using ``json.dumps``,
+``base64.b64encode``, or something. E.g.,
 
 .. code-block:: bash
 
+   >>> # serialize a dictionary using json.dumps
    >>> import json
    >>> set_secret('MY_SECRET_SER', json.dumps({'a_key': 'a_value'}))
    INFO : OK
 
 .. code-block:: bash
 
+   >>> # serialize a binary data using base64.b64encode
    >>> import base64
    >>> bin_file = open('some_binary_file', 'rb')
    >>> set_secret('MY_SECRET_BIN', base64.b64encode(bin_file.read()).encode())
@@ -76,9 +78,11 @@ Your applications would do something like
   import json
   import base64
   with open('panda_secrets.json') as f:
+      # get secrets as key-value's
       secrets = json.load(f)
+      # using a string secret
       do_something_with_a_secret(secrets['MY_SECRET'])
-
+      # using a binary secret
       with open('some_binary_file', 'wb') as f:
           f.write(base64.b64decode(secrets['MY_SECRET_BIN']))
-      do_someting_with_a_binary_secret('some_binary_file')
+      do_another_thing_with_a_binary_secret('some_binary_file')
