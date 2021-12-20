@@ -97,10 +97,12 @@ This is the general ATLAS production job brokerage flow:
 
      .. math::
 
-        inputDiskCount + max (0.5 GB, outDiskCount \times nEvents) + workDiskCount
+        inputDiskCount + max (0.5 GB, outDiskCount \times nEvents \: or \: outDiskCount \times inputDiskCount) + workDiskCount
 
-     where *inputDiskCount* is the total size of job input files, a discrete function of *nEvents*,
-     and *nEvents* is the smalles1t number allowed based on the task requirements. *inputDiskCount* is zero
+     *inputDiskCount* is the total size of job input files, a discrete function of *nEvents*.
+     *nEvents* is the smallest number of events in a single job allowed based on the task requirements and is used to estimate the output size
+     by multiplying *outDiskCount* when *outDiskCountUnit* ends with "PerEvents", otherwise, *inputDiskCount* is used.
+     *inputDiskCount* is zero
      if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
      *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
 
