@@ -12,7 +12,7 @@ as environment variables.
 Note that the key-values are random strings from PanDA’s point of view, and users can further encrypt
 those strings by themselves, so the system should not abuse the sensitive information.
 
-.. figure:: images/secrets.png
+.. figure:: images/secrets_ov.png
 
 How to manage secrets
 ---------------------------
