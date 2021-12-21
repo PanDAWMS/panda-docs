@@ -53,12 +53,14 @@ It is also possible to upload secret files if their size is less than 1000 kB,
    >>> set_secret('my_secret_file.dat', '/somewhere/secret_file_path', is_file=True)
    INFO : OK
 
-so that jobs get those files, where the key is the remote filename while the value is the local file path.
+so that jobs get those files on worker nodes,
+where the key is the remote filename while the value is the local file path.
 
 ``list_secrets`` shows all secrets.
 
 .. code-block:: bash
 
+    >>> # list_secret(full=False)
     >>> list_secrets()
 
         Key                : Value
@@ -68,16 +70,17 @@ so that jobs get those files, where the key is the remote filename while the val
         my_secret_file.dat : H4sIABmjwWEAA+3TTU7DMBA...
         ...
 
-where value strings are truncated by default. Set ``full=True`` to see entire strings.
+Value strings are truncated by default. Set ``full=True`` to see entire strings.
 
 You can delete secrets using :blue:`delete_secret` and/or :blue:`delete_all_secrets`.
 
 Using secrets in your jobs
 ---------------------------------
 
-``prun`` has the :blue:`--useSecrets` option to feed secrets into jobs running on computing resources.
-Once jobs get started the secrets should be available as environment variables or files in the current directory.
-Your applications would do something like
+``prun`` has the :blue:`--useSecrets` option to feed secrets into jobs on worker nodes.
+Once jobs get started the secrets should be available as environment variables or local files
+in the current directory.
+Your applications would use secrets, e.g.,
 
 .. code-block:: python
 
