@@ -30,6 +30,7 @@ You can define a set of key-value strings using :blue:`set_secret`.
 
 .. code-block:: bash
 
+   >>> # set_secret(key, value)
    >>> set_secret('MY_SECRET', 'random_string')
    INFO : OK
 
@@ -52,7 +53,7 @@ It is also possible to upload secret files if their size is less than 1000 kB,
    >>> set_secret('my_secret_file.dat', '/somewhere/secret_file_path', is_file=True)
    INFO : OK
 
-so that jobs get those files. Note that the key is used as the file name on worker nodes.
+so that jobs get those files, where the key is the remote filename while the value is the local file path.
 
 ``list_secrets`` shows all secrets.
 
