@@ -80,7 +80,7 @@ Using secrets in your jobs
 ``prun`` has the :blue:`--useSecrets` option to feed secrets into jobs on worker nodes.
 Once jobs get started the secrets should be available as environment variables or local files
 in the current directory.
-Your applications would use secrets, e.g.,
+Your application would do something like
 
 .. code-block:: python
 
