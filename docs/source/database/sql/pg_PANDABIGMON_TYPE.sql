@@ -204,3 +204,13 @@ CREATE TYPE jobs_attr_tab AS (jobs_attr_tab jobs_attr_obj[]);
 ALTER TYPE jobs_attr_tab OWNER TO panda;
 
 
+ CREATE TYPE pandamon_jobpage_obj AS (
+     PANDA_ATTRIBUTE VARCHAR(100),
+     ATTR_VALUE VARCHAR(300),
+     NUM_OCCURRENCES bigint
+ );
+ ALTER TYPE pandamon_jobpage_obj OWNER TO panda;
+
+ CREATE TYPE pandamon_jobspage_coll AS (pandamon_jobspage_coll pandamon_jobpage_obj[]);
+ ALTER TYPE pandamon_jobspage_coll OWNER TO panda;
+ 
