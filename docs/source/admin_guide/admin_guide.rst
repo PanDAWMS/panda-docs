@@ -202,8 +202,8 @@ You need to set *PANDA_URL_SSL* and *PANDA_URL* after sourcing panda_setup.sh, t
 
 .. code-block:: text
 
- export PANDA_URL_SSL=https://ai-idds-01.cern.ch:25443/server/panda
- export PANDA_URL=http://ai-idds-01.cern.ch:25080/server/panda
+ export PANDA_URL_SSL=https://pandaserver-doma.cern.ch:25443/server/panda
+ export PANDA_URL=http://pandaserver-doma.cern.ch:25080/server/panda
 
 in addition to the parameters mentioned at :ref:`client setup for OIDC-based auth <architecture/iam:Client setup>`,
 e.g.,
@@ -322,7 +322,7 @@ Each sdf file has
 
  executable = /opt/panda/misc/runpilot2-wrapper.sh
  arguments = -s {computingSite} -r {computingSite} -q {pandaQueueName} -j {prodSourceLabel} -i {pilotType} \
-      -t -w generic --pilot-user generic --url https://ai-idds-01.cern.ch -d --harvester-submit-mode PULL \
+      -t -w generic --pilot-user generic --url https://pandaserver-doma.cern.ch -d --harvester-submit-mode PULL \
       --allow-same-user=False --job-type={jobType} {pilotResourceTypeOption} {pilotUrlOption}
 
 to launch the pilot on a worker node. ``runpilot2-wrapper.sh`` is available in

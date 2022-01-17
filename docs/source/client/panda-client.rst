@@ -55,10 +55,10 @@ The following environment variables need to change if necessary.
      - Example
    * - PANDA_URL_SSL
      - Base HTTPS URL of PanDA server
-     - https://ai-idds-01.cern.ch:25443/server/panda
+     - https://pandaserver-doma.cern.ch:25443/server/panda
    * - PANDA_URL
      - Base HTTP URL of PanDA server
-     - http://ai-idds-01.cern.ch:25080/server/panda
+     - http://pandaserver-doma.cern.ch:25080/server/panda
    * - PANDA_AUTH_VO
      - Virtual organization name (required only when PANDA_AUTH=oidc)
      - wlcg
