@@ -489,10 +489,13 @@ Similarly to junctions, there are only a few parameters in the ``in`` section of
      - The execution string
    * - opt_containerImage
      - Container image name (string. optional)
+   * - opt_args
+     - all other prun options except for listed above (string)
 
 The actual dataset names are passed to the execution string through placeholders, :hblue:`%{DSn}`
 in ``opt_exec``, which represents the n-th dataset name. Note that the container image in ``opt_containerImage``
 submits the sub-workflow description to REANA, so it is generally not the container image that processes input files.
+REANA steps are internally executed as prun tasks in PanDA, so that all prun options can be specified in ``opt_args``.
 
 |br|
 
