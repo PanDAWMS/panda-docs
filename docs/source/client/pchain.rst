@@ -352,6 +352,8 @@ to produce a json file, so there are only a few parameters in the ``in`` section
      - The execution string
    * - opt_containerImage
      - Container image name (string. optional)
+   * - opt_args
+     - To define additional output files in --outputs
 
 For example, the following pseudo-code snippet has a single loop
 
@@ -404,6 +406,10 @@ The json filename must be :brown:`results.json`.
 The file contains key-values to update the local variables in the parameter dictionary.
 It can also contain a special key-value, :hblue:`to_exit: True`, to exit from the loop
 and proceed to subsequent steps outside of the loop. The loop is repeated if it is :hblue:`False` or omitted.
+It is possible to specify additional output files via :hblue:`---outputs` in ``opt_args`` if the junction step
+produces other output files in addition to :brown:`results.json`. Subsequent steps can use those output files
+as input.
+
 
 |br|
 
