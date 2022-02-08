@@ -55,21 +55,46 @@ The following environment variables need to change if necessary.
      - Example
    * - PANDA_URL_SSL
      - Base HTTPS URL of PanDA server
-     - https://pandaserver-doma.cern.ch:25443/server/panda
+     - https://pandaserver-doma.cern.ch/server/panda
    * - PANDA_URL
      - Base HTTP URL of PanDA server
      - http://pandaserver-doma.cern.ch:25080/server/panda
-   * - PANDA_AUTH_VO
-     - Virtual organization name (required only when PANDA_AUTH=oidc)
-     - wlcg
+   * - PANDAMON_URL
+     - URL of PanDA monitor
+     - https://panda-doma.cern.ch
    * - PANDA_AUTH
      - Authentication mechanism. oidc to enable OIDC/OAuth2.0. x509_no_grid to use X509 without grid niddleware
      - oidc
+   * - PANDA_AUTH_VO
+     - Virtual organization name (required only when PANDA_AUTH=oidc)
+     - wlcg
    * - PANDA_VERIFY_HOST
      - Set off to disable the host verification
      - off
    * - PANDA_USE_NATIVE_HTTPLIB
      - Set 1 to use native http lib instead of curl
      - 1
+   * - X509_USER_PROXY
+     - Grid proxy file path (required only when PANDA_AUTH = x509_no_grid)
+     - /tmp/x509up_u`id -u`
+   * - PANDA_NICKNAME
+     - Grid nickname (required only when PANDA_AUTH = x509_no_grid)
+     - my_nickname
+
+.. tabs::
+
+   .. code-tab:: bash DOMA users
+
+      export PANDA_URL_SSL=https://pandaserver-doma.cern.ch/server/panda
+      export PANDA_URL=http://pandaserver-doma.cern.ch:25080/server/panda
+      export PANDA_AUTH=oidc
+      export PANDA_AUTH_VO=<your organization>
+      export PANDA_USE_NATIVE_HTTPLIB=1
+
+   .. code-tab:: bash ATLAS users
+
+      export PANDA_AUTH=oidc
+      export PANDA_AUTH_VO=atlas
+      export PANDA_USE_NATIVE_HTTPLIB=1
 
 |br|
