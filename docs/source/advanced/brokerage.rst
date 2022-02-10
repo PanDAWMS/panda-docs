@@ -417,71 +417,79 @@ This is the ATLAS analysis job brokerage flow:
      Pre-assigned queues are specified in ``includedSite`` or ``site``.
 
 #. Then, the brokerage filters out preliminary candidates that don't pass any of the following checks:
+   There are two types of filters, filters for persistent issues and filters for temporary issues.
 
-   * The queue status must be *online* unless the queues are pre-assigned.
+   * Filters for persistent issues
+       * The queue status must be *online* unless the queues are pre-assigned.
 
-   * Check with ``MAX_DISKIO_DEFAULT`` limit defined in :doc:`gdpconfig </advanced/gdpconfig>`.
-     It is possible to overwrite the limit for a particular queue through the ``maxDiskIO`` (in kB/sec per core)
-     field in CRIC. The limit is applied in job brokerage: when the average diskIO per core for running jobs in
-     a queue exceeds the limit, the next cycles of job brokerage will exclude tasks with ``diskIO`` higher than
-     the defined limit to progressively get the diskIO under the threshold.
+       * Input data locality check to skip queues if they don't have input data locally. This check is suppressed
+         if ``taskPriority`` :raw-html:`&GreaterEqual;` 2000 or
+         ``ioIntensity`` :raw-html:`&le;` ``IO_INTENSITY_CUTOFF_USER``
+         (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
 
-   * CPU Core count matching.
+       * Check with ``MAX_DISKIO_DEFAULT`` limit defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+         It is possible to overwrite the limit for a particular queue through the ``maxDiskIO`` (in kB/sec per core)
+         field in CRIC. The limit is applied in job brokerage: when the average diskIO per core for running jobs in
+         a queue exceeds the limit, the next cycles of job brokerage will exclude tasks with ``diskIO`` higher than
+         the defined limit to progressively get the diskIO under the threshold.
 
-   * Skip VP queues if the task specifies ``avoidVP`` or those queues are overloaded.
+       * CPU Core count matching.
 
-   * Skip queues with `gpu` in the ``catchall`` field in CRIC unless those queues publish the ``architecture``
-     of the task available (OBSOLETE).
+       * Skip VP queues if the task specifies ``avoidVP`` or those queues are overloaded.
 
-   * Availability of ATLAS release/cache. This check is skipped when queues have *ANY* in the ``releases`` filed in CRIC.
-     If queues have *AUTO* in the ``releases`` filed, the brokerage uses the information published in a json by CRIC as
-     explained at :ref:`this section <ref_auto_check>`.
+       * Skip queues with `gpu` in the ``catchall`` field in CRIC unless those queues publish the ``architecture``
+         of the task available (OBSOLETE).
 
-   * Skip queues if there are many jobs from the task closed or failed for the last ``TW_DONE_JOB_STAT`` hours.
-     (nFailed + nClosed) must be less than max(2 :raw-html:`&times;` nFinished, ``MIN_BAD_JOBS_TO_SKIP_PQ``).
-     ``TW_DONE_JOB_STAT`` and ``MIN_BAD_JOBS_TO_SKIP_PQ`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+       * Availability of ATLAS release/cache. This check is skipped when queues have *ANY* in the ``releases`` filed in CRIC.
+         If queues have *AUTO* in the ``releases`` filed, the brokerage uses the information published in a json by CRIC as
+         explained at :ref:`this section <ref_auto_check>`.
 
-   * Queues publish maximum (and minimum) memory size per core. The expected memory site of each job is estimated
-     for each queue as
+       * Queues publish maximum (and minimum) memory size per core. The expected memory site of each job is estimated
+         for each queue as
 
-     .. math::
+         .. math::
 
-        (baseRamCount + ramCount \times coreCount) \times compensation
+            (baseRamCount + ramCount \times coreCount) \times compensation
 
 
-     if ``ramCountUnit`` is *MBPerCore*, or
+         if ``ramCountUnit`` is *MBPerCore*, or
 
-     .. math::
+         .. math::
 
-        (baseRamCount + ramCount) \times compensation
+            (baseRamCount + ramCount) \times compensation
 
-     if ``ramCountUnit`` is *MB*,
-     where *compensation* is 0.9, avoiding sending jobs to high-memory queues when their expected memory usage is
-     close to the lower limit. Queues are skipped if the estimated memory usage is not included in the acceptable
-     memory ranges.
+         if ``ramCountUnit`` is *MB*,
+         where *compensation* is 0.9, avoiding sending jobs to high-memory queues when their expected memory usage is
+         close to the lower limit. Queues are skipped if the estimated memory usage is not included in the acceptable
+         memory ranges.
 
-   * The disk usage for a job is estimated as
+       * The disk usage for a job is estimated as
 
-     .. math::
+         .. math::
 
-        (0 \: or \: inputDiskCount) + outDiskCount \times inputDiskCount + workDiskCount
+            (0 \: or \: inputDiskCount) + outDiskCount \times inputDiskCount + workDiskCount
 
-     *inputDiskCount* is the total size of job input files.
-     The first term in the above formula is zero
-     if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
-     *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
+         *inputDiskCount* is the total size of job input files.
+         The first term in the above formula is zero
+         if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
+         *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
 
-   * DISK size check, free space in the local storage has to be over 200GB.
+       * DISK size check, free space in the local storage has to be over 200GB.
 
-   * Skip blacklisted storage endpoints.
+       * Skip blacklisted storage endpoints.
 
-   * The task ``walltime`` must be between ``mintime`` and ``maxtime`` at the queue.
+       * The task ``walltime`` must be between ``mintime`` and ``maxtime`` at the queue.
 
-   * Skip queues without pilots for the last 3 hours.
+       * Skip queues without pilots for the last 3 hours.
 
-   * Skip queues if defined+activated+assigned+starting > 2 :raw-html:`&times;` max(20, running).
+   * Filters for temporary issues
+       * Skip queues if there are many jobs from the task closed or failed for the last ``TW_DONE_JOB_STAT`` hours.
+         (nFailed + nClosed) must be less than max(2 :raw-html:`&times;` nFinished, ``MIN_BAD_JOBS_TO_SKIP_PQ``).
+         ``TW_DONE_JOB_STAT`` and ``MIN_BAD_JOBS_TO_SKIP_PQ`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
 
-   * Skip queues if the user has too many queued jobs there.
+       * Skip queues if defined+activated+assigned+starting > 2 :raw-html:`&times;` max(20, running).
+
+       * Skip queues if the user has too many queued jobs there.
 
 #. Finally, it calculates the brokerage weight for remaining candidates using the following formula.
 
@@ -501,7 +509,8 @@ This is the ATLAS analysis job brokerage flow:
    * The number of starting jobs if *numSlots* is set to zero, which is typically useful for Harvester to fetch
      jobs when the number of available slots dynamically changes.
 
-#. If all queues are skipped, the task is pending for 20 min.
+#. If all queues are skipped due to the persistent issues, the brokerage tries to find candidates without the input
+   data locality check. If all queues are still skipped, the task is pending for 20 min.
    Otherwise, the remaining candidates are sorted by weight, and the best 10 candidates are taken.
 
 |br|
