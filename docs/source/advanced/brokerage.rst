@@ -32,7 +32,7 @@ This page explains the algorithms of some advanced plugins.
 ATLAS Production Job Brokerage
 -------------------------------------
 
-This is the general ATLAS production job brokerage flow:
+This is the ATLAS production job brokerage flow:
 
 #. Generate the list of preliminary candidates from one of the following:
 
@@ -380,5 +380,128 @@ Timeout Rules
    * :hblue:`FAST_REBRO_THRESHOLD_blah` is defined in :doc:`gdpconfig </advanced/gdpconfig>`
    * nSlots is not defined in the ``Harvester_Slots`` table since it intentionally cause large nQueue
      when nRun is small
+
+
+------------
+
+|br|
+
+ATLAS Analysis Job Brokerage
+-------------------------------------
+
+This is the ATLAS analysis job brokerage flow:
+
+#. First, the brokerage counts the number of running/queued jobs/cores for the user
+   (or the working group if the task specifies ``workingGroup``) and checks the global disk quota, and throttle if
+
+   * the number of running jobs is larger than ``CAP_RUNNING_USER_JOBS``,
+
+   * the number of queued jobs is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_JOBS``,
+
+   * the number of running cores is larger than ``CAP_RUNNING_USER_CORES``,
+
+   * the number of queued cores is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_CORES``, or
+
+   * the global disk quota exceeds.
+
+   For the working group it uses ``CAP_RUNNING_GROUP_JOBS`` and ``CAP_RUNNING_GROUP_CORES`` instead.
+   All ``CAP_blah`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+
+#. Next, the brokerage generates the list of preliminary candidates as follows:
+
+   * Take all queues with type='analysis' or 'unified'.
+
+   * Exclude queues if ``excludedSite`` is specified and the queues are included in the list.
+
+   * Exclude queues if ``includedSite`` is specified and the queues are not included in the list.
+     Pre-assigned queues are specified in ``includedSite`` or ``site``.
+
+#. Then, the brokerage filters out preliminary candidates that don't pass any of the following checks:
+
+   * The queue status must be *online* unless the queues are pre-assigned.
+
+   * Check with ``MAX_DISKIO_DEFAULT`` limit defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+     It is possible to overwrite the limit for a particular queue through the ``maxDiskIO`` (in kB/sec per core)
+     field in CRIC. The limit is applied in job brokerage: when the average diskIO per core for running jobs in
+     a queue exceeds the limit, the next cycles of job brokerage will exclude tasks with ``diskIO`` higher than
+     the defined limit to progressively get the diskIO under the threshold.
+
+   * CPU Core count matching.
+
+   * Skip VP queues if the task specifies ``avoidVP`` or those queues are overloaded.
+
+   * Skip queues with `gpu` in the ``catchall`` field in CRIC unless those queues publish the ``architecture``
+     of the task available (OBSOLETE).
+
+   * Availability of ATLAS release/cache. This check is skipped when queues have *ANY* in the ``releases`` filed in CRIC.
+     If queues have *AUTO* in the ``releases`` filed, the brokerage uses the information published in a json by CRIC as
+     explained at :ref:`this section <ref_auto_check>`.
+
+   * Skip queues if there are many jobs from the task closed or failed for the last ``TW_DONE_JOB_STAT`` hours.
+     (nFailed + nClosed) must be less than max(2 :raw-html:`&times;` nFinished, ``MIN_BAD_JOBS_TO_SKIP_PQ``).
+     ``TW_DONE_JOB_STAT`` and ``MIN_BAD_JOBS_TO_SKIP_PQ`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+
+   * Queues publish maximum (and minimum) memory size per core. The expected memory site of each job is estimated
+     for each queue as
+
+     .. math::
+
+        (baseRamCount + ramCount \times coreCount) \times compensation
+
+
+     if ``ramCountUnit`` is *MBPerCore*, or
+
+     .. math::
+
+        (baseRamCount + ramCount) \times compensation
+
+     if ``ramCountUnit`` is *MB*,
+     where *compensation* is 0.9, avoiding sending jobs to high-memory queues when their expected memory usage is
+     close to the lower limit. Queues are skipped if the estimated memory usage is not included in the acceptable
+     memory ranges.
+
+   * The disk usage for a job is estimated as
+
+     .. math::
+
+        (0 \: or \: inputDiskCount) + outDiskCount \times inputDiskCount + workDiskCount
+
+     *inputDiskCount* is the total size of job input files.
+     The first term in the above formula is zero
+     if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
+     *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
+
+   * DISK size check, free space in the local storage has to be over 200GB.
+
+   * Skip blacklisted storage endpoints.
+
+   * The task ``walltime`` must be between ``mintime`` and ``maxtime`` at the queue.
+
+   * Skip queues without pilots for the last 3 hours.
+
+   * Skip queues if defined+activated+assigned+starting > 2 :raw-html:`&times;` max(20, running).
+
+   * Skip queues if the user has too many queued jobs there.
+
+#. Finally, it calculates the brokerage weight for remaining candidates using the following formula.
+
+   .. math::
+
+     weight = \frac {running + 1} {(activated + assigned + starting + defined + 1)}
+
+   The brokerage uses the largest one as the number of running jobs among the following numbers:
+
+   * The actual number of running jobs at the queue, *R*\ :sub:`real`.
+
+   * min(*nBatchJob*, 20) if *R*\ :sub:`real` < 20 and *nBatchJob* (the number of running+submitted
+     batch workers at PQ) > *R*\ :sub:`real`. Mainly for bootstrap.
+
+   * *numSlots* if it is set to a positive number for the queue to the `proactive job assignment <https://github.com/HSF/harvester/wiki/Workflows#proactive-job-assignment>`_.
+
+   * The number of starting jobs if *numSlots* is set to zero, which is typically useful for Harvester to fetch
+     jobs when the number of available slots dynamically changes.
+
+#. If all queues are skipped, the task is pending for 20 min.
+   Otherwise, the remaining candidates are sorted by weight, and the best 10 candidates are taken.
 
 |br|
