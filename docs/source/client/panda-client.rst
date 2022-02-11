@@ -62,6 +62,9 @@ The following environment variables need to change if necessary.
    * - PANDAMON_URL
      - URL of PanDA monitor
      - https://panda-doma.cern.ch
+   * - PANDACACHE_URL
+     - Base URL of PanDA sandbox server
+     - https://pandaserver-doma.cern.ch/server/panda
    * - PANDA_AUTH
      - Authentication mechanism. oidc to enable OIDC/OAuth2.0. x509_no_grid to use X509 without grid niddleware
      - oidc
@@ -87,6 +90,8 @@ The following environment variables need to change if necessary.
 
       export PANDA_URL_SSL=https://pandaserver-doma.cern.ch/server/panda
       export PANDA_URL=http://pandaserver-doma.cern.ch:25080/server/panda
+      export PANDACACHE_URL=https://pandaserver-doma.cern.ch/server/panda
+      export PANDAMON_URL=https://panda-doma.cern.ch
       export PANDA_AUTH=oidc
       export PANDA_AUTH_VO=<your organization>
       export PANDA_USE_NATIVE_HTTPLIB=1
