@@ -108,10 +108,18 @@ First, create a file called :brown:`simple_chain.cwl` containing the cwl code ab
 Next, you need to create an empty yaml file since cwl files work with yaml files that describe workflow inputs.
 This example doesn't take an input, so the yaml file can be empty.
 
-.. prompt:: bash
+.. tabs::
 
-  touch dummy.yaml
-  pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+   .. code-tab:: bash ATLAS users
+
+      touch dummy.yaml
+      pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+
+   .. code-tab:: bash DOMA users
+
+      touch dummy.yaml
+      pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah \
+         --vo wlcg --prodSourceLabel test --workingGroup ${PANDA_AUTH_VO}
 
 ``pchain`` automatically sends local *.cwl, *.yaml, and *.json files to PanDA together with the workflow.
 ``--outDS`` is the basename of the datasets for output and log files. Once the workflow is submitted,

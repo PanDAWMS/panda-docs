@@ -43,12 +43,13 @@ Here is an Hello world example.
    .. code-tab:: bash DOMA users
 
       prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.hoge.`uuidgen` --nJobs 3 --output myout.txt \
-         --vo wlcg --site <your queue> --prodSourceLabel test --workingGroup ${PANDA_AUTH_VO}
+         --vo wlcg --site <your queue> --prodSourceLabel test --workingGroup ${PANDA_AUTH_VO} --noBuild
 
 where ``--exec`` takes the execution string which is executed on remote computing resources,
 and ``--outDS`` takes the basename of the output collection. DOMA users need to set
 ``--vo wlcg --workingGroup ${PANDA_AUTH_VO}`` since each organization is registered as a sub-VO in DOMA PanDA,
-and ``--site`` to one of queues shown in `DOMA PanDA monitor <https://panda-doma.cern.ch/sites/>`_.
+``--site`` to one of queues shown in `DOMA PanDA monitor <https://panda-doma.cern.ch/sites/>`_, and
+``--noBuild`` since generally the build step is unused.
 
 This task generates 1 build job to setup and 3 run jobs to produce `myout.txt`, and creates two collections
 (e.g., dataset containers); one for output data and the other for log files. The next section explains what the
