@@ -112,13 +112,13 @@ This example doesn't take an input, so the yaml file can be empty.
 
    .. code-tab:: bash ATLAS users
 
-      touch dummy.yaml
-      pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
+      $ touch dummy.yaml
+      $ pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah
 
    .. code-tab:: bash DOMA users
 
-      touch dummy.yaml
-      pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah \
+      $ touch dummy.yaml
+      $ pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah \
          --vo wlcg --prodSourceLabel test --workingGroup ${PANDA_AUTH_VO}
 
 ``pchain`` automatically sends local *.cwl, *.yaml, and *.json files to PanDA together with the workflow.
