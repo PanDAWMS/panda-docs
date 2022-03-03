@@ -73,7 +73,7 @@ This is the ATLAS production job brokerage flow:
      a queue exceeds the limit, the next cycles of job brokerage will exclude tasks with ``diskIO`` higher than
      the defined limit to progressively get the diskIO under the threshold.
 
-   * CPU Core count matching.
+   * CPU Core count matching amount site.coreCount, task.coreCount, and maxCoreCount of the task if defined.
 
    * Availability of ATLAS release/cache. This check is skipped when queues have *ANY* in the ``releases`` filed in CRIC.
      If queues have *AUTO* in the ``releases`` filed, the brokerage uses the information published in a json by CRIC as
