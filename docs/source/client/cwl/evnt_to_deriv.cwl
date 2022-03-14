@@ -6,7 +6,7 @@ inputs: []
 outputs:
   outDS:
     type: string
-    outputSource: pile/outDS
+    outputSource: deriv/outDS
 
 
 steps:

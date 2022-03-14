@@ -6,9 +6,12 @@ class: Workflow
 inputs: []
 
 outputs:
-  outDS:
+  outDS_daod:
     type: string
-    outputSource: [pile/outDS, ntup_pile/outDS]
+    outputSource: deriv/outDS
+  outDS_ntup:
+    type: string
+    outputSource: ntup_pile/outDS
 
 
 steps:
