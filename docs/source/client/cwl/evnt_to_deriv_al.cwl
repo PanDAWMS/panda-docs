@@ -73,4 +73,5 @@ steps:
       opt_useAthenaPackages:
         default: true
     out: [outDS]
+    when: $(self.opt_inDS)
 
