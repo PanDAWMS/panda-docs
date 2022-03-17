@@ -1,9 +1,15 @@
 # https://prodtask-dev.cern.ch/prodtask/inputlist_with_request/42369/
 
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 
-inputs: []
+requirements:
+  InlineJavascriptRequirement: {}
+
+inputs:
+  seed:
+    type: int
+    default: 123
 
 outputs:
   outDS_daod:
@@ -19,7 +25,7 @@ steps:
     run: prun
     in:
       opt_exec:
-        default: "Gen_tf.py --maxEvents=%MAXEVENTS --ecmEnergy=13000 --firstEvent=%FIRSTEVENT:1 --jobConfig=511459 --outputEVNTFile=EVNT.pool.root.1 --randomSeed=%RNDM:1 --runNumber=511459 --AMITag=e8412"
+        default: "Gen_tf.py --maxEvents=%MAXEVENTS --ecmEnergy=13000 --firstEvent=%FIRSTEVENT:1 --jobConfig=511459 --outputEVNTFile=EVNT.pool.root.1 --randomSeed=%RNDM:%{seed} --runNumber=511459 --AMITag=e8412"
       opt_args:
         default: "--outputs EVNT.pool.root.1 --nEvents=2000 --nJobs 2 --athenaTag AthGeneration,21.6.85 --noBuild --expertOnly_skipScout --avoidVP"
       opt_useAthenaPackages:
