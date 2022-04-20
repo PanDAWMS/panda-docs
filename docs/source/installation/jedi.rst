@@ -31,6 +31,7 @@ Setup a virtual environment first.
 
   python3 -m venv <install dir>
   . <install dir>/bin/activate
+  pip install -U pip setuptools
 
 Then
 

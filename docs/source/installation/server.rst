@@ -34,6 +34,7 @@ It is a good practice to do installation in virtual environment.
 
   python3 -m venv <install dir>
   . <install dir>/bin/activate
+  pip install -U pip setuptools
 
 Then
 
