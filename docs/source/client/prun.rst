@@ -428,3 +428,15 @@ On the other hand, ``--athenaTag`` doesn't need Athena locally. It gathers files
 when making a sandbox file and passes the argument string to asetup executed on remote compute nodes.
 
 |br|
+
+How to control job size
+----------------------------------------------------------------
+``--nFilePerJob``, ``--nGBPerJob`` and ``--maxNFilesPerJob`` options  are available at task submission to
+change a job size (e.g. job duration, size of output).  But if a user sets those options and they are assumed
+to create many short jobs based on results of scouting jobs, those options are rest to
+their default values ( ``--nFilePerJob`` =None, ``--nGBPerJob`` =MAX and ``--MaxNFilesPerJob`` =200).
+In principle, the system centrally defines job size by taking into account execution time, resource usage,
+input and output sizes, and so on, as explained in :ref:`advanced/sizing:Job Sizing`,
+and it is recommended to leave it to the system rather than playing with those options.
+
+|br|

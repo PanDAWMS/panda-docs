@@ -485,7 +485,7 @@ The ``run`` filed of a REANA step is :brown:`reana`.
 A REANA step is a simplified prun task composed of a single job that
 tells input dataset names to the payload through the execution string.
 The payload dynamically customizes the sub-workflow description to processes files in those datasets,
-submit it to REANA using :doc:`secrets </client/secrets>`,
+submit it to REANA using :doc:`secrets </client/secret>`,
 and downloads the results from REANA.
 
 Similarly to junctions, there are only a few parameters in the ``in`` section of a REANA step, as shown below.
