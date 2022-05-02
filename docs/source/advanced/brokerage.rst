@@ -118,8 +118,7 @@ This is the ATLAS production job brokerage flow:
 
         \frac {cpuTime \times nEvents} {C \times P \times cpuEfficiency} + baseTime
 
-     *nEvents* is the same as the one used to estimate the disk usage. The estimated walltime must be less than
-     ``maxtime`` of the queue.
+     *nEvents* is the same as the one used to estimate the disk usage. The estimated walltime must be between ``mintime`` and ``maxtime`` at the queue.
 
    * ``wnconnectivity`` of the queue must be consistent if the task specifies ``ipConnectivity``.
      The format of ``wnconnectivity`` and ``ipConnectivity`` is ``network_connectivity#ip_stack``.
@@ -478,7 +477,8 @@ This is the ATLAS analysis job brokerage flow:
 
        * Skip blacklisted storage endpoints.
 
-       * The task ``walltime`` must be between ``mintime`` and ``maxtime`` at the queue.
+       * Analysis job walltime is estimated using the same formula as that for production jobs.
+         The estimated walltime must be between ``mintime`` and ``maxtime`` at the queue.
 
        * Skip queues without pilots for the last 3 hours.
 
