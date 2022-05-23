@@ -50,7 +50,7 @@ Start PostgreSQL, make the database and the user, and enable pg_cron.
   $ psql << EOF
 
   CREATE DATABASE panda_db;
-  CREATE USER panda PASSWORD 'password'
+  CREATE USER panda PASSWORD 'password';
   ALTER ROLE panda SET search_path = doma_panda,public;
   CREATE EXTENSION pg_cron;
   GRANT USAGE ON SCHEMA cron TO panda;
@@ -141,6 +141,10 @@ Loop over PANDA, PANDAARCH, and PANDAMETA.
     $ # make DLL to create tables and sequences
     $ ./usr/local/bin/ora2pg -t "TABLE SEQUENCE" -u ATLAS_${PANDA_SCHEMA} -n ATLAS_${PANDA_SCHEMA} \
           -N DOMA_${PANDA_SCHEMA} -c ora2pg.conf -o ${PANDA_SCHEMA}.sql
+
+    $ # remove json check
+    $ mv TABLE_${PANDA_SCHEMA}.sql a.sql
+    $ sed -e '/coalesce(json::text/ s/^-*/--/' a.sql > TABLE_${PANDA_SCHEMA}.sql
 
     $ # reset sequence values
     $ mv SEQUENCE_${PANDA_SCHEMA}.sql a.sql
