@@ -412,8 +412,8 @@ The actual dataset names are passed to the execution string through placeholders
 in ``opt_exec``, which represents the n-th dataset name.
 The json filename must be :brown:`results.json`.
 The file contains key-values to update the local variables in the parameter dictionary.
-It can also contain a special key-value, :hblue:`to_exit: False`, to repeat the loop.
-If :hblue:`to_exit` is :hblue:`True`, is omitted, or :brown:`results.json` is not produced,
+It can also contain a special key-value, :hblue:`to_continue: True`, to repeat the loop.
+If :hblue:`to_continue` is :hblue:`False`, is omitted, or :brown:`results.json` is not produced,
 the workflow exits from the loop and proceeds to subsequent steps outside of the loop.
 It is possible to specify additional output files via :hblue:`---outputs` in ``opt_args`` if the junction step
 produces other output files in addition to :brown:`results.json`. Subsequent steps can use those output files
