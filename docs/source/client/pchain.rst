@@ -121,7 +121,7 @@ This example doesn't take an input, so the yaml file can be empty.
       $ pchain --cwl simple_chain.cwl --yaml dummy.yaml --outDS user.<your_nickname>.blah \
          --vo wlcg --prodSourceLabel test --workingGroup ${PANDA_AUTH_VO}
 
-``pchain`` automatically sends local *.cwl, *.yaml, and *.json files to PanDA together with the workflow.
+``pchain`` automatically sends local \*.cwl, \*.yaml, and \*.json files to PanDA together with the workflow.
 ``--outDS`` is the basename of the datasets for output and log files. Once the workflow is submitted,
 the cwl and yaml files are parsed on the server side to generate tasks
 with sequential numbers in the workflow. The system uses a combination of the sequential number

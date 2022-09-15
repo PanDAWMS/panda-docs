@@ -29,10 +29,75 @@ This page explains the algorithms of some advanced plugins.
 
 |br|
 
+ATLAS Production Task Brokerage
+-------------------------------------
+The ATLAS production task brokerage assigns each task to a nucleus as follows:
+
+#. Generate the primary list of nuclei in the ACTIVE status.
+
+#. Filter out the list with the following checks:
+
+   * Nuclei are skipped if there are long transfer backlogs unless t1Weight of the task is negative.
+
+   * Nuclei must have associated storages.
+
+   * The storages associated to nuclei must have enough space
+
+     .. math::
+
+        spaceFree + spaceExpired - normalizedExpOutSize \times RW > diskThreshold
+
+     where *spaceFree* is the free space size in the associated storage, *spaceExpired* is the size of the space
+     that expired secondary data occupies, *normalizedExpOutSize* is the expected size of the output file normalized
+     by cpuTime :raw-html:`&times;` corePower :raw-html:`&times;` day (0.25), *RW* is the total amount
+     of exiting workload assigned to the nucleus, and *diskThreshold* is the threshold defined per gshare
+     as ``DISK_THRESHOLD_<gshare>`` in :doc:`gdpconfig </advanced/gdpconfig>`.
+
+   * Nuclei must pass the data locality check with the following rules:
+
+      * All input datasets are considered if the ``taskBrokerOnMaster`` task parameter is set to False or is
+        unspecified. Otherwise, only the primary input dataset is considered, i.e., secondary datasets are ignored.
+
+      * Nuclei with incomplete local data can be used if the ``inputPreStaging`` task parameter is set to
+        True since the parameter enables the data carousel mode and guarantees the input data completeness.
+        Those nuclei ignore the next two rules with the input data size and the number of input files.
+
+      * The fraction of the data size locally available divide by the total input size must be larger than
+        ``INPUT_SIZE_FRACTION`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`) if the total input size is
+        larger than ``INPUT_SIZE_THRESHOLD`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+
+      * The fraction of the number of files locally available divide by the total number of input files must be larger
+        than ``INPUT_NUM_FRACTION`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`) if the total input size is
+        larger than ``INPUT_NUM_THRESHOLD`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+　　　　
+      * The entire data locality check is disabled if no nuclei pass and
+
+         * task.ioIntencity is less than or equal to ``MIN_IO_INTENSITY_WITH_LOCAL_DATA`` and
+           the total input size is less than or equal to ``MIN_INPUT_SIZE_WITH_LOCAL_DATA``, or
+
+         * task.taskPriority is larger than or equal to ``MAX_TASK_PRIO_WITH_LOCAL_DATA``.
+
+#. Calculate brokerage weight for remaining nuclei using the following formula to choose a nuclei based on that:
+
+   .. math::
+
+     weight =\frac {localInputSize \times tapeWeight \times (spaceFree + spaceExpired)} {max(rwOffset, RW) \times totalInputSize \times spaceTotal}
+
+   where *localInputSize* is the size of input data locally available, *totalInputSize* is the total size of
+   input data, *tapeWeight* is 0.001 if input data is on the tape storage, or 1 otherwise, *rwOffset* is 50 to have
+   the minimum offset for *RW*, and *spaceTotal* is the total size of the storage.
+
+#. If all nuclei are skipped, the task is pending for 30 min and then gets retried.
+
+------------
+
+
+|br|
+
 ATLAS Production Job Brokerage
 -------------------------------------
 
-This is the ATLAS production job brokerage flow:
+Here is the ATLAS production job brokerage flow:
 
 #. Generate the list of preliminary candidates from one of the following:
 
