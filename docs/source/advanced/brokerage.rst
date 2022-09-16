@@ -37,7 +37,7 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 
 #. Filter out the list with the following checks:
 
-   * Nuclei are skipped if there are long transfer backlogs unless t1Weight of the task is negative.
+   * Nuclei are skipped if there are long transfer backlogs unless ``t1Weight`` of the task is negative.
 
    * Nuclei must have associated storages.
 
@@ -72,10 +72,12 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 　　　　
       * The entire data locality check is disabled if no nuclei pass and
 
-         * task.ioIntencity is less than or equal to ``MIN_IO_INTENSITY_WITH_LOCAL_DATA`` and
+         * ``ioIntencity`` of the task is less than or equal to ``MIN_IO_INTENSITY_WITH_LOCAL_DATA`` and
            the total input size is less than or equal to ``MIN_INPUT_SIZE_WITH_LOCAL_DATA``, or
 
-         * task.taskPriority is larger than or equal to ``MAX_TASK_PRIO_WITH_LOCAL_DATA``.
+         * ``taskPriority`` of the task is larger than or equal to ``MAX_TASK_PRIO_WITH_LOCAL_DATA``.
+
+        ``MIN_blah`` and ``MAX_blah`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
 
 #. Calculate brokerage weight for remaining nuclei using the following formula to choose a nuclei based on that:
 
@@ -450,6 +452,34 @@ Timeout Rules
 
 |br|
 
+Special Brokerage for ATLAS Full-chain
+------------------------------------------------
+There is a mechanism in the ATLAS production task and job brokerages to assign an entire workflow (full-chain)
+to a specific nucleus.
+The main idea is to avoid data transfers between the nucleus and satellites, and burst-process all data
+on the nucleus to deriver the final products quickly.
+The nuclei are defined as **bare** **nuclei** by adding
+:green:`bareNucleus=only` or :green:`bareNucleus=allow` in the ``catchall`` field in CRIC.
+The former accepts only full-chain workflows while the latter accepts normal workflows in addition to full-chain
+workflows. Tasks can set the ``fullChain`` parameter to use the mechanism. The value can be
+
+* :hblue:`only` to be assigned to a nucleus with :green:`bareNucleus=only`,
+* :hblue:`require` to be assigned to a nucleus with :green:`bareNucleus=only` or :green:`bareNucleus=allow`, or
+* :hblue:`capable`.
+
+When :hblue:`capable` is set, the task is assigned to the same nucleus as that of the parent task only if the parent
+task was assigned to a bare nucleus. Otherwise, :hblue:`capable` is ignored and the task can go to a normal nucleus.
+
+Once a task with the ``fullChain`` parameter is assigned to a bare nucleus, the job brokerage sends jobs only
+to the queues associated to the nucleus. On the other hand. if a normal task is assigned to a bare nucleus
+with :green:`bareNucleus=allow`
+or a task with ``fullChain`` = :hblue:`capable` is assigned to a normal nucleus, the job brokerage sends jobs to the
+queues associated to satellites in addition to the nucleus.
+
+-----------
+
+|br|
+
 ATLAS Analysis Job Brokerage
 -------------------------------------
 
@@ -500,9 +530,6 @@ This is the ATLAS analysis job brokerage flow:
        * CPU Core count matching.
 
        * Skip VP queues if the task specifies ``avoidVP`` or those queues are overloaded.
-
-       * Skip queues with `gpu` in the ``catchall`` field in CRIC unless those queues publish the ``architecture``
-         of the task available (OBSOLETE).
 
        * Availability of ATLAS release/cache. This check is skipped when queues have *ANY* in the ``releases`` filed in CRIC.
          If queues have *AUTO* in the ``releases`` filed, the brokerage uses the information published in a json by CRIC as
