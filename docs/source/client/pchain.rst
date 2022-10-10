@@ -447,22 +447,20 @@ of multiple tasks.
     :language: yaml
     :caption: sequential_loop.cwl
 
-The :blue:`seq_loop` step iterates :brown:`scatter_body.cwl` which defines an array of parameter dictionaries
-with the the :hblue:`param_` prefix and initial values; :hblue:`param_xxx` and :hblue:`param_xxx`.
-The :blue:`parallel_work` step is scattered over the dictionary array. The dictionary array is vertically sliced
-so that each execution of :brown:`loop_main.cwl` gets only one parameter dictionary.
-The :blue:`checkpoint` step takes all outputs from the blue:`parallel_work` step to update the entire dictionary array
-and make a decision to exit the sub-workflow.
+The :blue:`seq_loop` step iterates :brown:`scatter_body.cwl` which defines arrays of parameters
+with the the :hblue:`param_` prefix and initial values; :hblue:`param_xxx` and :hblue:`param_yyy`.
+The :blue:`parallel_work` step is scattered over the arrays. The arrays are vertically sliced
+so that each execution of :brown:`loop_main.cwl` gets only one parameter set.
+The :blue:`checkpoint` step takes all outputs from the blue:`parallel_work` step to update the arrays
+and make a decision to continue the loop.
 
 .. literalinclude:: cwl/scatter_body.cwl
     :language: yaml
     :caption: scatter_body.cwl
 
-The looping parameters like :hblue:`param_xxx` and :hblue:`param_xxx` must be re-defined in :brown:`loop_main.cwl`
-as well as :brown:`scatter_body.cwl`, to have a parameter dictionary in the nested sub-workflow.
-Note that they must have the same names,
-while their initial values are scalars instead of arrays.
-In each iteration the :blue:`checkpoint` step above updates the values in the parameter dictionary,
+The sliced values are passed :brown:`loop_main.cwl` as local variables
+:hblue:`param_sliced_x` and :hblue:`param_sliced_y` in the sub-workflow.
+In each iteration the :blue:`checkpoint` step above updates the values in the arrays,
 so that :hblue:`%{blah}` in ``opt_args`` is replaced with the updated value when the task is actually executed.
 
 .. literalinclude:: cwl/loop_main.cwl

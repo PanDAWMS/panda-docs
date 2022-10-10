@@ -24,13 +24,12 @@ outputs:
 steps:
   parallel_work:
     run: loop_main.cwl
-    scatter: [param_xxx, param_yyy]
+    scatter: [param_sliced_x, param_sliced_y]
     scatterMethod: dotproduct
     in:
       dataset: dataset
-      param_xxx: param_xxx
-      param_yyy: param_yyy
-      
+      param_sliced_x: param_xxx
+      param_sliced_y: param_yyy
     out: [outDS]
 
 
@@ -39,5 +38,5 @@ steps:
     in:
       opt_inDS: parallel_work/outDS
       opt_exec:
-        default: "echo 1"
+        default: " echo '{\"xxx\": [345, 678], \"yyy\": [0.321, 0.567], \"to_continue\": false}' > results.json"
     out: []
