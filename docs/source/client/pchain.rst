@@ -458,7 +458,7 @@ and make a decision to continue the loop.
     :language: yaml
     :caption: scatter_body.cwl
 
-The sliced values are passed :brown:`loop_main.cwl` as local variables
+The sliced values are passed to :brown:`loop_main.cwl` as local variables
 :hblue:`param_sliced_x` and :hblue:`param_sliced_y` in the sub-workflow.
 In each iteration the :blue:`checkpoint` step above updates the values in the arrays,
 so that :hblue:`%{blah}` in ``opt_args`` is replaced with the updated value when the task is actually executed.
