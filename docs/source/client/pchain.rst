@@ -451,7 +451,7 @@ The :blue:`seq_loop` step iterates :brown:`scatter_body.cwl` which defines array
 with the the :hblue:`param_` prefix and initial values; :hblue:`param_xxx` and :hblue:`param_yyy`.
 The :blue:`parallel_work` step is scattered over the arrays. The arrays are vertically sliced
 so that each execution of :brown:`loop_main.cwl` gets only one parameter set.
-The :blue:`checkpoint` step takes all outputs from the blue:`parallel_work` step to update the arrays
+The :blue:`checkpoint` step takes all outputs from the :blue:`parallel_work` step to update the arrays
 and make a decision to continue the loop.
 
 .. literalinclude:: cwl/scatter_body.cwl
