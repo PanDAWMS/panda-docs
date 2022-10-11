@@ -428,6 +428,9 @@ Loop + scatter
 A loop is sequential iteration of a sub-workflow, while a scatter is a horizontal parallelization of
 independent sub-workflows. They can be combined to describe complex workflows.
 
+Running multiple loops in parallel
+++++++++++++++++++++++++++++++++++++++
+
 The following example runs multiple loops in parallel.
 
 .. figure:: images/pchain_dag_mloop.png
@@ -438,8 +441,11 @@ The following example runs multiple loops in parallel.
 
 The :blue:`work_loop` step has the :hblue:`loop` hint and is scattered over the list of inputs.
 
-Here is another example of the loop+scatter combination that sequentially iterates parallel execution
-of multiple tasks.
+Parallel execution of multiple sub-workflows in a single loop
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Here is another example of the loop+scatter combination that has a single loop where
+multiple sub-workflows are executed in parallel.
 
 .. figure:: images/pchain_dag_sloop.png
 
