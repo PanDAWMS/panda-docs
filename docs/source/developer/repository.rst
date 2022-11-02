@@ -4,11 +4,11 @@ Code Repositories
 
 PanDA software are available in the following GitHub repositories:
 
-* `PanDA server <https://github.com/PanDAWMS/panda-client>`_
+* `PanDA server <https://github.com/PanDAWMS/panda-server>`_
 
-* `JEDI <https://github.com/PanDAWMS/panda-client>`_
+* `JEDI <https://github.com/PanDAWMS/panda-jedi>`_
 
-* `PanDA Pilot <https://github.com/PanDAWMS/pilot2>`_
+* `PanDA Pilot <https://github.com/PanDAWMS/pilot3>`_
 
 * `Harvester <https://github.com/HSF/harvester>`_
 

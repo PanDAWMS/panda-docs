@@ -370,10 +370,12 @@ Checks are as follows for releases, caches, and nightlies:
 
    * the task ``sw_platform`` is extracted from the task ``architecture`` and must be included in the ``cmtconfigs`` list.
 
-* If the above is not the case, 'any' must be in the ``containers`` list and the task ``sw_platform``,
-  ``sw_project``, and ``sw_version`` must be equal to ``cmtconfig``, ``project``, and ``release`` of a tag
-  in the ``tags`` list.
+* If the above is not the case,
 
+   * 'any' must be in the ``containers`` list or ``base_platform`` in the task ``architecture`` must be empty, and
+
+   * the task ``sw_platform``, ``sw_project``, and ``sw_version`` must be equal to ``cmtconfig``, ``project``, and
+     ``release`` of a tag in the ``tags`` list.
 
 |br|
 

@@ -46,5 +46,5 @@ steps:
         - inner_work_top/outDS
         - inner_work_bottom/outDS
       opt_exec:
-        default: "echo %{DS0} %{DS1} aaaa; echo '{\"x\": 456, \"to_exit\": true}' > results.json"
+        default: "echo %{DS0} %{DS1} aaaa; echo '{\"x\": 456, \"to_continue\": false}' > results.json"
     out: []
