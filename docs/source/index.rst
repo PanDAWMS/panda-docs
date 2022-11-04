@@ -35,6 +35,7 @@ computing middleware.
    :maxdepth: 1
    :caption: Advanced Topics:
 
+   advanced/kubernetes
    advanced/gdpconfig
    advanced/daemon
    advanced/brokerage
