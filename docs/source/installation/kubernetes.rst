@@ -29,6 +29,20 @@ Main Components
   * indigo-iam-login_service
   * database (mariadb)
 
+Github module for k8s deployment
+---------------
+You can find the kubernetes module with all the deployment helm charts at https://github.com/PanDAWMS/panda-k8s
+
+Please checkout the module first:
+
+``git clone https://github.com/PanDAWMS/panda-k8s.git``
+
+then enter the panda-k8s directory:
+
+``cd panda-k8s``
+
+and follow the deployment instructions below.
+
 Deployment order
 -----------------
 * PanDA, Harvester and iDDS depend on activemq.
