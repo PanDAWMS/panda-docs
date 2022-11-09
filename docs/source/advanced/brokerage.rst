@@ -488,20 +488,40 @@ ATLAS Analysis Job Brokerage
 This is the ATLAS analysis job brokerage flow:
 
 #. First, the brokerage counts the number of running/queued jobs/cores for the user
-   (or the working group if the task specifies ``workingGroup``) and checks the global disk quota, and throttle if
+   (or the working group if the task specifies ``workingGroup``), checks the global disk quota, and check the classification of the task.
+   The brokerage throttles the task (not going to submit jobs for the task) if ANY of the following conditions holds:
 
-   * the number of running jobs is larger than ``CAP_RUNNING_USER_JOBS``,
+    **Number of User Jobs Exceeds Caps**
 
-   * the number of queued jobs is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_JOBS``,
+      * the number of running jobs is larger than ``CAP_RUNNING_USER_JOBS``
+      * the number of queued jobs is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_JOBS``
+      * the number of running cores is larger than ``CAP_RUNNING_USER_CORES``
+      * the number of queued cores is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_CORES``
 
-   * the number of running cores is larger than ``CAP_RUNNING_USER_CORES``,
+      |br|
 
-   * the number of queued cores is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_CORES``, or
+      .. line-block::
+        For the working group it uses ``CAP_RUNNING_GROUP_JOBS`` and ``CAP_RUNNING_GROUP_CORES`` instead.
+        All ``CAP_blah`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
 
-   * the global disk quota exceeds.
 
-   For the working group it uses ``CAP_RUNNING_GROUP_JOBS`` and ``CAP_RUNNING_GROUP_CORES`` instead.
-   All ``CAP_blah`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+    **User's Usage Exceeds Quota**
+
+      * the global disk quota exceeds
+
+      |br|
+
+
+    **User Analysis Share Usage Exceeds its Target and the Task is in Lower Class**
+
+      .. line-block::
+        Currently this part of throttle is only for User Analysis share. Tasks in other shares are immune to it
+        (For task and site classification, see ...)
+
+      * the User Analysis task is in class C , and User Analysis share usage > 90% of its target
+      * the User Analysis task is in class B , and User Analysis share usage > 95% of its target
+      * the User Analysis task is in class A , and User Analysis share usage > max(``USER_USAGE_THRESHOLD_A``/(# of user's running slots in hi-sites), 1)*100% of its target
+
 
 #. Next, the brokerage generates the list of preliminary candidates as follows:
 
