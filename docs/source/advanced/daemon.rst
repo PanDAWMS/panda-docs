@@ -1,5 +1,5 @@
 ====================
-Using PanDA Daemon
+PanDA Daemon
 ====================
 
 PanDA daemon is a sub-component of the PanDA server. Here is the configuration guide.
@@ -42,13 +42,17 @@ The configurations may look like this:
     # of the form {"daemon_name": {"module": <module_name>, "period": <period>, ...}, ...}
     config = {
         "dummy_test": {
-            "enable": true, "period": 120},
+            "enable": true, "period": 120, "timeout": 300},
         "add_main": {
             "enable": true, "period": 240, "loop": true},
         "add_sub": {
             "enable": true, "period": 240},
         "evpPD2P": {
             "enable": true, "period": 600},
+        "recover_lost_files_daemon": {
+            "enable": true, "period": 600},
+        "process_workflow_files_daemon": {
+            "enable": true, "period": 60},
         "copyArchive": {
             "enable": true, "period": 2400, "sync": true},
         "datasetManager": {
@@ -56,14 +60,23 @@ The configurations may look like this:
         "proxyCache": {
             "module": "panda_activeusers_query", "enable": true, "period": 600},
         "pilot_streaming": {
-            "module": "pilotStreaming", "enable": true, "period": 300},
+            "module": "pilotStreaming", "enable": true, "period": 300, "sync": true},
+        "worker_synchronization": {
+            "module": "worker_synchronization", "enable": true, "period": 1800, "sync": true},
         "configurator": {
             "enable": true, "module": "configurator", "period": 200, "sync": true},
         "network_configurator": {
             "enable": true, "module": "configurator", "arguments": ["--network"], "period": 400, "sync": true},
         "schedconfig_json": {
-            "enable": true, "module": "configurator", "arguments": ["--json_dump"], "period": 200, "sync": true}
-      }
+            "enable": true, "module": "configurator", "arguments": ["--json_dump"], "period": 200, "sync": true},
+        "sw_tags": {
+            "enable": true, "module": "configurator", "arguments": ["--sw_tags"], "period": 200, "sync": true},
+        "metric_collector": {
+            "enable": true, "period": 300},
+        "task_evaluator": {
+            "enable": true, "period": 300}
+        }
+
 
 
 Descriptions of Parameters
@@ -90,6 +103,7 @@ Each element in the main object defines a daemon, as a key-value pair in form of
 
    * ``"enable"``: Whether to run this daemon. Useful when one wants to temporary disable the daemon without removing its configuration. Default
    * ``"period"``: The time period in second in which the daemon runs. This attribute is mandatory. (Note that if the run duration of a daemon script is longer than its period configured, PanDA daemon will not start to run the same script until the existing one finishes. In this case, the actual period in real world is longer than the period configured, and warning message is thrown out)
+   * ``"timeout"``: Timeout in second of which the daemon runs. When a daemon worker running the daemon script exceeds ``timeout``, the worker process will be killed (with SIGKILL) and a new worker will be lauched. This prevents PanDA daemon from hanging. If omitted, its value will be ``min(period*3, period + 3600)`` by default
    * ``"sync"``: Whether to synchronize among all PanDA servers. If true, only one PanDA server at a time can run this daemon (implemented with process lock in DB), and the period of the daemon is considered among all PanDA servers (it counts when any one PanDA server runs the script). Default is false
    * ``"loop"``: Loop mode, whether to loop the daemon script. If true, the daemon script will be run in a loop. The loop will keep going if daemon script returns True and will exit if the daemon script returns False. This is useful for the scripts that needs to be run constantly (e.g. add_main, message-consumer like stuff). Note that in loop mode, the loop of script is allowed to run longer than the daemon period configured, and there will be no warning message if the script runs longer than the period. Default is false
    * ``"module"``: The module name (under the package defined in ``package`` above) of the script to run in this daemon. If omitted, its value will be the same as the ``"<daemon_name>"`` by default
