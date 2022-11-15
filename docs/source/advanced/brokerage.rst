@@ -516,7 +516,7 @@ This is the ATLAS analysis job brokerage flow:
 
       .. line-block::
         Currently this part of throttle is only for User Analysis share. Tasks in other shares are immune to it
-        (For task and site classification, see ...)
+        (For task and site classification, see :doc:`Site & Task Classification </advanced/site_task_classification>`)
 
       * the User Analysis task is in class C , and User Analysis share usage > 90% of its target
       * the User Analysis task is in class B , and User Analysis share usage > 95% of its target
