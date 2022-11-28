@@ -605,7 +605,43 @@ This is the ATLAS analysis job brokerage flow:
 
        * Skip queues if the user has too many queued jobs there.
 
+   * Filters to control user queue length on each PQ per ghsare: Analysis Stabilizer
+       * First, decide whether the PQ can be throttled.
+         The PQ will NOT be throttled if it does not have enough queuing jobs; that is, when any condition of the following is satisfied:
+
+          * nQ(PQ) < ``BASE_QUEUE_LENGTH_PER_PQ``
+
+          * nQ(PQ) < ``BASE_EXPECTED_WAIT_HOUR_ON_PQ`` * trr(PQ)
+         where trr stands for to-running-rate = number of jobs getting from queuing to running per hour in the PQ; it is evaluated according to jobs with starttime within last 6 hours
+
+       * If the PQ does not meet any condition above, it can be throttled.
+         Then compute nQ_max(PQ) (i.e. the affordable max queue length of each PQ), which is the max among the following values:
+
+          * ``BASE_QUEUE_LENGTH_PER_PQ``
+
+          * ``STATIC_MAX_QUEUE_RUNNING_RATIO`` * nR(PQ)
+
+          * ``MAX_EXPECTED_WAIT_HOUR`` * trr(PQ)
+
+       * Next, compute what percentage of nQ_max(PQ) is for the user:
+
+          * percentage(PQ, user) = max( nR(PQ, user)/nR(PQ) , 1/nUsers(PQ) )
+
+       * Finally, the max value among the following, called *max_q_len* , will be used to throttle nQ(PQ, user)
+
+          * ``BASE_DEFAULT_QUEUE_LENGTH_PER_PQ_USER``
+
+          * ``BASE_QUEUE_RATIO_ON_PQ`` * nR(PQ)
+
+          * nQ_max(PQ) * percentage(PQ, user)
+
+       * Thus, if nQ(PQ, user) > *max_q_len* , the brokerage will temporarily exclude the PQs in which the user of the task already has enough queuing jobs
+
+       * Parameters mentioned above: ``BASE_DEFAULT_QUEUE_LENGTH_PER_PQ_USER``, ``BASE_EXPECTED_WAIT_HOUR_ON_PQ``, ``BASE_QUEUE_LENGTH_PER_PQ``, ``BASE_QUEUE_RATIO_ON_PQ``, ``MAX_EXPECTED_WAIT_HOUR``, ``STATIC_MAX_QUEUE_RUNNING_RATIO`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`
+
 #. Finally, it calculates the brokerage weight for remaining candidates using the following formula.
+
+   **Original basic weight**
 
    .. math::
 
@@ -622,6 +658,60 @@ This is the ATLAS analysis job brokerage flow:
 
    * The number of starting jobs if *numSlots* is set to zero, which is typically useful for Harvester to fetch
      jobs when the number of available slots dynamically changes.
+
+   * Currently original basic weight is used in brokerage.
+
+
+   **New basic weight**
+
+   New basic weight = :math:`W_s \cdot W_q` , where
+
+    * :math:`W_s` : weight from **site-class**
+       * For jobs in User Analysis and Express Analysis: :math:`W_s` is shown in the table
+
+            .. list-table::
+               :header-rows: 1
+
+               * - Task Class
+                 - hi-site
+                 - mid-site
+                 - lo-site
+               * - S or A
+                 - :math:`N_j`
+                 - :math:`\epsilon_1`
+                 - :math:`\epsilon_2`
+               * - B
+                 - :math:`\epsilon_2`
+                 - :math:`N_j`
+                 - :math:`\epsilon_1`
+               * - C
+                 - :math:`\epsilon_2`
+                 - :math:`\epsilon_1`
+                 - :math:`N_j`
+
+          where
+
+             * :math:`N_j`: estimated number of jobs to submit in the brokerage cycle
+             * :math:`\epsilon_1`, :math:`\epsilon_2`: some small positive numbers (not fixed) to avoid dead zero; :math:`\epsilon_1 > \epsilon_2`
+
+          The purpose is to broker time-sensitive tasks to high-appropriateness analysis sites more, and vice versa.
+
+          (For task and site classification, see :doc:`Site & Task Classification </advanced/site_task_classification>`)
+
+       * For other analysis shares (group shares, ART, etc.): :math:`W_s = N_j` . (Task- and site-classification are NOT considered)
+
+    * :math:`W_q`: weight from **queue length**
+
+      .. math::
+
+        W_{q} = \frac { \text{max_q_len}(PQ, user) - \text{nQ}(PQ, user) - N_{j} / N_{PQ} } { ( \sum_{\text{candidate PQs}} ( \text{max_q_len}(PQ, user) - \text{nQ}(PQ, user) ) ) - N_{j} }
+
+      where :math:`N_{PQ}` = number of candidate PQs; :math:`\text{nQ}` and :math:`\text{max_q_len}` are defined in Analysis Stabilizer
+
+      The purpose is to control the queue length in the same way of Analysis Stabilizer.
+
+
+   New basic weight will soon be deployed to replace the original basic weight
 
 #. If all queues are skipped due to the persistent issues, the brokerage tries to find candidates without the input
    data locality check. If all queues are still skipped, the task is pending for 20 min.
