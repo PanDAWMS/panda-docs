@@ -180,6 +180,8 @@ Generally, one pilot processes one job on a worker node. However, it is possible
 multiple jobs sequentially or concurrently on a worker node if the computing resources allow such configurations,
 reducing the number of interactions with those resources.
 
+.. figure:: images/jobStatus.png
+
 The status of jobs sequentially changes as follows:
 
 pending

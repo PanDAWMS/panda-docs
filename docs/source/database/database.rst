@@ -24,4 +24,3 @@ You can find more information in the following sections.
    archival
    postgres
    administration
-
