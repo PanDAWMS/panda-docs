@@ -35,11 +35,15 @@ You can find the kubernetes module with all the deployment helm charts at https:
 
 Please checkout the module first:
 
-``git clone https://github.com/PanDAWMS/panda-k8s.git``
+.. prompt:: bash
+
+  git clone https://github.com/PanDAWMS/panda-k8s.git
 
 then enter the panda-k8s directory:
 
-``cd panda-k8s``
+.. prompt:: bash
+
+  cd panda-k8s
 
 and follow the deployment instructions below.
 
@@ -63,7 +67,7 @@ There are different installations:
 
   * Experiment based installation: For different experiments, there maybe special requirements, for example different namespaces or different persistent volumens. In this case, an experiment specific file *values-<experiment>.yaml* is required.
 
-  * *In the example, secrets are kept in the same location as service files. For a production instance, it's good to encrypt them or put them in a different location.*
+  * **In the example, secrets are kept in the same location as service files. For a production instance, it's good to encrypt them or put them in a different location.**
 
 Deployment with secrets
 ------------------------
@@ -77,17 +81,21 @@ Deploy secrets:
 +++++++++++++++
 
 The secrets can be stored in a private repository or in the same repository but encrypted. They can be deployed
-one time and then used for long term (*Please set the values correctly in the secrets/<>/values.yaml*)::
+one time and then used for long term (*Please set the values correctly in the secrets/<>/values.yaml*):
 
-  $> helm install panda-secrets  secrets/
+.. prompt:: bash
+
+  helm install panda-secrets secrets/
 
 Deploy the instances:
 +++++++++++++++++++++
 
 When the secrets are deployed. Someone else or some daemons can automatically deploy the panda instances.
-There is a tool to deploy instances consistently with the secrets::
+There is a tool to deploy instances consistently with the secrets:
 
-  $> ./bin/install -h
+.. code-block:: bash
+
+  $ ./bin/install -h
         usage: install [-h] [--affix AFFIX] [--experiment EXPERIMENT]
                    [--enable ENABLE] [--disable DISABLE] [--template]
 
@@ -107,46 +115,64 @@ There is a tool to deploy instances consistently with the secrets::
                                 sub-components
           --template, -t        Dry-run
 
-* Deploy ActiveMQ::
+* Deploy ActiveMQ:
 
-  $> ./bin/install -c msgsvc
+.. prompt:: bash
 
-* Deploy IAM::
+  ./bin/install -c msgsvc
 
-  $> ./bin/install -c iam
+* Deploy IAM:
 
-* Deploy PanDA::
+.. prompt:: bash
 
-  $> ./bin/install -c panda
+  ./bin/install -c iam
 
-* Deploy iDDS::
+* Deploy PanDA:
 
-  $> ./bin/install -c idds
+.. prompt:: bash
 
-* Deploy Harvester::
+  ./bin/install -c panda
 
-  $> ./bin/install -c harvester
+* Deploy iDDS:
 
-* Deploy BigMon::
+.. prompt:: bash
 
-  $> ./bin/install -c bigmon
+  ./bin/install -c idds
 
-* Deploy all components in one go::
+* Deploy Harvester:
 
-  $> ./bin/install
+.. prompt:: bash
+
+  ./bin/install -c harvester
+
+* Deploy BigMon:
+
+.. prompt:: bash
+
+  ./bin/install -c bigmon
+
+* Deploy all components in one go:
+
+.. prompt:: bash
+
+  ./bin/install
 
 LSST deployment
 -----------------
 
 For LSST deployment (at SLAC), you need to specify `-e lsst`
 
-* Deploy ActiveMQ for example::
+* Deploy ActiveMQ for example:
 
-  $> ./bin/install -c msgsvc -e lsst
+.. prompt:: bash
 
-* Deploy all components in one go::
+  ./bin/install -c msgsvc -e lsst
 
-  $> ./bin/install -e lsst
+* Deploy all components in one go:
+
+.. prompt:: bash
+
+  ./bin/install -e lsst
 
 
 Sphenix deployment
@@ -154,10 +180,68 @@ Sphenix deployment
 
 For Sphenix deployment (at BNL), you need to specify `-e sphenix`
 
-* Deploy ActiveMQ for example::
+* Deploy ActiveMQ for example:
 
-  $> ./bin/install -c msgsvc -e sphenix
+.. prompt:: bash
 
-* Deploy all components in one go::
+  ./bin/install -c msgsvc -e sphenix
 
-  $> ./bin/install -e sphenix -d iam
+* Deploy all components in one go:
+
+.. prompt:: bash
+
+  ./bin/install -e sphenix -d iam
+
+
+CRIC-free deployment
+----------------------
+
+It is possible to deploy the PanDA system without CRIC. First, you need to prepare a couple of json files
+that define PanDA queues, sites, storages, etc, and place them under ./secrets/files/cric_jsons.
+It would be easiest to download json files from an exising CRIC instance and edit them. E.g.
+
+.. prompt:: bash
+
+  curl -s -k -o ./secrets/files/cric_jsons/sites.json "https://datalake-cric.cern.ch/api/atlas/site/query/?json"
+  curl -s -k -o ./secrets/files/cric_jsons/panda_queues.json "https://datalake-cric.cern.ch/api/atlas/pandaqueue/query/?json"
+  curl -s -k -o ./secrets/files/cric_jsons/ddm_endpoints.json "https://datalake-cric.cern.ch/api/atlas/ddmendpoint/query/?json"
+
+Then, set the :green:`real` flag to ``true`` in the cric section in /secrets/values.yaml
+
+.. code-block:: yaml
+
+  # real CRIC
+  real: true
+
+and deploy secrets and the instances as usual.
+
+.. prompt:: bash
+
+  helm install panda-secrets secrets/
+  ./bin/install -c ...
+
+Those json files are mounted on a volume in service instances, so they are auto-updated
+by periodic sync when secrets are updated, i.e., service instances don't have to be restarted.
+For example, when you change a status of a PanDA queue in panda_queues.json, it is enough to do
+
+.. prompt:: bash
+
+  helm upgrade panda-secrets secrets/
+
+The table below shows the list of json files. Files with \* are mandatory.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Name
+     - Description
+   * - sites.json :sup:`*`
+     - Site definitions
+   * - panda_queues.json :sup:`*`
+     - PanDA queue definitions
+   * - ddm_endpoints.json :sup:`*`
+     - Storage definitions
+   * - ddm_blacklist.json
+     - Blacklist of storages
+   * - cm.json
+     - Cost metrix of data transfer among storages
