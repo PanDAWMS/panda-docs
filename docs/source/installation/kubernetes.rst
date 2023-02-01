@@ -65,7 +65,7 @@ There are different installations:
 
   * Secret installation: In this installation, secret information are kept in *secrets/*. You need to keep the secret file in a diferent place (such as applying *helm secrets*). For the secret deployment, you can keep them for long time and only update it when it's needed. After deploying the secrets, you can deploy the service.
 
-  * Experiment based installation: For different experiments, there maybe special requirements, for example different namespaces or different persistent volumens. In this case, an experiment specific file *values-<experiment>.yaml* is required.
+  * Experiment based installation: For different experiments, there might be special requirements, for example different namespaces or different persistent volumens. In this case, an experiment specific file *values-<experiment>.yaml* is required.
 
   * **In the example, secrets are kept in the same location as service files. For a production instance, it's good to encrypt them or put them in a different location.**
 
