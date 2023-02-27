@@ -14,8 +14,7 @@ Below are the specifications for the DB node used in the ATLAS experiment.
 
 CPU and memory
 -----------------
-The current database server has 512 GB memory and 2 x ``Intel Xeon E5-2630 3.1 GHz`` (each 10 Intel cores).
-It will be migrated during 2021 to a server with 768 GB memory and 2 x ``Intel Xeon Gold 5222 3.9 GHz`` (each 4 Intel cores).
+The current database server (since June 2021) has 768 GB memory and 2 x ``Intel Xeon Silver 4216 CPU @ 2.10GHz (16 cores)``.
 The large memory is important so that the active tables are kept in memory and I/O is avoided.
 
 This setup is preferred to a RAC environment with multiple smaller nodes with less memory. It is also important not to share
