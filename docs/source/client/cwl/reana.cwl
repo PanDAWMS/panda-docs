@@ -35,7 +35,7 @@ steps:
         - ain/outDS
         - twai/outDS
       opt_exec:
-        default: "echo %{DS0} %{DS1} > results.root"
+        default: "echo %{DS1} %{DS2} > results.root"
       opt_args:
         default: "--outputs results.root"
       opt_containerImage:

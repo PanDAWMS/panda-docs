@@ -96,6 +96,9 @@ corresponds to
 
   prun --exec "echo %RNDM:10 > seed.txt" --outputs seed.txt --nJobs 3
 
+:hblue:`%IN` in ``opt_args`` is expanded to a list of filenames in the input dataset specified in ``opt_inDS``.
+It is possible to use :hblue:`%{DSn}` ``opt_args`` as a placeholder for the input dataset name.
+
 The ``out`` section specifies the task output with an arbitrary string surrendered by brackets.
 Note that it is always a single string even if the task produces multiple outputs.
 The output of the :blue:`top` task is passed to ``opt_inDS`` of the :blue:`bottom` task.
@@ -163,10 +166,11 @@ their types need to be specified in ``opt_inDsType``.
 The :blue:`premix` task takes def.zip from the :blue:`make_signal` task and xyz.pool
 from the :blue:`make_background_1` task.
 
+
 Output data of parent tasks can be passed to a child task as secondary inputs. In this case, they are
 specified in ``opt_secondaryDSs`` and their types are specified in ``opt_secondaryDsTypes``.
 Note that the stream name, the number of files per job, etc, for each secondary input are specified
-using :hblue:`---secondaryDSs` in ``opt_args`` where :hblue:`%{DSn}` can
+using :hblue:`---secondaryDSs` in ``opt_args`` where :hblue:`%{SECDSn}` can
 be used as a placeholder for the n-th secondary dataset name.
 ``MultipleInputFeatureRequirement`` is required if ``opt_secondaryDsTypes`` take multiple input data.
 
