@@ -97,7 +97,7 @@ corresponds to
   prun --exec "echo %RNDM:10 > seed.txt" --outputs seed.txt --nJobs 3
 
 :hblue:`%IN` in ``opt_args`` is expanded to a list of filenames in the input dataset specified in ``opt_inDS``.
-It is possible to use :hblue:`%{DSn}` ``opt_args`` as a placeholder for the input dataset name.
+It is possible to use :hblue:`%{DSn}` in ``opt_args`` as a placeholder for the input dataset name.
 
 The ``out`` section specifies the task output with an arbitrary string surrendered by brackets.
 Note that it is always a single string even if the task produces multiple outputs.
