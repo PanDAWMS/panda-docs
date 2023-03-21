@@ -1,0 +1,24 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    input: config["output"]
+
+# noinspection SmkRuleRedeclaration
+rule top:
+    params:
+        opt_exec="echo %RNDM:10 > seed.txt",
+        opt_args="--outputs seed.txt --nJobs 3 --avoidVP"
+    output: f"{config['output']}.top"
+    shell: "prun"
+
+# noinspection SmkRuleRedeclaration
+rule bottom:
+    params:
+        opt_inDS=rules.top.output[0],
+        opt_exec="echo %IN > results.root",
+        opt_args="--outputs results.root --forceStaged --avoidVP"
+    input: rules.top.output
+    output: config["output"]
+    shell: "prun"

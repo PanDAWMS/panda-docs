@@ -1,0 +1,72 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of, param_exp
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    params:
+        signal=config["signal"],
+        background=config["background"]
+    input: config["output"]
+
+rule make_signal:
+    params:
+        opt_inDS=param_of("signal",source=rules.all),
+        opt_containerImage="docker://busybox",
+        opt_exec="echo %IN > abc.dat; echo 123 > def.zip",
+        opt_args="--outputs abc.dat,def.zip --nFilesPerJob 5"
+    output: f"{config['output']}.signal"
+    shell: "prun"
+
+rule make_background_1:
+    params:
+        opt_inDS=param_of("background",source=rules.all),
+        opt_exec="echo %IN > opq.root; echo %IN > xyz.pool",
+        opt_args="--outputs opq.root,xyz.pool --nGBPerJob 10"
+    output: f"{config['output']}.background"
+    shell: "prun"
+
+rule premix:
+    params:
+        opt_inDS=rules.make_signal.output[0],
+        opt_inDsType="def.zip",
+        opt_secondaryDSs=[rules.make_background_1.output[0]],
+        opt_secondaryDsTypes=["xyz.pool"],
+        opt_exec="echo %IN %IN2 > klm.root",
+        opt_args=param_exp("--outputs klm.root --secondaryDSs IN2:2:%{SECDS1}")
+    input: rules.make_signal.output,rules.make_background_1.output
+    output: f"{config['output']}.premix"
+    shell: "prun"
+
+rule generate_some:
+    params:
+        opt_exec="echo %RNDM:10 > gen.root",
+        opt_args="--outputs gen.root --nJobs 10"
+    output: f"{config['output']}.generate_some"
+    shell: "prun"
+
+rule make_background_2:
+    params:
+        opt_inDS=param_of("background",source=rules.all),
+        opt_containerImage="docker://alpine",
+        opt_secondaryDSs=[rules.generate_some.output[0]],
+        opt_secondaryDsTypes=["gen.root"],
+        opt_exec="echo %IN > ooo.root; echo %IN2 > jjj.txt",
+        opt_args=param_exp("--outputs ooo.root,jjj.txt --secondaryDSs IN2:2:%{SECDS1}")
+    input: rules.generate_some.output
+    output: f"{config['output']}.background_2"
+    shell: "prun"
+
+rule combine:
+    params:
+        opt_inDS=rules.make_signal.output[0],
+        opt_inDsType="abc.dat",
+        opt_secondaryDSs=[rules.premix.output[0], rules.make_background_2.output[0]],
+        opt_secondaryDsTypes=["klm.root", "ooo.root"],
+        opt_exec="echo %IN %IN2 %IN3 > aaa.root",
+        opt_args=param_exp("--outputs aaa.root --secondaryDSs IN2:2:%{SECDS1},IN3:5:%{DS1}")
+    input: rules.make_signal.output,rules.premix.output,rules.make_background_2.output
+    output: config["output"]
+    shell: "prun"

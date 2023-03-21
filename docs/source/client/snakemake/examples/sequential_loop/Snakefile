@@ -1,0 +1,19 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    params:
+        signal=None
+    input: config["output"]
+
+# noinspection SmkUnrecognizedSection
+rule seq_loop:
+    params:
+        dataset=param_of('signal',source=rules.all)
+    loop: True
+    output: config["output"]
+    shell: "../scatter_body/Snakefile"

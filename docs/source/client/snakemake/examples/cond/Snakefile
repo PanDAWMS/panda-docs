@@ -1,0 +1,39 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    input: f"{config['output']}.bottom_ok",f"{config['output']}.bottom_ng"
+
+# noinspection SmkRuleRedeclaration
+rule top:
+    params:
+        opt_exec="echo %RNDM:10 > seed.txt",
+        opt_args="--outputs seed.txt --nJobs 2"
+    output: f"{config['output']}.top"
+    shell: "prun"
+
+# noinspection SmkRuleRedeclaration, SmkUnrecognizedSection
+rule bottom_OK:
+    params:
+        opt_inDS=rules.top.output[0],
+        opt_exec="echo %IN > results.txt",
+        opt_args="--outputs results.txt --forceStaged"
+    input: rules.top.output
+    output: f"{config['output']}.bottom_ok"
+    when: str(param_of("opt_inDS"))
+    shell: "prun"
+
+# noinspection SmkRuleRedeclaration, SmkUnrecognizedSection
+rule bottom_NG:
+    params:
+        opt_inDS=rules.top.output[0],
+        opt_exec="echo hard luck > bad.txt",
+        opt_args="--outputs bad.txt"
+    input: rules.top.output
+    output: f"{config['output']}.bottom_ng"
+    when: f"!{param_of('opt_inDS')}"
+    shell: "prun"

@@ -1,0 +1,39 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of, param_exp
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    params:
+        dataset=None,
+        param_xxx=123,
+        param_yyy=0.456
+    input: config["output"]
+
+rule inner_work_top:
+    params:
+        opt_inDS=param_of('dataset',source=rules.all),
+        opt_exec=param_exp("echo %IN %{xxx} %{i} > seed.txt"),
+        opt_args="--outputs seed.txt --avoidVP"
+    output: f"{config['output']}.inner_work_top"
+    shell: "prun"
+
+rule inner_work_bottom:
+    params:
+        opt_inDS=rules.inner_work_top.output[0],
+        opt_exec=param_exp("echo %IN %{yyy} > results.root"),
+        opt_args="--outputs results.root --forceStaged"
+    input: rules.inner_work_top.output
+    output: f"{config['output']}.inner_work_bottom"
+    shell: "prun"
+
+# noinspection SmkRuleRedeclaration
+rule checkpoint:
+    params:
+        opt_inDS=[rules.inner_work_top.output[0], rules.inner_work_bottom.output[0]],
+        opt_exec=param_exp("echo %{DS1} %{DS2} aaaa; echo '{\"x\": 456, \"to_continue\": false}' > results.json")
+    input: rules.inner_work_top.output,rules.inner_work_bottom.output
+    output: config["output"]
+    shell: "junction"

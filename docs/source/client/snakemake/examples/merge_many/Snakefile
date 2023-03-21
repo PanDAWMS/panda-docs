@@ -1,0 +1,31 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    params:
+        signals=config["signals"],
+        backgrounds=config["backgrounds"]
+    input: config["output"]
+
+# noinspection SmkUnrecognizedSection
+rule many_sig_bg_comb:
+    params:
+        signal=param_of("signals",source=rules.all),
+        background=param_of("backgrounds",source=rules.all)
+    scatter: [param_of("signal"), param_of("background")]
+    output: f"{config['output']}.many_sig_bg_comb"
+    shell: "../sig_bg_comb/Snakefile"
+
+# noinspection SmkRuleRedeclaration
+rule merge:
+    params:
+        opt_inDS=rules.many_sig_bg_comb.output[0],
+        opt_exec="python merge.py --type aaa --level 3 %IN",
+        opt_args="--outputs merged.root"
+    input: rules.many_sig_bg_comb.output
+    output: config["output"]
+    shell: "prun"

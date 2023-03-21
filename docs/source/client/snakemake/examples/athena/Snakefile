@@ -1,0 +1,34 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    input: config["output"]
+
+rule first:
+    params:
+        opt_exec="Gen_tf.py --maxEvents=1000 --skipEvents=0 --ecmEnergy=5020 --firstEvent=1 --jobConfig=860059 " +
+                 "--outputEVNTFile=evnt.pool.root --randomSeed=4 --runNumber=860059 --AMITag=e8201",
+        opt_args="--outputs evnt.pool.root --nJobs 3",
+        opt_useAthenaPackages=True
+    output: f"{config['output']}.first"
+    shell: "prun"
+
+rule second:
+    params:
+        opt_inDS=rules.first.output[0],
+        opt_exec="echo %IN > results.txt",
+        opt_args="--outputs results.txt"
+    input: rules.first.output
+    output: f"{config['output']}.second"
+    shell: "prun"
+
+rule third:
+    params:
+        opt_inDS=rules.second.output[0],
+        opt_exec="echo %IN > poststep.txt",
+        opt_args="--outputs poststep.txt --athenaTag AnalysisBase,21.2.167",
+        opt_useAthenaPackages=True
+    input: rules.second.output
+    output: config["output"]
+    shell: "prun"

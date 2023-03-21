@@ -1,0 +1,37 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    input: config["output"]
+
+rule pre_proc:
+    params:
+        opt_exec="echo %RNDM:10 > seed.txt",
+        opt_args="--outputs seed.txt --nJobs 2 --avoidVP"
+    output: f"{config['output']}.pre_proc"
+    shell: "prun"
+
+# noinspection SmkUnrecognizedSection
+rule main_hpo:
+    params:
+        opt_trainingDS=rules.pre_proc.output[0],
+        opt_args="--loadJson conf.json"
+    input: rules.pre_proc.output
+    output: f"{config['output']}.main_hpo"
+    when: str(param_of("opt_trainingDS"))
+    shell: "prun"
+
+# noinspection SmkUnrecognizedSection
+rule post_proc:
+    params:
+        opt_inDS=rules.main_hpo.output[0],
+        opt_exec="echo %IN > anal.txt",
+        opt_args="--outputs anal.txt --nFilesPerJob 100 --avoidVP"
+    input: rules.main_hpo.output
+    output: config["output"]
+    when: str(param_of("opt_inDS"))
+    shell: "prun"

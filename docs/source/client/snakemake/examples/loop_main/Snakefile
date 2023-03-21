@@ -1,0 +1,21 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    params:
+        dataset=None,
+        param_sliced_x=None,
+        param_sliced_y=None
+    input: config["output"]
+
+rule core:
+    params:
+        opt_inDS=param_of("background",source=rules.all),
+        opt_exec=lambda wildcards: "echo %IN %{sliced_x} %{sliced_y} > seed.txt",
+        opt_args="--outputs seed.txt --avoidVP"
+    output: config["output"]
+    shell: "prun"
