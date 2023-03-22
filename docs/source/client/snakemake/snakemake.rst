@@ -15,7 +15,7 @@ snakeparser helper Python module.
 Workflow examples
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Common yaml configuration file using by examples
+Common JSON configuration file using by examples
 ======================
 
 .. literalinclude:: examples/config.json
