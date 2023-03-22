@@ -89,7 +89,7 @@ Loops in workflows
     :language: yaml
     :caption: loop_body/Snakefile
 
-``loop`` keyword was added as Snakemake language extension to define step as loop.
+``loop`` keyword was added as Snakemake language extension to define step as a loop.
 
 Loop + scatter
 ====================
