@@ -14,7 +14,7 @@ rule all:
 
 rule core:
     params:
-        opt_inDS=param_of("background",source=rules.all),
+        opt_inDS=param_of("dataset",source=rules.all),
         opt_exec=lambda wildcards: "echo %IN %{sliced_x} %{sliced_y} > seed.txt",
         opt_args="--outputs seed.txt --avoidVP"
     output: config["output"]

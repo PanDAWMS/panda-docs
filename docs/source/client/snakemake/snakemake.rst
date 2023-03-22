@@ -3,7 +3,7 @@ Running workflow using Snakemake
 =========================
 
 A workflow can be also described using Python-based workflow description language (WDL) - Snakemake.
-In this case the user can use Python language syntax and yaml configuration files.
+In this case the user can use Python language syntax and JSON configuration files.
 The following examples demonstrate how to describe common workflows using Snakemake syntax and
 snakeparser helper Python module.
 
