@@ -1,0 +1,34 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_of, param_exp
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    params:
+        dataset=None,
+        param_xxx=[123, 456],
+        param_yyy=[0.456, 0.866]
+    input: config["output"]
+
+# noinspection SmkRuleRedeclaration, SmkUnrecognizedSection
+rule parallel_work:
+    params:
+        dataset=param_of('dataset',source=rules.all),
+        param_sliced_x=param_of('param_xxx',source=rules.all),
+        param_sliced_y=param_of('param_yyy',source=rules.all)
+    scatter: [param_of('param_sliced_x'), param_of('param_sliced_y')]
+    output: f'{config["output"]}.parallel_work'
+    shell: "../loop_main/Snakefile"
+
+# noinspection SmkRuleRedeclaration
+rule checkpoint:
+    params:
+        opt_inDS=rules.parallel_work.output[0],
+        opt_exec=param_exp(
+            "echo '{\"xxx\": [345, 678], \"yyy\": [0.321, 0.567], \"to_continue\": false}' > results.json"
+        )
+    output: config["output"]
+    input: rules.parallel_work.output
+    shell: "junction"

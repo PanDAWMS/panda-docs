@@ -1,0 +1,33 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection PyUnresolvedReferences
+from pandaserver.workflow.snakeparser.utils import param_exp
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    input: config["output"]
+
+rule ain:
+    params:
+        opt_exec="echo %RNDM:10 > seed_ain.txt",
+        opt_args="--outputs seed_ain.txt --avoidVP --nJobs 2"
+    output: f"{config['output']}.ain"
+    shell: "prun"
+
+rule twai:
+    params:
+        opt_exec="echo %RNDM:10 > seed_twai.txt",
+        opt_args="--outputs seed_twai.txt --avoidVP --nJobs 3"
+    output: f"{config['output']}.twai"
+    shell: "prun"
+
+rule drai:
+    params:
+        opt_inDS=[rules.ain.output[0], rules.twai.output[0]],
+        opt_exec=param_exp("echo %{DS1} %{DS2} > results.root"),
+        opt_args="--outputs results.root",
+        opt_containerImage="docker://busybox"
+    input: rules.ain.output,rules.twai.output
+    output: config["output"]
+    shell: "reana"

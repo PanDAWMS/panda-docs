@@ -586,3 +586,8 @@ Bookkeeping
 Please refer to the pbook documentation for their details.
 
 |br|
+
+.. toctree::
+    :maxdepth: 1
+
+    snakemake/snakemake

@@ -1,0 +1,31 @@
+# noinspection PyUnresolvedReferences
+configfile: "../config.json"
+
+# noinspection SmkRuleRedeclaration
+rule all:
+    input: config["output"]
+
+rule work_start:
+    params:
+        opt_exec="echo %RNDM:10 > seed.txt",
+        opt_args="--outputs seed.txt --nJobs 2 --avoidVP"
+    output: f"{config['output']}.work_start"
+    shell: "prun"
+
+# noinspection SmkUnrecognizedSection, SmkRuleRedeclaration
+rule work_loop:
+    params:
+        dataset=rules.work_start.output[0]
+    input: rules.work_start.output
+    loop: True
+    output: f'{config["output"]}.work_loop'
+    shell: "../loop_body/Snakefile"
+
+rule work_end:
+    params:
+        opt_inDS=rules.work_loop.output[0],
+        opt_exec="echo %IN > results.root",
+        opt_args="--outputs results.root --forceStaged"
+    input: rules.work_loop.output
+    output: config["output"]
+    shell: "prun"
