@@ -88,5 +88,5 @@ steps:
       opt_exec:
         default: "echo %IN %IN2 %IN3 > aaa.root"
       opt_args:
-        default: "--outputs aaa.root --secondaryDSs IN2:2:%{SECDS1},IN3:5:%{DS2}"
+        default: "--outputs aaa.root --secondaryDSs IN2:2:%{SECDS1},IN3:5:%{SECDS2}"
     out: [outDS]

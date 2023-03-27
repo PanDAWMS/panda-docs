@@ -66,7 +66,7 @@ rule combine:
         opt_secondaryDSs=[rules.premix.output[0], rules.make_background_2.output[0]],
         opt_secondaryDsTypes=["klm.root", "ooo.root"],
         opt_exec="echo %IN %IN2 %IN3 > aaa.root",
-        opt_args=param_exp("--outputs aaa.root --secondaryDSs IN2:2:%{SECDS1},IN3:5:%{DS1}")
+        opt_args=param_exp("--outputs aaa.root --secondaryDSs IN2:2:%{SECDS1},IN3:5:%{SECDS2}")
     input: rules.make_signal.output,rules.premix.output,rules.make_background_2.output
     output: config["output"]
     shell: "prun"
