@@ -440,3 +440,30 @@ input and output sizes, and so on, as explained in :ref:`advanced/sizing:Job Siz
 and it is recommended to leave it to the system rather than playing with those options.
 
 |br|
+
+Bulk task submission
+---------------------------------
+It is possible to submit multiple tasks in a single execution of prun.
+First, you need to prepare a json file that specifies multiple combinations of input and output.
+The file contains a json dump of `[{'inDS': a comma-concatenated input dataset names, 'outDS': output dataset name}, ...]`.
+E.g.
+
+.. code-block:: bash
+
+    $ python
+    >>> import json
+    >>> data = [{"inDS": "group.susy.abc/,group.susy.def/", "outDS": "user.hoge.XYZ"},
+                {"inDS": "group.susy.opq/", "outDS": "user.hoge.VWX"}]
+    >>> with open('test.json', 'w') as f:
+            json.dump(data, f)
+
+where two combinations of input and output are specified. Note that outDS must be unique
+since each combination is mapped to a single task.
+
+Then you just need to execute prun with ``--inOutDsJson``
+
+.. prompt:: bash
+
+ prun --inOutDsJson test.json --exec ...
+
+|br|
