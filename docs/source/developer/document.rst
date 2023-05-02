@@ -13,9 +13,7 @@ First, you need to install sphinx packages
 
 .. prompt:: bash
 
-    pip install sphinx
-    pip install sphinx-rtd-theme
-    pip install sphinx-prompt
+    pip install sphinx sphinx-rtd-theme sphinx-prompt nbsphinx sphinx_tabs
 
 and `pandoc <https://pandoc.org/installing.html>`_ .
 Then fork the main or dev branch of the `panda-docs <https://github.com/PanDAWMS/panda-docs.git>`_ repository following
