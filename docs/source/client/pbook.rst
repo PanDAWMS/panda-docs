@@ -65,7 +65,7 @@ command without human intervention.
 
       .. prompt:: bash $,>>> auto
 
-         $ pbook kill 123,456,780
+         $ pbook kill 123,456,789
 
       which is equivalent in interactive mode to
 
