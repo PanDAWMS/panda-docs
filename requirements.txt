@@ -2,3 +2,4 @@ sphinx-rtd-theme
 sphinx-prompt
 sphinx-tabs
 nbsphinx
+urllib3<2
