@@ -13,7 +13,9 @@ Currently tasks have to be PanDA tasks, but future versions will support more ba
 batch systems, production system, kubernetes-based resources,
 and other workflow management systems, to run some tasks very quickly or outsource sub-workflows.
 
-The user describes a workflow using the Common Workflow Language (`CWL <https://www.commonwl.org/user_guide/>`_)
+The user describes a workflow using a yaml-based language, Common Workflow Language
+(`CWL <https://www.commonwl.org/user_guide/>`_),
+or a Python-based language, `Snakemake <https://snakemake.readthedocs.io/en/stable/>`_,
 and submits it to PanDA using ``pchain``.
 This page explains how to use ``pchain`` as well as how to describe workflows.
 
@@ -26,8 +28,8 @@ This page explains how to use ``pchain`` as well as how to describe workflows.
 
 |br|
 
-Workflow examples
-^^^^^^^^^^^^^^^^^^^^^^
+Workflow examples with CWL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Simple task chain
 ======================
@@ -520,6 +522,149 @@ in ``opt_exec``, which represents the n-th dataset name. Note that the container
 submits the sub-workflow description to REANA, so it is generally not the container image that processes input files.
 REANA steps are internally executed as prun tasks in PanDA, so that all prun options can be specified in ``opt_args``.
 
+
+--------------------
+
+|br|
+
+
+
+Workflow examples with Snakemake
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Snakemake allows users to describe workflows with Python language syntax and JSON configuration files.
+
+|br|
+
+Common JSON configuration file for following examples
+=======================================================
+
+.. literalinclude:: snakemake/examples/config.json
+    :language: json
+    :caption: config.json
+
+|br|
+
+Simple task chain
+======================
+
+.. literalinclude:: snakemake/examples/simple_chain/Snakefile
+    :language: yaml
+    :caption: simple_chain/Snakefile
+
+``# noinspection`` directives can be used if a workflow is described using PyCharm IDE with SnakeCharm plugin.
+In other case these directives can be omitted.
+To use parent output as input the user should specify ``rules.${parent_rule_name}.output[0]`` as value
+for the corresponding parameter (``opt_inDS``) and specify ``rules.${parent_rule_name}.output`` for ``input`` keyword.
+
+|br|
+
+More complicated chain
+========================
+
+.. literalinclude:: snakemake/examples/sig_bg_comb/Snakefile
+    :language: yaml
+    :caption: sig_bg_comb/Snakefile
+
+To use parameter from another step the user should use the helper function ``param_of`` from
+``pandaserver.workflow.snakeparser.utils`` library.
+For example, ``param_of("${name_of_parameter}",source=rules.all)``, where ${name_of_parameter} should be replaced by
+actual parameter name and source refers to the parameter step.
+If step parameter value contains patterns like ``%{SECDS1}`` the helper function ``param_exp`` should be used.
+To use multiple inputs (multiple parents) ``input`` keyword should contain all references separated by commas.
+
+|br|
+
+Sub-workflow and parallel execution with scatter
+=================================================
+
+.. literalinclude:: snakemake/examples/merge_many/Snakefile
+    :language: yaml
+    :caption: merge_many/Snakefile
+
+|br|
+
+Using Athena
+================
+
+.. literalinclude:: snakemake/examples/athena/Snakefile
+    :language: yaml
+    :caption: athena/Snakefile
+
+|br|
+
+Conditional workflow
+======================
+
+.. literalinclude:: snakemake/examples/cond/Snakefile
+    :language: yaml
+    :caption: cond/Snakefile
+
+``when`` keyword was added as Snakemake language extension to define step conditions.
+
+|br|
+
+Involving hyperparameter optimization
+=======================================
+
+.. literalinclude:: snakemake/examples/hpo/Snakefile
+    :language: yaml
+    :caption: hpo/Snakefile
+
+|br|
+
+Loops in workflows
+====================
+
+.. literalinclude:: snakemake/examples/loop/Snakefile
+    :language: yaml
+    :caption: loop/Snakefile
+
+.. literalinclude:: snakemake/examples/loop_body/Snakefile
+    :language: yaml
+    :caption: loop_body/Snakefile
+
+``loop`` keyword was added as Snakemake language extension to define step as a loop.
+
+|br|
+
+Loop + scatter
+====================
+
+Running multiple loops in parallel
+++++++++++++++++++++++++++++++++++++++
+
+.. literalinclude:: snakemake/examples/multi_loop/Snakefile
+    :language: yaml
+    :caption: multi_loop/Snakefile
+
+A sub-workflow filename should be specified in ``shell`` keyword.
+
+|br|
+
+Parallel execution of multiple sub-workflows in a single loop
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. literalinclude:: snakemake/examples/sequential_loop/Snakefile
+    :language: yaml
+    :caption: sequential_loop/Snakefile
+
+.. literalinclude:: snakemake/examples/scatter_body/Snakefile
+    :language: yaml
+    :caption: scatter_body/Snakefile
+
+.. literalinclude:: snakemake/examples/loop_main/Snakefile
+    :language: yaml
+    :caption: loop_main/Snakefile
+
+Using REANA
+=============
+
+.. literalinclude:: snakemake/examples/reana/Snakefile
+    :language: yaml
+    :caption: reana/Snakefile
+
+
 |br|
 
 Debugging locally
@@ -587,7 +732,4 @@ Please refer to the pbook documentation for their details.
 
 |br|
 
-.. toctree::
-    :maxdepth: 1
 
-    snakemake/snakemake
