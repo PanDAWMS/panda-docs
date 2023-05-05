@@ -19,7 +19,10 @@ or a Python-based language, `Snakemake <https://snakemake.readthedocs.io/en/stab
 and submits it to PanDA using ``pchain``.
 This page explains how to use ``pchain`` as well as how to describe workflows.
 
-|br|
+:orange:`Remark: It could be a bit cumbersome and error-prone to edit CWL or snakemake files. We are developing
+a handy tool/interface that translates graphical diagrams to workflow descriptions written in
+python or yaml on behalf of users. However, you have to play with CWL or snakemake files for now.`
+
 
 .. contents:: Table of Contents
     :local:
@@ -664,6 +667,7 @@ Using REANA
     :language: yaml
     :caption: reana/Snakefile
 
+-----------------
 
 |br|
 
