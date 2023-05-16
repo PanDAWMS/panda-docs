@@ -126,14 +126,25 @@ The task status is set to **exhausted** when scouts detect
 
 * huge memory leaks (the threshold is defined as ``SCOUT_MEM_LEAK_PER_CORE_<activity>`` in :doc:`gdpconfig </advanced/gdpconfig>`),
 
-* too many jobs with short execution time (the time limit is defined as ``SCOUT_SHORT_EXECTIME_<activity>`` in :doc:`gdpconfig </advanced/gdpconfig>`),
+* too many short jobs without being enforced to copy input files to scratch disk
+  (the time limit is defined as ``SCOUT_SHORT_EXECTIME_<activity>`` in :doc:`gdpconfig </advanced/gdpconfig>`)
+  and a large number of new jobs expected (the cutoff is defined as ``SCOUT_THR_SHORT_<activity>``
+  in :doc:`gdpconfig </advanced/gdpconfig>`),
+
+  * If tasks meet the above condition and specify ``nGBPerJob`` or ``nFilesPerJob``,
+    and ``SCOUT_CHANGE_SR_<activity>`` is defined in :doc:`gdpconfig </advanced/gdpconfig>`,
+    the system will automatically remove those parameters,
+    rather than sending them to **exhausted**.
+
+  * If new jobs after avalanche have more input files than scout jobs and the extrapolated execution time is longer
+    than ``SCOUT_SHORT_EXECTIME_<activity>``, tasks are not set to **exhausted**.
 
 * the calculated ``ramCount`` or ``cpuTime`` so different from preset values,
 
 * very low CPU efficiency (the threshold is defined as a task parameter ``minCpuEfficiency``), or
 
-* non-allocated CPUs being abused
+* non-allocated CPUs being abused, e.g. multi-core jobs running on single-core resources,
 
-to ask for user's actions since they indicate those tasks are wrongly configured.
+to ask for user's actions since they indicate those tasks are wrongly configured and hurt the system.
 
 |br|
