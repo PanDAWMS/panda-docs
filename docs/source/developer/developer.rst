@@ -12,5 +12,6 @@ adding new features, improving documentation, and fixing bugs.
    document
    document_light
    repository
+   packages
 
 |br|

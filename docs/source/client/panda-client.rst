@@ -25,6 +25,34 @@ If you install panda-client in JupyterLab,
 
 will install extra packages in addition to panda-client.
 
+If you want to install panda-client to non-standard location, get the tarball from
+https://github.com/PanDAWMS/panda-client/releases
+
+.. prompt:: bash
+
+    wget https://github.com/PanDAWMS/panda-client/archive/refs/tags/x.y.z.tar.gz
+    tar xvfz *.tar.gz
+    rm *.tar.gz
+    cd panda_client*
+
+and then
+
+.. tabs::
+
+   .. tab:: Python 3.7 or higher with new pip supporting PEP517
+
+     .. prompt:: bash
+
+        cd packages/full
+        export PANDA_INSTALL_TARGET=<where to be installed>
+        pip install . --target ${PANDA_INSTALL_TARGET}
+
+   .. tab:: legacy Python or pip
+
+     .. prompt:: bash
+
+        python setup.py install --prefix=<where to be installed>
+
 
 Setup
 ==============
