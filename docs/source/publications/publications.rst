@@ -11,6 +11,7 @@ Publications
 2016
 ==============
 `ATLAS WORLD-cloud and networking in PanDA <https://iopscience.iop.org/article/10.1088/1742-6596/898/5/052011>`_, CHEP 2016
+
 `PanDA for ATLAS distributed computing in the next decade <https://iopscience.iop.org/article/10.1088/1742-6596/898/5/052002>`_, CHEP 2016
 
 2018
