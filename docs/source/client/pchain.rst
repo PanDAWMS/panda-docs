@@ -526,6 +526,48 @@ submits the sub-workflow description to REANA, so it is generally not the contai
 REANA steps are internally executed as prun tasks in PanDA, so that all prun options can be specified in ``opt_args``.
 
 
+|br|
+
+Integrating Gitlab CI/CD Pipelines
+=====================================
+
+It is possible to integrate Gitlab CI/CD pipelines in workflows.
+The following example executes the :blue:`un` step on PanDA, and then feeds the output to the :blue:`deux` step
+to trigger a Gitlab CI/CD pipeline.
+
+.. literalinclude:: cwl/gitlab.cwl
+    :language: yaml
+    :caption: gitlab.cwl
+
+A Gitlab CI/CD step is defined by setting  :brown:`gitlab` to the ``run`` filed and the following parameters
+in the ``in`` section.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Parameter
+     - Description
+   * - opt_inDS
+     - Input datasets (a list of strings)
+   * - opt_site
+     - The site name where the Gitlab CI/CD is reachable (string)
+   * - opt_api
+     - The API of the Gitlab CI/CD projects (string, e.g. `https://<hostname>/api/v4/projects`)
+   * - opt_projectID
+     - The project ID of the gitlab repository where pipelines run (int)
+   * - opt_ref
+     - The branch name in the repository (string, e.g. master)
+   * - opt_triggerToken
+     - The key of the trigger token uploaded to :doc:`PanDA secrets </client/secret>` (string)
+   * - opt_accessToken
+     - The key of the access token uploaded to :doc:`PanDA secrets </client/secret>` (string)
+
+See how to create `a trigger token <https://docs.gitlab.com/ee/ci/triggers/>`_ and
+`an access token <https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html>`_.
+It is enough to add the **read_api** scope to access tokens with the **Guest** role.
+Once you get trigger and access tokens, upload them to :doc:`PanDA secrets </client/secret>`.
+
+
 --------------------
 
 |br|
