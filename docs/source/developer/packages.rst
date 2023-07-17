@@ -2,13 +2,13 @@
 Package Distribution
 ================================
 
-PanDA packages are automatically built using `hatch <https://hatch.pypa.io/latest/>`_
+PanDA packages are automatically built using `hatch <https://hatch.pypa.io/latest/>`_,
 and gz source distribution files (sdist files) are published to PyPI by GitHub actions
 when new release versions are tagged.
 Sdist is distributed instead of wheel for most PanDA packages since they need to generate
 configuration files and/or executables based on client's environment.
-On the other hand, installation of those packages are still done using setup.py by default through pip
-to keep backward compatibility with legacy Python or pip without PEP 517 support.
+On the other hand, installation of those packages are still done thrugh the legacy setup.py inteface of pip
+by default to work with old Python or pip missing PEP 517 support.
 Internally pip invokes "python setup.py install" in this case. This is the reason
 why PanDA package repositories have the following structure:
 

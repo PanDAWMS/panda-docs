@@ -12,6 +12,8 @@ Publications
 ==============
 `ATLAS WORLD-cloud and networking in PanDA <https://iopscience.iop.org/article/10.1088/1742-6596/898/5/052011>`_, CHEP 2016
 
+`PanDA for ATLAS distributed computing in the next decade <https://iopscience.iop.org/article/10.1088/1742-6596/898/5/052002>`_, CHEP 2016
+
 2018
 ==============
 `ATLAS Global Shares implementation in PanDA <https://doi.org/10.1051/epjconf/201921403025>`_, CHEP 2018
