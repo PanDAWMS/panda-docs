@@ -36,4 +36,6 @@ steps:
         default: "MY_T_TOKEN"
       opt_accessToken:
         default: "MY_A_TOKEN"
+      opt_input_location:
+        default: "/eos/atlas/atlascerngroupdisk/blah"
     out: [outDS]

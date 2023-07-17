@@ -549,10 +549,12 @@ in the ``in`` section.
      - Description
    * - opt_inDS
      - Input datasets (a list of strings)
+   * - opt_input_location
+     - The directory name where input files are downloaded (string. optional)
    * - opt_site
-     - The site name where the Gitlab CI/CD is reachable (string)
+     - The site name where the Gitlab CI is reachable (string)
    * - opt_api
-     - The API of the Gitlab CI projects (string, e.g. `https://<hostname>/api/v4/projects`)
+     - The API of the Gitlab projects (string, e.g. `https://<hostname>/api/v4/projects`)
    * - opt_projectID
      - The project ID of the gitlab repository where pipelines run (int)
    * - opt_ref
@@ -562,10 +564,12 @@ in the ``in`` section.
    * - opt_accessToken
      - The key of the access token uploaded to :doc:`PanDA secrets </client/secret>` (string)
 
-See how to create `a trigger token <https://docs.gitlab.com/ee/ci/triggers/>`_ and
-`an access token <https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html>`_.
+To create trigger and access tokens, see Gitlab documentation pages;
+`how to create a trigger token <https://docs.gitlab.com/ee/ci/triggers/>`_
+and `how to create an access token <https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html>`_.
 It is enough to add the **read_api** scope to access tokens with the **Guest** role.
-Once you get trigger and access tokens, upload them to :doc:`PanDA secrets </client/secret>`.
+Once you get trigger and access tokens, upload them to :doc:`PanDA secrets </client/secret>`
+before submitting workflows.
 
 
 --------------------
