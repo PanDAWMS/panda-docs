@@ -569,7 +569,7 @@ To create trigger and access tokens, see Gitlab documentation pages;
 and `how to create an access token <https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html>`_.
 Access tokens require only the **read_api** scope with the **Guest** role.
 Note that trigger and access tokens need to be uploaded to :doc:`PanDA secrets </client/secret>`
-before submitting workflows.
+with keys specified in ``opt_triggerToken`` and ``opt_accessToken, before submitting workflows.
 
 
 --------------------
