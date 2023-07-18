@@ -539,7 +539,7 @@ to trigger a Gitlab CI pipeline.
     :language: yaml
     :caption: gitlab.cwl
 
-A Gitlab CI step is defined by setting  :brown:`gitlab` to the ``run`` filed and the following parameters
+A Gitlab CI step, defined with :brown:`gitlab` in the ``run`` filed, specifies the following parameters
 in the ``in`` section.
 
 .. list-table::

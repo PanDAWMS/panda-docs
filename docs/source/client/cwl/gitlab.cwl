@@ -31,7 +31,7 @@ steps:
       opt_api:
         default: "https://gitlab.cern.ch/api/v4/projects"
       opt_projectID:
-        default: "165337"
+        default: 165337
       opt_triggerToken:
         default: "MY_T_TOKEN"
       opt_accessToken:
