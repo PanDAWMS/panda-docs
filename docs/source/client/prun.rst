@@ -38,11 +38,11 @@ Here is an Hello world example.
 
    .. code-tab:: bash ATLAS users
 
-      prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.hoge.`uuidgen` --nJobs 3 --output myout.txt
+      prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.<your account>.`uuidgen` --nJobs 3 --output myout.txt
 
    .. code-tab:: bash DOMA users
 
-      prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.hoge.`uuidgen` --nJobs 3 --output myout.txt \
+      prun --exec "pwd; ls; echo Hello-world > myout.txt" --outDS user.<your account>.`uuidgen` --nJobs 3 --output myout.txt \
          --vo wlcg --site <your queue> --prodSourceLabel test --workingGroup ${PANDA_AUTH_VO} --noBuild
 
 where ``--exec`` takes the execution string which is executed on remote computing resources,

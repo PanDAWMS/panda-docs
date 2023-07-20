@@ -25,7 +25,7 @@ If you install panda-client in JupyterLab,
 
 will install extra packages in addition to panda-client.
 
-If you want to install panda-client to non-standard location, get the tarball from
+If you want to install panda-client to a non-standard location, get the tarball from
 https://github.com/PanDAWMS/panda-client/releases
 
 .. prompt:: bash
@@ -56,16 +56,27 @@ and then
 
 Setup
 ==============
-The setup file ``panda_setup.(c)sh`` is automatically generated under *$VIRTUAL_ENV/etc/panda* when panda-client
-is installed via pip. You need to source the file to setup the required environment variables before using the
+When panda-client is installed to a standard location via pip,
+the setup file ``panda_setup.(c)sh`` is automatically generated under the directory shown by the following command:
+
+.. prompt:: bash
+
+    python -c "import sys; print(sys.prefix+'/etc/panda')"
+
+
+You need to source the file to setup the required environment variables before using the
 python modules and command-line tools. It is good to define a shell function to source the setup file as shown
 in the ATLAS users tag.
 
 .. tabs::
 
-   .. code-tab:: bash pip-installed
+   .. tab:: pip-installed
 
-       source $VIRTUAL_ENV/etc/panda/panda_setup.sh
+     .. prompt:: bash
+
+       source `python -c "import sys; print(sys.prefix)"`/etc/panda/panda_setup.sh
+
+     Replace *`python ...`* properly if you install panda-client to a non-standard location.
 
    .. code-tab:: bash ATLAS users
 
