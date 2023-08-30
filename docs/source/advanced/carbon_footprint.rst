@@ -4,38 +4,39 @@ CO2 estimation of PanDA jobs
 
 1. Emission intensities of the power grids
 ------------------------------
-PanDA collects periodically *regional emission intensities* (CO2/kWh) of the power grids in the different regions,
-where ATLAS Grid computing centers are running. Regions can be at the level of a country (e.g. Europe)
-or, for larger countries (e.g. USA), at the level of a state. Emission intensities in a region
-can fluctuate over the day, depending on what kind of powers is available (e.g. solar, wind, oil, coal, nuclear).
+PanDA periodically gathers data on the *regional* emission intensities (measured in CO2/kWh) of the power grids in
+various regions where ATLAS Grid computing centers are operational. These regions can range from individual
+countries (e.g. Europe) to states in larger countries (e.g. the USA). Emission intensities within a region
+can vary throughout the day, depending on the energy sources available, such as solar, wind, oil, coal, or nuclear power.
 
-The ultimate source for our regional emission intensities is: https://www.co2signal.com/.
+Our primary source for regional emission intensity data is: https://www.co2signal.com/.
 
-PanDA also aggregates regional intensities into a *global emission intensity*, taking into account the weight of each
-region to the overall ATLAS Grid computing power.
+PanDA also combines these *regional* intensities to calculate a *global* emission intensity, which considers the contribution
+of each region to the overall ATLAS Grid computing capacity.
 
 2. Emission intensities of the power grids
 ------------------------------
 
-In a next step, PanDA estimates the carbon footprint on a per job basis using the following formula:
+In the next step, PanDA calculates the carbon footprint for each job using the following formula:
+
 .. figure:: images/co2_estimation.png
   :align: center
 
-The *core_power_consumption* is currently a hardcoded estimation of how power hungry the hardware or computing center is.
-There is flexibility for sites to overwrite this value in the CRIC information system and we hope that
-with experience we will have more reliable information.
+The *core_power_consumption* is currently a fixed estimate of the energy consumption of the hardware or computing center.
+There is an option for sites to update this value in the CRIC information system, and over time, we aim to have
+more accurate information.
 
-The *emission intensity* is integrated over the running period of the job. We calculate the carbon footprint of
-a job using both the *regional and global emission intensities*.
+The emission intensity is integrated over the job's runtime. We compute the carbon footprint of a job by considering
+both the *regional* and *global* emission intensities.
 
 3. Presentation of the carbon footprint information
 ------------------------------
 
-We can aggregate the carbon footprint at different levels (task, user, site, Grid) and we are starting to include
-the information in monitoring, accounting and task summary emails.
+We have the capability to aggregate carbon footprint data at various levels, including tasks, users, sites, and
+the entire Grid. We are gradually incorporating this information into monitoring, accounting, and task summary emails.
 
-As a general rule, users/task submitters will see the estimation using the *global intensity* (not regional), since
-generally they don't have influence over the site - or choosing a location with low carbon intensity will not make the
-higher emission regions disappear.
+As a general practice, users and task submitters will view estimates using the global emission intensity rather
+than regional data. This choice is because users typically do not have control over the site selection, and
+opting for a location with lower carbon intensity might not eliminate regions with higher emissions.
 
 |br|
