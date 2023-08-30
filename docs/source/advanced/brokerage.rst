@@ -81,9 +81,18 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 
 #. Calculate brokerage weight for remaining nuclei using the following formula to choose a nuclei based on that:
 
+   When ``ioIntencity`` of the task is greater than ``MIN_IO_INTENSITY_WITH_LOCAL_DATA``
+
    .. math::
 
      weight =\frac {localInputSize \times tapeWeight \times (spaceFree + spaceExpired)} {max(rwOffset, RW) \times totalInputSize \times spaceTotal}
+
+   Otherwise,
+
+   .. math::
+
+     weight =\frac {tapeWeight \times (spaceFree + spaceExpired)} {max(rwOffset, RW) \times spaceTotal}
+
 
    where *localInputSize* is the size of input data locally available, *totalInputSize* is the total size of
    input data, *tapeWeight* is 0.001 if input data is on the tape storage, or 1 otherwise, *rwOffset* is 50 to have
