@@ -43,7 +43,7 @@ Our primary source for regional emission intensity data is: https://www.co2signa
 PanDA also combines these *regional* intensities to calculate a *global* emission intensity, which considers the contribution
 of each region to the overall ATLAS Grid computing capacity.
 
-3. Emission intensities of the power grids
+3. Estimation of a job's carbon footprint
 ------------------------------
 
 In the next step, PanDA calculates the carbon footprint for each job using the following formula:
