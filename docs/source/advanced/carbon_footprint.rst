@@ -1,5 +1,5 @@
 ===========================
-CO2 estimation of PanDA jobs
+Estimation of PanDA job carbon footprint
 ===========================
 
 1. Emission intensities of the power grids
