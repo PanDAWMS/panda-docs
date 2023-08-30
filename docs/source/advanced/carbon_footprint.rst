@@ -67,14 +67,9 @@ the entire Grid. We are gradually incorporating this information into monitoring
 As a general practice, users and task submitters will view estimates using the global emission intensity rather
 than regional data. This choice is made for three primary reasons:
 
-* First, our data is not yet sufficiently detailed to understand which sites are greener than others; hardware
-lifetimes and lifecycles, the use of renewable energy, how data centers are constructed, and how waste heat
-is used are among the many considerations when comparing total carbon footprints of sites.
-* Second, pledged CPU does not sit idle — if a user moves their job to another site, a production job will trade
-places with it, and the total worldwide carbon footprint will be conserved.
-* Third, many users forcing jobs to a limited number of sites will generate a backlog of jobs at that site,
-as well as additional pressure on network and disks, causing operational difficulties, delays for users
-and potentially an increased total carbon footprint.
+ * First, our data is not yet sufficiently detailed to understand which sites are greener than others; hardware lifetimes and lifecycles, the use of renewable energy, how data centers are constructed, and how waste heat is used are among the many considerations when comparing total carbon footprints of sites.
+ * Second, pledged CPU does not sit idle — if a user moves their job to another site, a production job will trade places with it, and the total worldwide carbon footprint will be conserved.
+ * Third, many users forcing jobs to a limited number of sites will generate a backlog of jobs at that site, as well as additional pressure on network and disks, causing operational difficulties, delays for users and potentially an increased total carbon footprint.
 
 
 |br|
