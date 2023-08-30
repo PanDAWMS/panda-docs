@@ -18,7 +18,8 @@ of each region to the overall ATLAS Grid computing capacity.
 ------------------------------
 
 In the next step, PanDA calculates the carbon footprint for each job using the following formula:
-
+.. figure:: images/throughput.png
+  :align: center
 .. figure:: images/carbon.png
   :align: center
 
