@@ -4,7 +4,7 @@ Estimation of PanDA job carbon footprint
 
 1. Emission intensities of the power grids
 ------------------------------
-PanDA periodically gathers data on the *regional* emission intensities (measured in CO2/kWh) of the power grids in
+PanDA periodically gathers data on the *regional* emission intensities (measured in gCO2/kWh) of the power grids in
 various regions where ATLAS Grid computing centers are operational. These regions can range from individual
 countries (e.g. Europe) to states in larger countries (e.g. the USA). Emission intensities within a region
 can vary throughout the day, depending on the energy sources available, such as solar, wind, oil, coal, or nuclear power.
