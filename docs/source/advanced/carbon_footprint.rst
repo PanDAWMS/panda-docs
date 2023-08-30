@@ -19,7 +19,7 @@ of each region to the overall ATLAS Grid computing capacity.
 
 In the next step, PanDA calculates the carbon footprint for each job using the following formula:
 
-.. figure:: images/co2_estimation.png
+.. figure:: images/carbon.png
   :align: center
 
 The *core_power_consumption* is currently a fixed estimate of the energy consumption of the hardware or computing center.
