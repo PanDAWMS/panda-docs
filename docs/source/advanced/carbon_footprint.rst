@@ -29,6 +29,7 @@ to a more environmentally responsible research endeavor. PanDA, as ATLAS' workfl
 system, wants to help by raising awareness on the emissions of computing workloads.
 
 More information on Global warming: https://en.wikipedia.org/wiki/Global_warming_potential
+
 For comparisons to the emissions from other sources, see:  https://en.wikipedia.org/wiki/Carbon_footprint
 
 2. Emission intensities of the power grids
