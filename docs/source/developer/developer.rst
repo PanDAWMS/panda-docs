@@ -13,5 +13,6 @@ adding new features, improving documentation, and fixing bugs.
    document_light
    repository
    packages
+   styleguide
 
 |br|
