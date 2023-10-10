@@ -30,7 +30,7 @@ For end-users
    secret
 
 Python API references
-==========================
+======================
 
 .. toctree::
    :maxdepth: 1
