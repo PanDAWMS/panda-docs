@@ -1,4 +1,0 @@
--   repo: https://github.com/myint/rstcheck
-    rev: '6.2.0'  # Use the ref you want to point at
-    hooks:
-    -   id: rstcheck
