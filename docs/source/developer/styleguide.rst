@@ -1,11 +1,11 @@
-==================
+==========================================
 Contributing code to PanDA server and JEDI
-==================
+==========================================
 
 This guide outlines the coding standards and practices for contributing to the PanDA server and JEDI packages.
 
 PEP 8 Naming Conventions
-=================
+========================
 
 We are trying to steer the project towards the PEP8 Style Guide, in order to improve readability and adopting a common style.
 Below is a summary of some key naming conventions:
@@ -38,6 +38,7 @@ understandable code. Here are some best practices:
 Examples of commenting that does not help with the understanding:
 
 .. code-block:: python
+
     def get_logger():
         my_logger = logging.getLogger("sample-logger")
         # remove existing handlers
@@ -54,9 +55,11 @@ Examples of commenting that does not help with the understanding:
         # return logger
         return my_logger
 
+
 and a suggestion for improved logging:
 
 .. code-block:: python
+
     def get_logger():
         """
         - Retrieves a logger
@@ -80,28 +83,26 @@ and a suggestion for improved logging:
 
         return my_logger
 
+
 Code quality tools
 ==================
 
 There are a number of tools that can be used to improve code quality and consistency.
 
 Code formatters:
-- **Black**: Black is a Python code formatter that reformats your code to make it more readable.
-  It implements a subset of PEP 8. It has very few configuration options, but it's very opinionated.
-- **Autopep8**: Autopep8 is a tool that automatically formats Python code to conform to the PEP 8 style guide.
-  It offers more configuration options, allowing you to choose which rules to apply or ignore.
+- **Black**: Black is a Python code formatter that reformats your code to make it more readable. It implements a subset of PEP 8. It has very few configuration options, but it's very opinionated.
+- **Autopep8**: Autopep8 is a tool that automatically formats Python code to conform to the PEP 8 style guide. It offers more configuration options, allowing you to choose which rules to apply or ignore.
 
 Help with imports:
 - **Isort**: Isort is a Python utility that sorts imports alphabetically and automatically separates them into sections.
 
 Code linters:
-- **Flake8**: Flake8 is a tool that combines PyFlakes, pycodestyle, and McCabe complexity checker.
-  It checks for style errors and programming errors.
-- **Pylint**: Pylint is a tool that checks for errors in Python code, tries to enforce a coding standard,
-  and looks for code smells. Pylint is much more strict than Flake8.
+- **Flake8**: Flake8 is a tool that combines PyFlakes, pycodestyle, and McCabe complexity checker. It checks for style errors and programming errors.
+- **Pylint**: Pylint is a tool that checks for errors in Python code, tries to enforce a coding standard, and looks for code smells. Pylint is much more strict than Flake8.
 
 We can use these tools either manually, or as pre-commit hooks. To have a commonly available configuration,
 we are adding our configuration options to the ``pyproject.toml`` file. For example:
+
 
 .. code-block:: yaml
 
@@ -148,6 +149,7 @@ the development process.
 A sample``.pre-commit-config.yaml``:
 
 .. code-block:: yaml
+
     repos:
 
     -   repo: https://github.com/hhatto/autopep8
