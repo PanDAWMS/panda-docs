@@ -60,6 +60,6 @@ Each workflow has a separate plugin in
 `the plugin repository <https://github.com/PanDAWMS/panda-jedi/tree/master/pandajedi/jedimsgprocessor>`_.
 You choose appropriate plugins based on your needs.
 
-A complete configuration guide for ``Message Processsor`` is availabe at the :doc:`msg_processor` page.
+A complete configuration guide for ``Message Processsor`` is available at the :doc:`msg_processor` page.
 
 |br|
