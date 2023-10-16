@@ -6,7 +6,18 @@ repos:
       - id: rstcheck
         additional_dependencies: [sphinx]
         args:
+          # ignore some special directives and roles used throughout the docs
           - --ignore-directives
           - prompt
+          - code-block
+          - tabs
+          - --ignore-roles
+          - raw-html
+          - hblue
+          - blue
+          - green
+          - red
+          - purple
+          - brown
           - --ignore-messages
           - "Undefined substitution referenced"
