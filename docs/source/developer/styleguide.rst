@@ -90,13 +90,16 @@ Code quality tools
 There are a number of tools that can be used to improve code quality and consistency.
 
 Code formatters:
+
 - **Black**: Black is a Python code formatter that reformats your code to make it more readable. It implements a subset of PEP 8. It has very few configuration options, but it's very opinionated.
 - **Autopep8**: Autopep8 is a tool that automatically formats Python code to conform to the PEP 8 style guide. It offers more configuration options, allowing you to choose which rules to apply or ignore.
 
 Help with imports:
+
 - **Isort**: Isort is a Python utility that sorts imports alphabetically and automatically separates them into sections.
 
 Code linters:
+
 - **Flake8**: Flake8 is a tool that combines PyFlakes, pycodestyle, and McCabe complexity checker. It checks for style errors and programming errors.
 - **Pylint**: Pylint is a tool that checks for errors in Python code, tries to enforce a coding standard, and looks for code smells. Pylint is much more strict than Flake8.
 
@@ -127,6 +130,10 @@ we are adding our configuration options to the ``pyproject.toml`` file. For exam
         "R0914", #  R0914: Too many local variables
     ]
 
+    [tool.isort]
+    profile = "black"
+
+
 Pre-commit Hooks
 ================
 
@@ -140,23 +147,18 @@ We use pre-commit hooks to ensure code quality and consistency.
 - **Local Setup**: To use pre-commit hooks, each developer needs to have the ``pre-commit`` package installed on their local development
   machine (see https://pre-commit.com/) and enabled on each PanDA package. Make sure it's installed in the environment where
   you'll be running Git commands. All of the chosen pre-commit hooks (black, autopep8, isort, flake8, pylint...)
-  need to be installed as well.
+  need to be installed as well. Be aware that some of the tools that automatically change your code can be incompatible with each other
+  and undo each other's changes.
 
 In our case, since we are adding code quality tools at a very late stage, we are starting with tools that will help us
-improve readability. It is not feasable to add flakes and pylint at this stage, as they will generate a lot of errors and hinder
+improve readability. It is not feasible to add flakes and pylint at this stage, as they will generate a lot of errors and hinder
 the development process.
 
-A sample``.pre-commit-config.yaml``:
+A sample ``.pre-commit-config.yaml`` with our current tools of choice is shown below
 
 .. code-block:: yaml
 
     repos:
-
-    -   repo: https://github.com/hhatto/autopep8
-        rev: v2.0.4
-        hooks:
-        -   id: autopep8
-            args: ["--global-config", "package/pyproject.toml"]
 
     -   repo: https://github.com/psf/black
         rev: 23.9.1
