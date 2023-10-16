@@ -5,3 +5,8 @@ repos:
     hooks:
       - id: rstcheck
         additional_dependencies: [sphinx]
+        args:
+          - --ignore-directives
+          - prompt
+          - --ignore-messages
+          - "Undefined substitution referenced"
