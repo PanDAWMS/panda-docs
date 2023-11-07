@@ -16,7 +16,9 @@ Below is a summary of some key naming conventions:
 - **Variables**: Use lowercase with underscores (e.g., `my_variable`).
 - **Constants**: Use all uppercase with underscores (e.g., `MY_CONSTANT`).
 
-**We are extending the line limit to 160 characters.**
+We are extending the line limit to 160 characters.
+
+We are moving towards f-strings. They are more readable and easier to maintain than the old style of string formatting.
 
 For more details, refer to the `PEP 8 documentation <https://www.python.org/dev/peps/pep-0008/>`_.
 
@@ -93,6 +95,7 @@ Code formatters:
 
 - **Black**: Black is a Python code formatter that reformats your code to make it more readable. It implements a subset of PEP 8. It has very few configuration options, but it's very opinionated.
 - **Autopep8**: Autopep8 is a tool that automatically formats Python code to conform to the PEP 8 style guide. It offers more configuration options, allowing you to choose which rules to apply or ignore.
+- **Flynt**: Flynt is a tool that automatically converts old-style Python code to use f-strings. It is very useful for converting code that uses the old style of string formatting to f-strings.
 
 Help with imports:
 
@@ -159,6 +162,11 @@ A sample ``.pre-commit-config.yaml`` with our current tools of choice is shown b
 .. code-block:: yaml
 
     repos:
+    -   repo: https://github.com/ikamensh/flynt
+        rev: ''  # Specify a specific version if desired
+        hooks:
+        -   id: flynt
+            args: [ "--line-length", "160"]  # Flynt does not support pyproject.toml in special locations
 
     -   repo: https://github.com/psf/black
         rev: 23.9.1
