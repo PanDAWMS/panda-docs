@@ -17,7 +17,7 @@ outputs:
 
 steps:
   core:
-    run: prun.cwl
+    run: prun
     in:
       opt_inDS: dataset
       opt_exec:
