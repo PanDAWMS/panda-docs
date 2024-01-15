@@ -265,6 +265,28 @@ from environment variables and uploads a sandbox file from your locally-built pa
 
 |br|
 
+Using Conda
+======================
+
+You can build a container image to setup a conda environment and use it in a workflow.
+The following Dockerfile installs Miniconda and creates an environment with PyROOT and PyYAML.
+
+.. literalinclude:: misc/Dockerfile_conda
+    :language: go
+    :caption: Dockerfile with conda
+
+You need to upload your container image to a container registry, such as GitLab container registry,
+and specify the registry path in ``opt_containerImage`` as shown in the example below.
+
+.. literalinclude:: cwl/conda.cwl
+    :language: yaml
+    :caption: conda.cwl
+
+As specified in ``opt_exec``, the :blue:`bottom` task first initializes and activates the conda environment created
+in the container image build step, and then executes root and ls as a demonstration.
+
+|br|
+
 Conditional workflow
 ========================
 
