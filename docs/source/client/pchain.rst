@@ -283,7 +283,7 @@ and specify the registry path in ``opt_containerImage`` as shown in the example 
     :caption: conda.cwl
 
 As specified in ``opt_exec``, the :blue:`bottom` task first initializes and activates the conda environment created
-in the container image build step, and then executes root and ls as a demonstration.
+in the build step of the container image, and then executes root and ls as a demonstration.
 
 |br|
 
