@@ -1,5 +1,5 @@
 ==================================
-Central Services Operations (CSOps) corner
+Central Services Operations corner
 ==================================
 
 Commands

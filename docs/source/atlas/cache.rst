@@ -1,5 +1,5 @@
 ================================
-Instance overview for ATLAS PanDA cache
+ATLAS PanDA cache instances
 ================================
 
 Operating systems and python versions

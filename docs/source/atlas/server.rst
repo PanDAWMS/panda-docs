@@ -1,5 +1,5 @@
 ==================================
-Instance overview for ATLAS PanDA server
+ATLAS PanDA server instances
 ==================================
 
 Operating systems and python versions
