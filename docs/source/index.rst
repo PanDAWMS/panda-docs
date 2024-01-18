@@ -56,3 +56,4 @@ computing middleware.
    atlas/central_services
    atlas/server
    atlas/jedi
+   atlas/cache

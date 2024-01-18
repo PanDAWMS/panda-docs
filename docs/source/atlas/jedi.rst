@@ -1,6 +1,6 @@
-==========================================
-Instance overview for ATLAS JEDI instances
-==========================================
+================================
+Instance overview for ATLAS JEDI
+================================
 
 Operating systems and python versions
 -------------------------------------

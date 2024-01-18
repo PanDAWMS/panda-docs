@@ -1,9 +1,9 @@
-===========================
+========================================
 Estimation of PanDA job carbon footprint
-===========================
+========================================
 
 1. Carbon emissions and global warming background
-------------------------------
+-------------------------------------------------
 Carbon is a chemical element found in various forms on Earth. One of the most common forms is
 carbon dioxide (CO2), a greenhouse gas naturally present in the atmosphere.
 
@@ -33,7 +33,7 @@ More information on Global warming: https://en.wikipedia.org/wiki/Global_warming
 For comparisons to the emissions from other sources, see:  https://en.wikipedia.org/wiki/Carbon_footprint
 
 2. Emission intensities of the power grids
-------------------------------
+-------------------------------------------
 PanDA periodically gathers data on the *regional* emission intensities (measured in gCO2/kWh) of the power grids in
 various regions where ATLAS Grid computing centers are operational. These regions can range from individual
 countries (e.g. Europe) to states in larger countries (e.g. the USA). Emission intensities within a region
@@ -45,7 +45,7 @@ PanDA also combines these *regional* intensities to calculate a *global* emissio
 of each region to the overall ATLAS Grid computing capacity.
 
 3. Estimation of a job's carbon footprint
-------------------------------
+-----------------------------------------
 
 In the next step, PanDA calculates the carbon footprint for each job using the following formula:
 
@@ -60,7 +60,7 @@ The emission intensity is integrated over the job's runtime. We compute the carb
 both the *regional* and *global* emission intensities.
 
 4. Presentation of the carbon footprint information
-------------------------------
+---------------------------------------------------
 
 We have the capability to aggregate carbon footprint data at various levels, including tasks, users, sites, and
 the entire Grid. We are gradually incorporating this information into monitoring, accounting, and task summary emails.
