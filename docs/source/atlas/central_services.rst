@@ -18,12 +18,12 @@ Enable puppet
 Apply puppet
 
 .. prompt:: bash
-puppet agent -t
+ puppet agent -t
 
 Take a PanDA server out of load balancing
 
 .. prompt:: bash
-touch /etc/iss.nologin
+ touch /etc/iss.nologin
 
 Links
 ---------------
