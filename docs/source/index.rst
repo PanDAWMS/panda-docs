@@ -49,3 +49,10 @@ computing middleware.
    advanced/jedi_watchdogs
    advanced/site_task_classification
    advanced/carbon_footprint
+
+.. toctree::
+   :maxdepth: 1
+   :caption: ATLAS specific documentation:
+   atlas/central_services
+   atlas/server
+   atlas/jedi
