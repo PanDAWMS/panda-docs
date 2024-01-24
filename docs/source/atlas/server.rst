@@ -46,11 +46,13 @@ Installing and updating the code
 The first time you install the code, you will want to bring in all `atlasprod` dependencies to install e.g. cx_oracle and the Rucio client:
 
 .. prompt:: bash
+
  /opt/panda/bin/pip install panda-server[atlasprod]
 
 In order to install just the latest PanDA server code from github:
 
 .. prompt:: bash
+
  /opt/panda/bin/pip install --no-deps --force-reinstall git+https://github.com/PanDAWMS/panda-server.git
 
 `systemd` services
@@ -61,9 +63,11 @@ The environment for systemd services has to be passed in a new format. The envir
 We have a parent (fake) service for `panda`, and two dependent (real) services `panda_daemon` and `panda_httpd`.
 
 .. prompt:: bash
+
  ls -lrt /etc/systemd/system/panda*
 
 .. code-block:: none
+
  -rw-r--r--. 1 root root 320 May 17 12:24 /etc/systemd/system/panda.service
  -rw-r--r--. 1 root root 519 May 17 12:24 /etc/systemd/system/panda_daemon.service
  -rw-r--r--. 1 root root 390 May 17 12:24 /etc/systemd/system/panda_httpd.service
@@ -71,6 +75,7 @@ We have a parent (fake) service for `panda`, and two dependent (real) services `
 **The very first time after setting up a machine, you need to enable the services.**
 
 .. prompt:: bash
+
  systemctl enable panda.service
  systemctl enable panda_daemon.service
  systemctl enable panda_httpd.service
@@ -78,6 +83,7 @@ We have a parent (fake) service for `panda`, and two dependent (real) services `
 You can start/stop the parent service and it should trigger the start/stop of the dependent services.
 
 .. prompt:: bash
+
  systemctl start panda.service
  systemctl stop panda.service
 
@@ -94,6 +100,7 @@ You can also start/stop the dependent services by themselves.
 Systemd will not print anything out to the console. Instead you need to query the output by running:
 
 .. prompt:: bash
+
  systemctl status panda.service
 
 Here you will find information, for example if the DB Schema check was passed.
@@ -135,9 +142,11 @@ Logs are under `/var/log/panda`.
 Log rotate running times are now handled by `systemd timers`. You can see the time using this command:
 
 .. prompt:: bash
+
  systemctl list-timers logrotate
 
 .. code-block:: none
+
  NEXT                         LEFT     LAST                         PASSED       UNIT            ACTIVATES
  Tue 2023-06-27 09:14:58 CEST 16h left Mon 2023-06-26 16:12:08 CEST 4min 52s ago logrotate.timer logrotate.service
 

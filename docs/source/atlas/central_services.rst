@@ -8,21 +8,25 @@ Commands
 Disable puppet
 
 .. prompt:: bash
+
  puppet agent --disable 'reason for disabling puppet'
 
 Enable puppet
 
 .. prompt:: bash
+
  puppet agent --enable
 
 Apply puppet
 
 .. prompt:: bash
+
  puppet agent -t
 
 Take a PanDA server out of load balancing
 
 .. prompt:: bash
+
  touch /etc/iss.nologin
 
 Links
