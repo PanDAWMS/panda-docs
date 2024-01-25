@@ -11,7 +11,7 @@ Puppet prerequisites
 
 * Puppet environment: production, Roger
 * state: production
-* Foreman ALMA9 hostgroup: `vopanda/pandaserver/server_alma9_py3`
+* Foreman ALMA9 hostgroup: `vopanda/pandaserver/server_py3`
 
 Node aliases
 ------------
