@@ -41,13 +41,28 @@ Myproxy for PanDA ProxyCache
 
 For ATLAS Robot proxy certificate of atlpilo1 and atlpilo2 are in use. Examples below are for atlpilo1.
 
-Check myproxy renewal script in acrontab of atlpilo1:
+CSOps manages an automatic renewal script that runs in acrontab of `atlpilo1` or `atlpilo2`. You can see check them like this:
 
 .. prompt:: bash
 
+    ssh root@<harvester instance>
     su -l atlpilo1
     /usr/sue/bin/kinit -kt /data/atlpilo1/keytab atlpilo1@CERN.CH 
     acrontab -l
+
+.. code-block:: none
+
+ ...
+ #check and upload atlpilo2 proxy in myproxy
+ 00 09 * * * lxplus-acron.cern.ch /afs/cern.ch/user/a/atlpilo2/.globus/renew_myproxy.sh > /afs/cern.ch/user/a/atlpilo2/my_proxy.log 2>&1
+ ...
+
+You can try to check or renew the proxy manually. In case myproxy is not installed, install it first:
+
+.. prompt:: bash
+
+    yum install myproxy
+
 
 Check myproxy info:
 
