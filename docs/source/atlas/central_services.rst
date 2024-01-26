@@ -2,38 +2,30 @@
 Central Services Operations corner
 ==================================
 
+Links
+---------------
+
+* Puppet templates: https://gitlab.cern.ch/ai/it-puppet-hostgroup-vopanda
+* PanDA configurations: https://gitlab.cern.ch/ai/it-puppet-module-vopandaconfig
+* CSOps managed machines: https://atlas-adcmon.cern.ch/cmdb/
+
 Commands
 ---------------
 
-Disable puppet
+Disable, enable, run puppet with logging in the foreground:
 
 .. prompt:: bash
 
  puppet agent --disable 'reason for disabling puppet'
-
-Enable puppet
-
-.. prompt:: bash
-
  puppet agent --enable
-
-Apply puppet once immediately with logging in the foreground
-
-.. prompt:: bash
-
  puppet agent -t
 
-Take a PanDA server out of load balancing
+Take a PanDA server out of load balancing and put it back in:
 
 .. prompt:: bash
 
- touch /etc/iss.nologin
-
-Put a PanDA server back into load balancing
-
-.. prompt:: bash
-
- rm /etc/iss.nologin
+ touch /etc/iss.nologin  # take out of load balancing
+ rm /etc/iss.nologin     # put back in load balancing
 
 
 Myproxy for PanDA ProxyCache
@@ -76,10 +68,3 @@ Reinitialize myproxy:
 
     myproxy-init -s myproxy.cern.ch -x -Z '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pandasv1/CN=663551/CN=Robot: ATLAS Panda Server1' -d -k panda -c 4383 -t 0 -C ~/.globus/atlpilo1_latest_x509up.rfc.proxy -y ~/.globus/atlpilo1_latest_x509up.rfc.proxy;
 
-
-Links
----------------
-
-* Puppet templates: https://gitlab.cern.ch/ai/it-puppet-hostgroup-vopanda
-* PanDA configurations: https://gitlab.cern.ch/ai/it-puppet-module-vopandaconfig
-* CSOps managed machines: https://atlas-adcmon.cern.ch/cmdb/
