@@ -17,7 +17,7 @@ Enable puppet
 
  puppet agent --enable
 
-Apply puppet
+Apply puppet once immediately with logging in the foreground
 
 .. prompt:: bash
 
@@ -28,6 +28,39 @@ Take a PanDA server out of load balancing
 .. prompt:: bash
 
  touch /etc/iss.nologin
+
+Put a PanDA server back into load balancing
+
+.. prompt:: bash
+
+ rm /etc/iss.nologin
+
+
+Myproxy for PanDA ProxyCache
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For ATLAS Robot proxy certificate of atlpilo1 and atlpilo2 are in use. Examples below are for atlpilo1.
+
+Check myproxy renewal script in acrontab of atlpilo1:
+
+.. prompt:: bash
+
+    su -l atlpilo1
+    /usr/sue/bin/kinit -kt /data/atlpilo1/keytab atlpilo1@CERN.CH 
+    acrontab -l
+
+Check myproxy info:
+
+.. prompt:: bash
+
+    myproxy-info -s myproxy.cern.ch -l '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=atlpilo1/CN=614260/CN=Robot: ATLAS Pilot1'
+
+Reinitialize myproxy:
+
+.. prompt:: bash
+
+    myproxy-init -s myproxy.cern.ch -x -Z '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pandasv1/CN=663551/CN=Robot: ATLAS Panda Server1' -d -k panda -c 4383 -t 0 -C ~/.globus/atlpilo1_latest_x509up.rfc.proxy -y ~/.globus/atlpilo1_latest_x509up.rfc.proxy;
+
 
 Links
 ---------------
