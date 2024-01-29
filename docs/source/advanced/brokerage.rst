@@ -340,8 +340,14 @@ Checks for CPU and/or GPU Hardware
 The format of task ``architecture`` is ``sw_platform<@base_platform><#host_cpu_spec><&host_gpu_spec>`` where
 ``host_cpu_spec`` is ``architecture<-vendor<-instruction_set>>`` and
 ``host_gpu_spec`` is ``vendor<-model>``.
+It is possible to use regexp in the ``architecture`` field of ``host_cpu_spec`` like "(x86_64|aarch64)" to be matched
+with x86_64 or aarch64 queues.
+If ``#host_cpu_spec`` is not specified in task's ``architecture``, the first part of ``sw_platform`` is used as
+CPU architecture.
+The regexp in ``sw_platform`` is resolved to a relevant string in the ``cmtconfigs`` list of the queue.
+
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the ``architectures`` of the queue is checked.
-The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications.
+The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
 All attributes of the
 dictionaries except for the *type* attribute take lists of strings. If 'attribute': ['blah'], the queue
 accepts tasks with attribute='blah' or without specifying the attribute. If 'excl' is included in the list,
