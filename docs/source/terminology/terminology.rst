@@ -202,8 +202,10 @@ sent
    The job was fetched by a pilot running on the computing resource.
 
 starting
-   The job is working for the last-mile input data motion, such as data stage-in from the "local" storage to
-   the scratch disk attached to the computing resource.
+   The job has been retrieved from PanDA server, but has not started running yet. Jobs in this status
+   could be working for the last-mile input data motion, such as data stage-in from the "local" storage to
+   the scratch disk attached to the worker node. Alternatively, for `push` queues, jobs in `starting` status could have been
+   retrieved by the pilot submitter (Harvester, ARC Control Tower,...), but is still queued in the batch system.
 
 running
    The job is processing input data.
