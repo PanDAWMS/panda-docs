@@ -47,4 +47,9 @@ and set the following parameters:
      - URL to get site matrix json
      - https://atlas-cric.cern.ch/api/core/sitematrix/query/?json&json_pretty=0
 
+If you don't have a real CRIC instance or have a partially functional instance,
+you can use local json files to describe resources.
+In this case the above parameters take the form of: ``file://<path_to_file>`` instead of ``https://<url>``.
+It is possible to use local json files only for some parameters while others are taken from the real CRIC instance.
+
 |br|
