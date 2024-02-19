@@ -27,11 +27,12 @@ Take a PanDA server out of load balancing and put it back in:
  touch /etc/iss.nologin  # take out of load balancing
  rm /etc/iss.nologin     # put back in load balancing
 
-Check the status of the logrotate service:
+Check the status and configuration of the logrotate service:
 
 .. prompt:: bash
 
 systemctl list-timers | grep logrotate
+cat /etc/systemd/system/logrotate.timer
 
 Myproxy for PanDA ProxyCache
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
