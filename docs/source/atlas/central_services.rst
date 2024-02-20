@@ -31,8 +31,8 @@ Check the status and configuration of the logrotate service:
 
 .. prompt:: bash
 
-systemctl list-timers | grep logrotate
-cat /etc/systemd/system/logrotate.timer
+ systemctl list-timers | grep logrotate
+ cat /etc/systemd/system/logrotate.timer
 
 Myproxy for PanDA ProxyCache
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
