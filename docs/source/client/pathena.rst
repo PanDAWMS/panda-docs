@@ -82,6 +82,8 @@ If you want to retry your task, see :doc:`Bookkeeping </client/pbook>`.
 
 |br|
 
+.. _ref_trf:
+
 Running transformations
 -------------------------
 
@@ -179,6 +181,49 @@ If you want to have HITS and RDO in the output dataset the above will be
 
 Note that both AtlasG4_trf.py and Digi_trf.py take %OUT.RDO.pool.root as a parameter.
 AtlasG4_trf.py uses it as an output filename while Digi_trf.py uses it as an input filename.
+
+--------------
+
+|br|
+
+Running arbitrary executables in the Athena runtime environment
+----------------------------------------------------------------------------
+
+If you want to run arbitrary executables available in the Athena runtime environment, you can use the ``--trf`` option
+as it is essentially equivalent to ``--exec`` plus ``--useAthenaPackages`` of the ``prun`` command.
+The ``--trf`` option skips the job options parsing and auto job configuration, so you need to specify
+parameters for the executables using placeholders, listed at :ref:`the above section <ref_trf>`,
+such as ``%IN`` and ``%NEVENTS``, and output files using ``%OUT`` or ``--extOutFile``.
+Note that Athena with ComponentAccumulator-based configuration behaves more like transformation than traditional
+one with jobOptions, so it is easier to use the ``--trf`` option in that case.
+Here are a few examples:
+
+.. prompt:: bash
+
+ pathena --trf "python -m AthExHelloWorld.HelloWorldConfig --filesInput=%IN --evtMax=%MAXEVENTS --profile-python=%OUT.txt" --nEventsPerJob=3 ...
+
+where input filenames and the number of events per job are set by ``%IN`` and ``%MAXEVENTS`` respectively, which are
+automatically replaced with actual values when the job runs. The output file is set by ``%OUT``.txt, so the
+python code profiles are uploaded as output files.
+
+If you are using the ``--CA`` option of athena.py,
+
+.. prompt:: bash
+
+ get_files AthExHelloWorld/HelloWorldConfig.py
+ pathena --trf "athena.py --CA HelloWorldConfig.py --evtMax=%MAXEVENTS --filesInput=%IN --profile-python=aaa.txt" --nEventsPerJob=3 --extOutFile=aaa.txt ...
+
+where the ``--extOutFile`` option is used to specify the output file.
+
+Or if it is executed as a script,
+
+.. prompt:: bash
+
+ cat get_files AthExHelloWorld/HelloWorldConfig.py
+ printf '%s\n%s\n' '#!/usr/bin/env python' "$(cat HelloWorldConfig.py)" > HelloWorldConfig.py
+ chmod +x HelloWorldConfig.py
+ pathena --trf "./HelloWorldConfig.py --evtMax=%MAXEVENTS --filesInput=%IN --profile-python=%OUT.txt" --nEventsPerJob=3 ...
+
 
 --------------
 
