@@ -24,7 +24,7 @@ steps:
   second:
     run: prun
     in:
-      opt_inDS: top/outDS
+      opt_inDS: first/outDS
       opt_exec:
         default: "echo %IN > results.txt"
       opt_args:

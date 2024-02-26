@@ -219,7 +219,7 @@ Or if it is executed as a script,
 
 .. prompt:: bash
 
- cat get_files AthExHelloWorld/HelloWorldConfig.py
+ get_files AthExHelloWorld/HelloWorldConfig.py
  printf '%s\n%s\n' '#!/usr/bin/env python' "$(cat HelloWorldConfig.py)" > HelloWorldConfig.py
  chmod +x HelloWorldConfig.py
  pathena --trf "./HelloWorldConfig.py --evtMax=%MAXEVENTS --filesInput=%IN --profile-python=%OUT.txt" --nEventsPerJob=3 ...
