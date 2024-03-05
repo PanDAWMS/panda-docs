@@ -159,7 +159,7 @@ Other modules are mainly used to process asynchronous requests.
  * The ``Activator`` module changes job status from `assigned` to `activated` when input data of the job is ready (based on DDM feedback).
  * The ``Adder`` module is the core for `add_main` to post-process jobs' output data,
    such as data registration, trigger data aggregation and so on. Those post-processing procedures are experiment-dependent
-   so that the ``Adder`` also has a plugin structure to load an experiment-specific plugin. It registers output file
+   so that the ``Adder`` also has a plugin structure to load an experiment-specific plugin. It registers the output file.
   * Retrieves XML from pilot
   * Retrieves LFN/GUID in JSON
   * Adds files to destination data block and sub-destination data block
