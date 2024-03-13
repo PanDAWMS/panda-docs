@@ -496,7 +496,8 @@ Let's look at some examples:
 * `type:evgen:100%,type:simul:100%,type:any:0%` means that the site accepts `evgen` and `simul`, but has zero share for anything else.
 * `type:evgen:100%,type:simul:100%` means that the site accepts `evgen` and `simul`, but is not rejecting other types, so anything will run on this site.
 * `type:evgen:100%,type:simul:100%,type:any:0%,priority>500:0%` means that the site accepts `evgen` and `simul`, reject any other types and will also reject tasks
-with `currentPriority` above `500`.
+with `currentPriority` above `500`. However given the order of the subpolicies, the priority filter will not be applied if the task is `evgen` or `simul`, so you could
+be getting higher priority tasks assigned!
 * Be careful with combinations between keys. They are allowed, but not always predictable. For example `type:evgen:100%,type:any:0%,gshare:Express:100%,gshare:any:100%`
 will iterate through the subpolicies, accept `evgen` tasks, reject other types and should not even get to the `gshare` subpolicies.
 * Reordering the previous policy to `type:evgen:100%,gshare:Express:100%,type:any:0%,gshare:any:100%` will accept tasks with `processingType=evgen` or `gshare=Express` and reject everything else.
