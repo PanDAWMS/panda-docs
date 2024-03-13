@@ -494,7 +494,7 @@ The VALUE is expressed as a percentage with or without the `%` sign (e.g. `type=
 was to express the share of the site for the given type, it is not used in the current implementation. Note that the value, except for `0`, does
 not make a difference, so it's recommended to just use `0` or `100`.
 
-Let's look at some examples:
+Let's look at some expected and unexpected examples:
 
 * `type=evgen:100%,type=simul:100%,type=any:0%` means that the site accepts `evgen` and `simul`, but has zero share for anything else.
 * `type=evgen:100%,type=simul:100%` means that the site accepts `evgen` and `simul`, but is not rejecting other types, so anything will run on this site.
