@@ -497,6 +497,7 @@ not make a difference, so it's recommended to just use `0` or `100`.
 Let's look at some expected and unexpected examples:
 
 * `type=evgen:100%,type=simul:100%,type=any:0%` means that the site accepts `evgen` and `simul`, but has zero share for anything else.
+* `priority>500:0,type=simul:100%,type=any:0%` means the site will reject tasks with currentPriority under 500, will accept `simul` tasks and reject anything else.
 * `type=evgen:100%,type=simul:100%` means that the site accepts `evgen` and `simul`, but is not rejecting other types, so anything will run on this site.
 * `type=evgen:100%,type=simul:100%,type=any:0%,priority>500:0%` means that the site accepts `evgen` and `simul`, rejects any other types and -supposedly- will
 also reject tasks with `currentPriority` above `500`. However given the order of the subpolicies, the priority filter will not be applied if the task is `evgen` or `simul`, so you could
