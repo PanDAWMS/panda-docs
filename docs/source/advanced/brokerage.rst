@@ -466,7 +466,10 @@ Timeout Rules
 
 Zero Share (or FairSharePolicy in CRIC)
 ==============
-The Zero Share filter looks for reasons to exclude jobs from a site ("site X has zero share for this activity"). The syntax of the `fairsharepolicy` field in
+The Zero Share filter looks for reasons to exclude jobs from a site ("site X has zero share for this activity"). Despite having shares in the name, the
+current implementation simply accepts or rejects jobs based on the site's policy.
+
+The syntax of the `fairsharepolicy` field in
 CRIC is a concatenation of subpolicies: `<subpolicy1>,<subpolicy2>,<subpolicy3>,...` (unwanted spaces can break the matching of the policies). Brokerage will run through the subpolicies and end *at the first one* that applies
 either positively or negatively.
 
