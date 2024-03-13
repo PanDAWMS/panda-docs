@@ -501,7 +501,7 @@ be getting higher priority tasks assigned!
 * Be careful with combinations between keys. They are allowed, but not always predictable. For example `type=evgen:100%,type=any:0%,gshare=Express:100%,gshare=any:100%`
 will iterate through the subpolicies, accept `evgen` tasks, reject other types and should not even get to the `gshare` subpolicies.
 * Reordering the previous policy to `type=evgen:100%,gshare=Express:100%,type=any:0%,gshare=any:100%` will accept tasks with `processingType=evgen` or `gshare=Express` and reject everything else.
-* On the usage of regular expressions, you could use `gshare=Express*:100%,gshare=any:100%` if you want to use map the same subpolicy for `Express` and `Express Analysis`.
+* On the usage of regular expressions, you could use `gshare=Express*:100%,gshare=any:100%` if you want to map the same subpolicy for `Express` and `Express Analysis`.
 * Another useful regular expression could be `group=(AP_Higgs|AP_Susy|AP_Exotics|Higgs):0%` to accept a list of groups.
 
 ------------
