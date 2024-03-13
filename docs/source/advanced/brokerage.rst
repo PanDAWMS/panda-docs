@@ -476,7 +476,7 @@ Where KEY is one of: `priority`, `type`, `group`, `gshare`.
 
 * `Priority` refers to the task `currentPriority`. In the FILTER you can use any comparison operator (`>`, `<`, `>=`, `<=`, `==`, `!=`)
 and the priority threshold you need. Note that some jobs with unwanted priority can still slip through: job priority can increase while queued, or scouts
-are generated with a different priority than the task.
+are generated with a different priority than the task. The priority check can be skipped, which is currently done for merge jobs.
 
 * `Type` refers to the task `processingType`. The valid types are defined as: `evgen`, `simul`, `reprocessing`, `test`, `group`, `deriv`, `pile`, `merge`.
 * Note that `test` resolves to the types `prod_test`, `validation`, `ptest`, `rc_test`, `rc_test2`, `rc_alrb`.
