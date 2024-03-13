@@ -490,7 +490,7 @@ are generated with a different priority than the task. The priority check can be
 
 For type, group and gshare, you can use the wildcard `*` and other regular expressions.
 
-The VALUE is expressed as a percentage with or without the `%` sign (e.g. `type=evgen:100%` or `type=evgen:100%`). While the original purpose of the value
+The VALUE is expressed as a percentage with or without the `%` sign (e.g. `type=evgen:100%` or `type=evgen:100` is exactly the same). While the original purpose of the value
 was to express the share of the site for the given type, it is not used in the current implementation. Note that the value, except for `0`, does
 not make a difference, so it's recommended to just use `0` or `100`.
 
