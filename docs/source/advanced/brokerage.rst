@@ -135,8 +135,8 @@ Here is the ATLAS production job brokerage flow:
    * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs or merging jobs or pre-merged jobs, skip inactive queues
      (where no jobs got started in the last 2 hours although activated jobs had been there).
 
-   * Zero Share, which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgensimul:100%*,
-     in this case, only evgen or simul jobs can be assigned as others have zero shares.
+   * Zero Share, which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgen:100%,type=simul:100%,type=any:0%*,
+     in this case, only evgen or simul jobs can be assigned as others have zero shares. See a more detailed description further below in this page.
 
    * If the task ``ioIntensity`` is larger than ``IO_INTENSITY_CUTOFF`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`),
      the total size of missing files must be less than ``SIZE_CUTOFF_TO_MOVE_INPUT`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`)
@@ -464,6 +464,49 @@ Timeout Rules
    * nSlots is not defined in the ``Harvester_Slots`` table since it intentionally cause large nQueue
      when nRun is small
 
+Zero Share (or FairSharePolicy in CRIC)
+==============
+The Zero Share filter looks for reasons to exclude jobs from a site ("site X has zero share for this activity"). Despite having shares in the name, the
+current implementation simply accepts or rejects jobs based on the site's policy.
+
+The syntax of the `fairsharepolicy` field in
+CRIC is a concatenation of subpolicies: `<subpolicy1>,<subpolicy2>,<subpolicy3>,...` (unwanted spaces can break the matching of the policies). Brokerage will run through the subpolicies and end *at the first one* that applies
+either positively or negatively.
+
+Each subpolicy has the format: `<key><filter>:<value>`
+
+Where KEY is one of: `priority`, `type`, `group`, `gshare`.
+
+* `Priority` refers to the task `currentPriority`. In the FILTER you can use any comparison operator (`>`, `<`, `>=`, `<=`, `==`, `!=`)
+and the priority threshold you need. Note that some jobs with unwanted priority can still slip through: job priority can increase while queued, or scouts
+are generated with a different priority than the task. The priority check can be skipped, which is currently done for merge jobs.
+
+* `Type` refers to the task `processingType`. The valid types are defined as: `evgen`, `simul`, `reprocessing`, `test`, `group`, `deriv`, `pile`, `merge`.
+* Note that `test` resolves to the types `prod_test`, `validation`, `ptest`, `rc_test`, `rc_test2`, `rc_alrb`.
+
+`Group` refers to the task `workingGroup` (AP_Higgs, AP_Susy, Higgs...). There is no restriction on the groups that can be used.
+
+`Gshare` refers to the task `gshare` as defined in the global shares table. There is no restriction on the global shares that can be used.
+
+For type, group and gshare, you can use the wildcard `*` and other regular expressions.
+
+The VALUE is expressed as a percentage with or without the `%` sign (e.g. `type=evgen:100%` or `type=evgen:100` is exactly the same). While the original purpose of the value
+was to express the share of the site for the given type, it is not used in the current implementation. Note that the value, except for `0`, does
+not make a difference, so it's recommended to just use `0` or `100`.
+
+Let's look at some expected and unexpected examples:
+
+* `type=evgen:100%,type=simul:100%,type=any:0%` means that the site accepts `evgen` and `simul`, but has zero share for anything else.
+* `priority>500:0,type=simul:100%,type=any:0%` means the site will reject tasks with currentPriority under 500, will accept `simul` tasks and reject anything else.
+* `type=evgen:100%,type=simul:100%` means that the site accepts `evgen` and `simul`, but is not rejecting other types, so anything will run on this site.
+* `type=evgen:100%,type=simul:100%,type=any:0%,priority>500:0%` means that the site accepts `evgen` and `simul`, rejects any other types and -supposedly- will
+also reject tasks with `currentPriority` above `500`. However given the order of the subpolicies, the priority filter will not be applied if the task is `evgen` or `simul`, so you could
+be getting higher priority tasks assigned!
+* Be careful with combinations between keys. They are allowed, but not always predictable. For example `type=evgen:100%,type=any:0%,gshare=Express:100%,gshare=any:100%`
+will iterate through the subpolicies, accept `evgen` tasks, reject other types and should not even get to the `gshare` subpolicies.
+* Reordering the previous policy to `type=evgen:100%,gshare=Express:100%,type=any:0%,gshare=any:100%` will accept tasks with `processingType=evgen` or `gshare=Express` and reject everything else.
+* On the usage of regular expressions, you could use `gshare=Express*:100%,gshare=any:100%` if you want to map the same subpolicy for `Express` and `Express Analysis`.
+* Another useful regular expression could be `group=(AP_Higgs|AP_Susy|AP_Exotics|Higgs):0%` to accept a list of groups.
 
 ------------
 
