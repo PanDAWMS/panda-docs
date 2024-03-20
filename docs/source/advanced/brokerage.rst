@@ -423,7 +423,7 @@ where the queued and throughput weight are calculated as in the plot below:
 
   throughputWeight
 
-It uses the most recent available data, so preferably data of the last 1 hour, in not available of last 1 day,
+It uses the most recent available data, so preferably data of the last 1 hour, if not available of last 1 day,
 if not available of last 1 week. FTS Mbps are used, which are filled from Chicago elastic search.
 If there are no available network metrics, the AGIS closeness (0 best to 11 worst) is used in a normalized way
 
