@@ -442,7 +442,7 @@ Timeout Rules
 * 7 days for throttled jobs
 * 2 days for activated or starting jobs
 * 4 hours for activated or starting jobs with job.currentPriority>=800 at the queues where ``laststart`` in the
-  ``SiteData`` table is older than 2 hours
+  ``SiteData`` table is older than 2 hours or the queue status is test or offline
 * 30 min for sent jobs
 * 21 days for running jobs
 * 2 hours for heartbeats from running or starting jobs. Each ``workflow`` can define own timeout value using
