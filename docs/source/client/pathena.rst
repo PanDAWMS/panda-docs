@@ -409,7 +409,7 @@ If a buildJob fails, corresponding runJobs will get closed.
 Are there any small samples to test my job before run it on the whole dataset?
 --------------------------------------------------------------------------------
 
-You can limit the number of files to be used in ``--inDS`` by using ``--nfiles``.
+You can limit the number of files to be used in ``--inDS`` by using ``--nFiles``.
 
 What is the meaning of the 'lost heartbeat' error?
 ----------------------------------------------------

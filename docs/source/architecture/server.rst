@@ -149,12 +149,24 @@ tmpwatch
 Other PanDA modules
 -----------------------
 Other modules are mainly used to process asynchronous requests.
- * The ``Activator`` module changes job status to `activated` when input data of the job is ready.
+ * The ``Setupper`` module prepares the input data, such as data registration, triggers the data distribution and so on. Those preparation procedures are experiment-dependent
+   so that the Setupper has a plugin structure to load an experiment-specific plugin.
+  * Registers a destination data block (if not yet registered)
+  * Sub-destination data block is created per a bunch of jobs
+  * Registers sub-destination data block
+  * A dispatch data block is defined by Brokerage using prod data block
+  * Registers a dispatch data block
+ * The ``Activator`` module changes job status from `assigned` to `activated` when input data of the job is ready (based on DDM feedback).
  * The ``Adder`` module is the core for `add_main` to post-process jobs' output data,
    such as data registration, trigger data aggregation and so on. Those post-processing procedures are experiment-dependent
-   so that the ``Adder`` also has a plugin structure to load an experiment-specific plugin.
+   so that the ``Adder`` also has a plugin structure to load an experiment-specific plugin. It registers the output file.
+  * Retrieves XML from pilot
+  * Retrieves LFN/GUID in JSON
+  * Adds files to destination data block and sub-destination data block
  * The ``Watcher`` module checks whether jobs are getting heartbeats and kills them due to lost-heartbeat errors if not.
- * The ``Closer`` module works on collections of output data once jobs are done on worker nodes.
+ * The ``Closer`` module works on collections of output data once jobs are done on worker nodes. It finishes the destination data blocks.
+  * Counts the number of files in a sub-destination data block
+  * Closes a sub-destination data block when the number reaches to the expected number
  * The ``Finisher`` module finalizes jobs.
 
 Roughly speaking, jobs go through ``UserIF`` :raw-html:`&rarr;` ``Setupper`` :raw-html:`&rarr;`
