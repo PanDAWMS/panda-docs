@@ -49,6 +49,7 @@ computing middleware.
    advanced/jedi_watchdogs
    advanced/site_task_classification
    advanced/carbon_footprint
+   advanced/task_params
 
 .. toctree::
    :maxdepth: 1
