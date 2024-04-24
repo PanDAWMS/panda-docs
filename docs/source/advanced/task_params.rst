@@ -449,7 +449,7 @@ where applicable, corresponding two-letter codes.
 
 |br|
 
-Priorities of Task Parameters for Input Sizing
+Priorities of task parameters for input sizing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Task parameters related to input sizing may sometimes conflict with each other. Below are these parameters listed in descending order of priority:
