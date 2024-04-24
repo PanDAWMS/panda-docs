@@ -1,338 +1,343 @@
-======================================================
-Descriptions of Task Parameters Dictating Behavior
-======================================================
+=========================================================
+Descriptions of task parameters dictating their behavior
+=========================================================
 
 Tasks are defined by a range of parameters that dictate their behavior. Certain parameters are encoded as two-letter codes
 in the ``splitRule`` attribute of the task. Below are the task parameters, accompanied by their complete descriptions and,
 where applicable, corresponding two-letter codes.
 
-allowEmptyInput (AE)
-    The task will be allowed to go to finished instead of failed even if the input dataset is empty.
+.. list-table::
+   :header-rows: 1
 
-addNthFieldToLFN (AN)
-    The task will add the N-th field of the input dataset name to the LFN of the output files.
+   * - Parameter
+     - Description
 
-allowPartialFinish (AP)
-    Jobs in the task will be allowed to go to finished instead of failed even if they don't process some of the input files successfully.
+   * - allowEmptyInput (AE)
+     - The task will be allowed to go to finished instead of failed even if the input dataset is empty.
 
-altStageOut (AT)
-    If set to "on", jobs in the task will use the alternative stage-out mechanism for PQs if the mechanism is available there.
-    If set to "force", jobs will be assigned to PQs where the alternative stage-out mechanism is available and use it.
+   * - allowEmptyInput (AE)
+     - The task will be allowed to go to finished instead of failed even if the input dataset is empty.
 
-avoidVP (AV)
-    The task will avoid PQs which use Virtual Placement.
+   * - addNthFieldToLFN (AN)
+     - The task will add the N-th field of the input dataset name to the LFN of the output files.
 
-maxCoreCount (CC)
-    The maximum number of CPU cores that can be used by a single job in the task.
+   * - allowPartialFinish (AP)
+     - Jobs in the task will be allowed to go to finished instead of failed even if they don't process some of the input files successfully.
 
-cloudAsVO (CV)
-    If set to True, the task will use the cloud ``attribute`` as a VO.
+   * - altStageOut (AT)
+     - If set to "on", jobs in the task will use the alternative stage-out mechanism for PQs if the mechanism is available there. If set to "force", jobs will be assigned to PQs where the alternative stage-out mechanism is available and use it.
 
-ddmBackEnd (DE)
-    The DDM backend name to use for the task.
+   * - allowVP (AV)
+     - The task will allow PQs which use Virtual Placement.
 
-disableAutoFinish (DF)
-    If set to True, the task will not automatically go to finished due to timeout.
+   * - maxCoreCount (CC)
+     - The maximum number of CPU cores that can be used by a single job in the task.
 
-disableReassign (DI)
-    If set to True, jobs in the task will not be automatically reassigned to another PQ due to timeout.
+   * - cloudAsVO (CV)
+     - If set to True, the task will use the ``cloud`` attribute as a VO.
 
-debugMode (DM)
-    If set to True, jobs in the task will run in debug mode to send stdout.
+   * - ddmBackEnd (DE)
+     - The DDM backend name to use for the task.
 
-disableAutoRetry (DR)
-    If set to True, the task will not automatically retry failed jobs. Internally maxAttempt is set to 1.
+   * - disableAutoFinish (DF)
+     - If set to True, the task will not automatically go to finished due to timeout.
 
-dynamicNumEvents (DY)
-    The minimum granularity to set the number of events per job dynamically.
+   * - disableReassign (DI)
+     - If set to True, jobs in the task will not be automatically reassigned to another PQ due to timeout.
 
-nEsConsumers (EC)
-    The number of Event Service consumers for each job in the task.
+   * - debugMode (DM)
+     - If set to True, jobs in the task will run in debug mode to send stdout.
 
-nEventsPerInput (EI)
-    The number of events per input file. If set, the n_events metadata in DDM will be ignored.
+   * - disableAutoRetry (DR)
+     - If set to True, the task will not automatically retry failed jobs. Internally maxAttempt is set to 1.
 
-encJobParams (EJ)
-    The job parameters will be encrypted using Base64 encoding algorithm when jobs are being dispatched.
+   * - dynamicNumEvents (DY)
+     - The minimum granularity to set the number of events per job dynamically.
 
-nEventsPerWorker (ES)
-    The number of events per event range defined for Event Service jobs.
+   * - nEsConsumers (EC)
+     - The number of Event Service consumers for each job in the task.
 
-firstContentsFeed (FC)
-    1 if the task does not yet feed input dataset contents to the database, 0 otherwise.
+   * - nEventsPerInput (EI)
+     - The number of events per input file. If set, the n_events metadata in DDM will be ignored.
 
-failGoalUnreached (FG)
-    The task will go to failed if the goal is not reached.
+   * - encJobParams (EJ)
+     - The job parameters will be encrypted using Base64 encoding algorithm when jobs are being dispatched.
 
-fineGrainedProc (FP)
-    Jobs in the task will keep track of processing using the event service mechanism.
+   * - nEventsPerWorker (ES)
+     - The number of events per event range defined for Event Service jobs.
 
-firstEvent (FT)
-    The first event number to process.
+   * - firstContentsFeed (FC)
+     - 1 if the task does not yet feed input dataset contents to the database, 0 otherwise.
 
-fullChain (FU)
-    The task will use the full chain mechanism to be assigned to the nucleus based on the parent task.
+   * - failGoalUnreached (FG)
+     - The task will go to failed if the goal is not reached.
 
-groupBoundaryID (GB)
-    The group boundary ID to split input.
+   * - fineGrainedProc (FP)
+     - Jobs in the task will keep track of processing using the event service mechanism.
 
-hpoWorkflow (HO)
-    The task will use the Hyper Parameter Optimization workflow.
+   * - firstEvent (FT)
+     - The first event number to process.
 
-instantiateTmplSite (IA)
-    The task will instantiate output datasets at each PQ where jobs run.
+   * - fullChain (FU)
+     - The task will use the full chain mechanism to be assigned to the nucleus based on the parent task.
 
-inFilePosEvtNum (IF)
-    The input file has positional event number.
+   * - groupBoundaryID (GB)
+     - The group boundary ID to split input.
 
-ipStack (IK)
-    The IP stack to use for the task. "IPv4" or "IPv6".
+   * - hpoWorkflow (HO)
+     - The task will use the Hyper Parameter Optimization workflow.
 
-allowInputLAN (IL)
-    If set to "use", the task will allow input files to be directly read over LAN.
-    If set to "only", the task will only read input files over LAN.
+   * - instantiateTmplSite (IA)
+     - The task will instantiate output datasets at each PQ where jobs run.
 
-ignoreMissingInDS (IM)
-    The task will ignore missing input datasets which are deleted after the task is submitted.
+   * - inFilePosEvtNum (IF)
+     - The input file has positional event number.
 
-intermediateTask (IN)
-    The task is an intermediate task in a full-chain.
+   * - ipStack (IK)
+     - The IP stack to use for the task. "IPv4" or "IPv6".
 
-ipConnectivity (IP)
-    The network connectivity requirement for the task. "full" or "http".
+   * - allowInputLAN (IL)
+     - If set to "use", the task will allow input files to be directly read over LAN. If set to "only", the task will only read input files over LAN.
 
-inputPreStaging (IS)
-    The input of the task will be pre-staged by data carousel.
+   * - ignoreMissingInDS (IM)
+     - The task will ignore missing input datasets which are deleted after the task is submitted.
 
-instantiateTmpl (IT)
-    The task will instantiate output datasets using the template datasets.
+   * - intermediateTask (IN)
+     - The task is an intermediate task in a full-chain.
 
-allowInputWAN (IW)
-    The task will allow input files to be directly read over WAN.
+   * - ipConnectivity (IP)
+     - The network connectivity requirement for the task. "full" or "http".
 
-noLoopingCheck (LC)
-    The task will disable the check for looping jobs.
+   * - inputPreStaging (IS)
+     - The input of the task will be pre-staged by data carousel.
 
-useLocalIO (LI)
-    The task will always copy input files to scratch disk even if PQs are configured to read input files over LAN.
+   * - instantiateTmpl (IT)
+     - The task will instantiate output datasets using the template datasets.
 
-limitedSites (LS)
-    The task will use only limit PQs specified or unspecified in the task.
+   * - allowInputWAN (IW)
+     - The task will allow input files to be directly read over WAN.
 
-loadXML (LX)
-    The task will load the XML file to generate jobs.
+   * - noLoopingCheck (LC)
+     - The task will disable the check for looping jobs.
 
-minCpuEfficiency (MC)
-    The minimum CPU efficiency to be allowed for the task. If the CPU efficiency is lower than this value, the task will go to exhausted.
+   * - useLocalIO (LI)
+     - The task will always copy input files to scratch disk even if PQs are configured to read input files over LAN.
 
-messageDriven (MD)
-    The task will use the message-driven mechanism for internal communication among system components.
+   * - limitedSites (LS)
+     - The task will use only limit PQs specified or unspecified in the task.
 
-mergeEsOnOS (ME)
-    The task will merge event service outputs on the object store where the output files are stored.
+   * - loadXML (LX)
+     - The task will load the XML file to generate jobs.
 
-nMaxFilesPerJob (MF)
-    The maximum number of input files to be processed by a single job in the task.
+   * - minCpuEfficiency (MC)
+     - The minimum CPU efficiency to be allowed for the task. If the CPU efficiency is lower than this value, the task will go to exhausted.
 
-maxJumboPerSite (MJ)
-    The maximum number of jumbo jobs to be assigned to a single PQ.
+   * - messageDriven (MD)
+     - The task will use the message-driven mechanism for internal communication among system components.
 
-maxNumJobs (MN)
-    The maximum number of jobs to be generated for a single HPO task.
+   * - mergeEsOnOS (ME)
+     - The task will merge event service outputs on the object store where the output files are stored.
 
-mergeOutput (MO)
-    The task will merge output files.
+   * - nMaxFilesPerJob (MF)
+     - The maximum number of input files to be processed by a single job in the task.
 
-multiStepExec (MS)
-    Each job in the task will execute the payload in multiple steps.
+   * - maxJumboPerSite (MJ)
+     - The maximum number of jumbo jobs to be assigned to a single PQ.
 
-maxWalltime (MW)
-    The maximum walltime for a single job in the task.
+   * - maxNumJobs (MN)
+     - The maximum number of jobs to be generated for a single HPO task.
 
-maxEventsPerJob (MX)
-    The maximum number of events to be processed by a single job in the task when the number of events is set dynamically.
+   * - mergeOutput (MO)
+     - The task will merge output files.
 
-noExecStrCnv (NC)
-    The pilot doesn't convert the execution string when executing the payload.
+   * - multiStepExec (MS)
+     - Each job in the task will execute the payload in multiple steps.
 
-notDiscardEvents (ND)
-    The task will not discard events when retrying event service jobs.
+   * - maxWalltime (MW)
+     - The maximum walltime for a single job in the task.
 
-nEvents
-    The total number of events to be processed by the task.
+   * - maxEventsPerJob (MX)
+     - The maximum number of events to be processed by a single job in the task when the number of events is set dynamically.
 
-nEventsPerJob (NE)
-    The number of events to be processed by a single job in the task.
+   * - noExecStrCnv (NC)
+     - The pilot doesn't convert the execution string when executing the payload.
 
-nFiles
-    The total number of input files to be processed by the task.
+   * - notDiscardEvents (ND)
+     - The task will not discard events when retrying event service jobs.
 
-nFilesPerJob (NF)
-    The number of input files to be processed by a single job in the task.
+   * - nEvents
+     - The total number of events to be processed by the task.
 
-nGBPerJob (NG)
-    The maximum input size in GB to be processed by a single job in the task.
+   * - nEventsPerJob (NE)
+     - The number of events to be processed by a single job in the task.
 
-noInputPooling (NI)
-    The task will not use input pooling so that it will generate a job as soon as one input is ready.
+   * - nFiles
+     - The total number of input files to be processed by the task.
 
-nJumboJobs (NJ)
-    The number of jumbo jobs to be generated for the task.
+   * - nFilesPerJob (NF)
+     - The number of input files to be processed by a single job in the task.
 
-nSitesPerJob (NS)
-    The number of PQs to be used for a group of event service consumers.
+   * - nGBPerJob (NG)
+     - The maximum input size in GB to be processed by a single job in the task.
 
-nChunksToWait (NT)
-    The number of chunks to wait before generating jobs.
+   * - noInputPooling (NI)
+     - The task will not use input pooling so that it will generate a job as soon as one input is ready.
 
-noWaitParent (NW)
-    The task will not wait for the parent task to finish and will start processing while the parent task is running.
+   * - nJumboJobs (NJ)
+     - The number of jumbo jobs to be generated for the task.
 
-orderInputBy (OI)
-    The input files will be ordered by the specified attribute.
+   * - nSitesPerJob (NS)
+     - The number of PQs to be used for a group of event service consumers.
 
-orderByLB (OL)
-    The input files will be ordered by the lumi block number.
+   * - nChunksToWait (NT)
+     - The number of chunks to wait before generating jobs.
 
-onSiteMerging (OM)
-    The task will merge output files on the PQ where the output files are stored.
+   * - noWaitParent (NW)
+     - The task will not wait for the parent task to finish and will start processing while the parent task is running.
 
-osMatching (OS)
-    The task will require operating system matching for the PQs.
+   * - orderInputBy (OI)
+     - The input files will be ordered by the specified attribute.
 
-onlyTagsForFC (OT)
-    The task will use only tag matching in the brokerage to run the fat container.
+   * - orderByLB (OL)
+     - The input files will be ordered by the lumi block number.
 
-pushStatusChanges (PC)
-    The task will push status changes to the message broker.
+   * - onSiteMerging (OM)
+     - The task will merge output files on the PQ where the output files are stored.
 
-pushJob (PJ)
-    The task will push a job to the pilot through the message broker.
+   * - osMatching (OS)
+     - The task will require operating system matching for the PQs.
 
-pfnList (PL)
-    The task will use the PFN list to specify input files.
+   * - onlyTagsForFC (OT)
+     - The task will use only tag matching in the brokerage to run the fat container.
 
-putLogToOS (PO)
-    Jobs in the task will upload log files to the object store.
+   * - pushStatusChanges (PC)
+     - The task will push status changes to the message broker.
 
-runUntilClosed (RC)
-    The task will keep running until the input dataset is closed.
+   * - pushJob (PJ)
+     - The task will push a job to the pilot through the message broker.
 
-registerDatasets (RD)
-    The task will register the output datasets in DDM.
+   * - pfnList (PL)
+     - The task will use the PFN list to specify input files.
 
-registerEsFiles (RE)
-    The task will register the event service output files in DDM.
+   * - putLogToOS (PO)
+     - Jobs in the task will upload log files to the object store.
 
-respectLB (RL)
-    The task will respect the lumi block number when generating jobs, so that each job processes files with the same lumi block number.
+   * - runUntilClosed (RC)
+     - The task will keep running until the input dataset is closed.
 
-retryModuleRules (RM)
-    The list of task parameters and their initial values modified by the retry module.
+   * - registerDatasets (RD)
+     - The task will register the output datasets in DDM.
 
-reuseSecOnDemand (RO)
-    The task will reuse secondary datasets if they are insufficient in comparison to the primary dataset.
+   * - registerEsFiles (RE)
+     - The task will register the event service output files in DDM.
 
-releasePerLB (RP)
-    The task will generate jobs when all input files with the same lumi block number are ready.
+   * - respectLB (RL)
+     - The task will respect the lumi block number when generating jobs, so that each job processes files with the same lumi block number.
 
-respectSplitRule (RR)
-    Scout jobs in the task will respect the ``splitRule`` attribute of the task when they are being generated.
+   * - retryModuleRules (RM)
+     - The list of task parameters and their initial values modified by the retry module.
 
-randomSeed (RS)
-    The random seed to be used for the task.
+   * - reuseSecOnDemand (RO)
+     - The task will reuse secondary datasets if they are insufficient in comparison to the primary dataset.
 
-retryRamOffset (RX)
-    The offset to be added to the RAM size of the job when the retry module changes memory requirements.
+   * - releasePerLB (RP)
+     - The task will generate jobs when all input files with the same lumi block number are ready.
 
-retryRamStep (RY)
-    The step to be added to the RAM size of the job when the retry module changes memory requirements.
+   * - respectSplitRule (RR)
+     - Scout jobs in the task will respect the ``splitRule`` attribute of the task when they are being generated.
 
-resurrectConsumers (SC)
-    The task will resurrect event service consumers.
+   * - randomSeed (RS)
+     - The random seed to be used for the task.
 
-switchEStoNormal (SE)
-    The task will switch event service jobs to normal jobs if the remaining number of events is less than the threshold.
+   * - retryRamOffset (RX)
+     - The offset to be added to the RAM size of the job when the retry module changes memory requirements.
 
-stayOutputOnSite (SO)
-    The task will keep the output files on the PQ where the output files are stored.
+   * - retryRamStep (RY)
+     - The step to be added to the RAM size of the job when the retry module changes memory requirements.
 
-scoutSuccessRate (SS)
-    The success rate of scout jobs to be satisfied in the task.
+   * - resurrectConsumers (SC)
+     - The task will resurrect event service consumers.
 
-useSecrets (ST)
-    Jobs in the task will use secrets stored in PanDA.
+   * - switchEStoNormal (SE)
+     - The task will switch event service jobs to normal jobs if the remaining number of events is less than the threshold.
 
-segmentedWork (SW)
-    The workload in the task is segmented so that jobs are generated for each segment.
+   * - stayOutputOnSite (SO)
+     - The task will keep the output files on the PQ where the output files are stored.
 
-totNumJobs (TJ)
-    The maximum number of jobs to be generated for the task.
+   * - scoutSuccessRate (SS)
+     - The success rate of scout jobs to be satisfied in the task.
 
-tgtNumEventsPerJob
-    The number of events to be targeted for a single job in the task.
+   * - useSecrets (ST)
+     - Jobs in the task will use secrets stored in PanDA.
 
-tgtMaxOutputForNG (TN)
-    The maximum output size in GB to be targeted for a single job in the task when nGBPerJob is set.
+   * - segmentedWork (SW)
+     - The workload in the task is segmented so that jobs are generated for each segment.
 
-t1Weight (TW)
-    The weight in the brokerage to assign jobs to nuclei. -1 to assign all jobs to the nucleus.
+   * - totNumJobs (TJ)
+     - The maximum number of jobs to be generated for the task.
 
-useBuild (UB)
-    The task will use the build job following by multiple run jobs.
+   * - tgtNumEventsPerJob
+     - The number of events to be targeted for a single job in the task.
 
-useJobCloning (UC)
-    The task will use the job cloning mechanism to process the same payload by multiple jobs.
-    "runonce" to kill other jobs when one job takes the payload.
-    "storeonce" to kill other jobs when one job successfully uploads the output.
+   * - tgtMaxOutputForNG (TN)
+     - The maximum output size in GB to be targeted for a single job in the task when nGBPerJob is set.
 
-useRealNumEvents (UE)
-    The task will use the real number of events for each input file available as the n_events metadata in DDM.
+   * - t1Weight (TW)
+     - The weight in the brokerage to assign jobs to nuclei. -1 to assign all jobs to the nucleus.
 
-useFileAsSourceLFN (UF)
-    The task will use a part of the input file name as the source LFN of the output files.
+   * - useBuild (UB)
+     - The task will use the build job following by multiple run jobs.
 
-usePrePro (UP)
-    The task will run the pre-processing job to process actual payload.
+   * - useJobCloning (UC)
+     - The task will use the job cloning mechanism to process the same payload by multiple jobs. "runonce" to kill other jobs when one job takes the payload. "storeonce" to kill other jobs when one job successfully uploads the output.
 
-useScout (US)
-    The task will run scout jobs with a small fraction of input files before generating jobs for all the rest.
+   * - useRealNumEvents (UE)
+     - The task will use the real number of events for each input file available as the n_events metadata in DDM.
 
-usePrefetcher (UT)
-    Jobs in the task will use the prefetcher to download input files.
+   * - useFileAsSourceLFN (UF)
+     - The task will use a part of the input file name as the source LFN of the output files.
 
-useExhausted (UX)
-    The task will go to exhausted if the task is finished incompletely.
+   * - usePrePro (UP)
+     - The task will run the pre-processing job to process actual payload.
 
-useZipToPin (UZ)
-    The task will use the zip datasets to pin input files.
+   * - useScout (US)
+     - The task will run scout jobs with a small fraction of input files before generating jobs for all the rest.
 
-writeInputToFile (WF)
-    Jobs in the task will write input file names to a file and pass it to the payload to avoid executing the payload with a long argument list.
+   * - usePrefetcher (UT)
+     - Jobs in the task will use the prefetcher to download input files.
 
-waitInput (WI)
-    The task will wait for the input dataset before it is registered in DDM.
+   * - useExhausted (UX)
+     - The task will go to exhausted if the task is finished incompletely.
 
-maxAttemptES (XA)
-    The maximum number of attempts for event range.
+   * - useZipToPin (UZ)
+     - The task will use the zip datasets to pin input files.
 
-decAttOnFailedES (XF)
-    Event service jobs in the task will decrease the number of attempts when they fail.
+   * - writeInputToFile (WF)
+     - Jobs in the task will write input file names to a file and pass it to the payload to avoid executing the payload with a long argument list.
 
-maxAttemptEsJob (XJ)
-    The maximum number of attempts for event service jobs.
+   * - waitInput (WI)
+     - The task will wait for the input dataset before it is registered in DDM.
 
-nEventsPerMergeJob (ZE)
-    The number of events to be processed by a single merge job.
+   * - maxAttemptES (XA)
+     - The maximum number of attempts for event range.
 
-nFilesPerMergeJob (ZF)
-    The number of input files to be processed by a single merge job.
+   * - decAttOnFailedES (XF)
+     - Event service jobs in the task will decrease the number of attempts when they fail.
 
-nGBPerMergeJob (ZG)
-    The maximum input size in GB to be processed by a single merge job.
+   * - maxAttemptEsJob (XJ)
+     - The maximum number of attempts for event service jobs.
 
-nMaxFilesPerMergeJob (ZM)
-    The maximum number of input files to be processed by a single merge job.
+   * - nEventsPerMergeJob (ZE)
+     - The number of events to be processed by a single merge job.
+
+   * - nFilesPerMergeJob (ZF)
+     - The number of input files to be processed by a single merge job.
+
+   * - nGBPerMergeJob (ZG)
+     - The maximum input size in GB to be processed by a single merge job.
+
+   * - nMaxFilesPerMergeJob (ZM)
+     - The maximum number of input files to be processed by a single merge job.
 
 ------------
 
