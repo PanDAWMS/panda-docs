@@ -207,13 +207,13 @@ when the service gets started. The default values of those variables are defined
      - 12
 
 
-panda_server.sysconfig
-=========================
+sysconfig and environment files for systemd
+==============================================
 
 .. prompt:: bash
 
- cd ${VIRTUAL_ENV}/etc/panda
- mv panda_server.sysconfig.rpmnew panda_server.sysconfig
+ mv ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig_for_systemd /etc/sysconfig/panda_server
+ mv ${VIRTUAL_ENV}/etc/panda/panda_server_env.systemd.rpmnew /etc/sysconfig/panda_server_env
 
 .. list-table:: httpd parameters
    :header-rows: 1
@@ -240,10 +240,11 @@ Then you need to register the PanDA server as a system service, make some direct
     $ mkdir -p /etc/panda
     $ ln -s ${VIRTUAL_ENV}/etc/panda/*.cfg /etc/panda/
     $ mv ${VIRTUAL_ENV}/etc/idds/idds.cfg.client.template ${VIRTUAL_ENV}/etc/idds/idds.cfg
-    $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
-    $ ln -fs ${VIRTUAL_ENV}/etc/rc.d/init.d/panda_server /etc/rc.d/init.d/httpd-pandasrv
-    $ /sbin/chkconfig --add httpd-pandasrv
-    $ /sbin/chkconfig httpd-pandasrv on
+    $ ln -fs ${VIRTUAL_ENV}/etc/panda/systemd/*.service /etc/systemd/system/
+    $ systemctl daemon-reload
+    $ systemctl enable panda.service
+    $ systemctl enable panda_daemon.service
+    $ systemctl enable panda_httpd.service
 
     $ # make dirs
     $ mkdir -p <logdir in panda_common.cfg>/wsgisocks
@@ -262,10 +263,10 @@ Service Control
 .. prompt:: bash $, auto
 
  $ # start
- $ /sbin/service httpd-pandasrv start
+ $ systemctl start panda.service
 
  $ # stop
- $ /sbin/service httpd-pandasrv stop
+ $ systemctl stop panda.service
 
 There should be log files in the ``logdir``.
 If httpd doesn't get started there could be clues in ``panda_server_error_log``.

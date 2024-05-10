@@ -167,13 +167,15 @@ This configuration file sets various JEDI parameters.
 
 
 
-panda_jedi.sysconfig
-=========================
+sysconfig and environment files for systemd
+===============================================
 
 .. prompt:: bash
 
- cd ${VIRTUAL_ENV}/etc/panda
- mv ../sysconfig/panda_jedi panda_jedi.sysconfig
+ mv ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig_for_systemd /etc/sysconfig/panda_server
+ mv ${VIRTUAL_ENV}/etc/panda/panda_server_env.systemd.rpmnew /etc/sysconfig/panda_server_env
+ mv ${VIRTUAL_ENV}/etc/panda/sysconfig/panda_jedi.sysconfig_for_systemd /etc/sysconfig/panda_jedi
+ mv ${VIRTUAL_ENV}/etc/panda/sysconfig/panda_jedi_env /etc/sysconfig/panda_jedi_env
 
 .. list-table:: httpd parameters
    :header-rows: 1
@@ -199,12 +201,10 @@ when they are installed on the same machine.
 
 .. prompt:: bash $, auto
 
- $ # register the PanDA server
- $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_server.sysconfig /etc/sysconfig/panda_server
- $ ln -fs ${VIRTUAL_ENV}/etc/panda/panda_jedi.sysconfig /etc/sysconfig/panda_jedi
- $ ln -fs ${VIRTUAL_ENV}/etc/init.d/panda_jedi /etc/rc.d/init.d/panda_jedi
- $ /sbin/chkconfig --add panda_jedi
- $ /sbin/chkconfig panda_jedi on
+ $ # register JEDI
+ $ ln -fs ${VIRTUAL_ENV}/etc/panda/systemd/panda_jedi.service /etc/systemd/system/
+ $ systemctl daemon-reload
+ $ systemctl enable panda_jedi.service
 
  $ # make dirs
  $ mkdir -p <logdir in panda_common.cfg>
@@ -223,10 +223,10 @@ Service Control
 .. prompt:: bash $, auto
 
  $ # start
- $ /sbin/service panda_jedi start
+ $ systemctl start panda_jedi.service
 
  $ # stop
- $ /sbin/service panda_jedi stop
+ $ systemctl stop panda_jedi.service
 
 There should be log files in ``logdir``.
 If it doesn't get started there could be clues in ``panda_jedi_stdout.log`` and ``panda_jedi_stderr.log``.
