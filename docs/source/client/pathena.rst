@@ -53,7 +53,7 @@ Running jobOptions
 
 .. note::
 
-   In recent Athena releases, component accumulator allows the running of job options directly with python.
+   In recent Athena releases, ComponentAccumulator allows the running of job options directly with python.
    Please see :ref:`these instructions <ref_ca>` for the recommended approach in this case.
 
 When you run Athena with
