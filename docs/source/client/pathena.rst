@@ -51,6 +51,11 @@ How to run
 Running jobOptions
 --------------------
 
+.. note::
+
+   In recent Athena releases, component accumulator allows the running of job options directly with python.
+   Please see :ref:`these instructions <ref_ca>` for the recommended approach in this case.
+
 When you run Athena with
 
 .. prompt:: bash
@@ -185,6 +190,8 @@ AtlasG4_trf.py uses it as an output filename while Digi_trf.py uses it as an inp
 --------------
 
 |br|
+
+.. _ref_ca:
 
 Running arbitrary executables in the Athena runtime environment
 ----------------------------------------------------------------------------
