@@ -73,14 +73,14 @@ There are three parameters in ``panda_server.cfg``.
 
 ``token_authType`` needs to be *oidc* to enable the OIDC/OAuth2.0 based Auth.
 The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
-parameter. The filename should be `\<name of virtual organization(.role)\>_auth_config.json`.
+parameter. The filename should be :blue:`\<name of virtual organization(.role)\>_auth_config.json`.
 The configuration file contains
 
  * "audience"
  * "client_id"
  * "client_secret"
  * "oidc_config_url"
- * and "vo"
+ * "vo"
 
 The first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
 the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
@@ -91,8 +91,10 @@ the directory needs to be exposed in ``httpd.conf`` like
 
     Alias /auth/ "/opt/panda/etc/panda/auth/"
 
-It is possible to use another OIDC client for a special role in the same VO by adding the role name to the filename,
-e.g. `a_vo_auth_config.json` and `a_vo.a_role_auth_config.json`.
+Roles are defined as working groups in the VO in PanDA IAM.
+It is possible to use another OIDC client for a special role in the same VO by adding the role name to the filename.
+E.g, :blue:`a_vo_auth_config.json` for ordinary users in a VO and :blue:`a_vo.a_role_auth_config.json` for selected
+users in the same VO.
 
 
 PanDA IAM gives all group names in the OIDC group attribute. This means that each group name must be unique.
