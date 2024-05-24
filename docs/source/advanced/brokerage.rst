@@ -130,8 +130,7 @@ Here is the ATLAS production job brokerage flow:
    * Skip all queues if the number of files to be aggregated to the nucleus is larger than ``NQUEUED_NUC_CAP_FOR_JOBS``
      (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
 
-   * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs, skip queues which have -1 in the ``pledgedCPU`` field in CRIC
-     since they are considered as opportunistic resources.
+   * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs, skip queues unless associated with the nucleus.
 
    * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs or merging jobs or pre-merged jobs, skip inactive queues
      (where no jobs got started in the last 2 hours although activated jobs had been there).
