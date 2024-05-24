@@ -46,10 +46,11 @@ OIDC/OAuth2.0 based Auth.
 .. prompt:: bash
 
  export PANDA_AUTH=oidc
- export PANDA_AUTH_VO=<name of virtual organization>
+ export PANDA_AUTH_VO=<name of virtual organization:(role)>
  export PANDA_VERIFY_HOST=off
 
 where *<name of virtual organization>* should be replaced with the actual VO name.
+The *role* is optional and can be omitted if the user does not belong to any role in the VO.
 
 
 Adding a new VO to the PanDA server
@@ -69,12 +70,10 @@ There are three parameters in ``panda_server.cfg``.
     # directory where OIDC authentication config files are placed
     auth_config = /opt/panda/etc/panda/auth/
 
-    # json filename where OIDC authorization policies are described
-    auth_policies = /opt/panda/etc/panda/auth_policies.json
 
 ``token_authType`` needs to be *oidc* to enable the OIDC/OAuth2.0 based Auth.
 The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
-parameter. The filename should be `\<name of virtual organization\>_auth_config.json`.
+parameter. The filename should be `\<name of virtual organization(.role)\>_auth_config.json`.
 The configuration file contains
 
  * "audience"
@@ -92,28 +91,9 @@ the directory needs to be exposed in ``httpd.conf`` like
 
     Alias /auth/ "/opt/panda/etc/panda/auth/"
 
-A json file, specified by ``auth_policies``, defines authorization policies of VOs.
-The format is
+It is possible to use another OIDC client for a special role in the same VO by adding the role name to the filename,
+e.g. `a_vo_auth_config.json` and `a_vo.a_role_auth_config.json`.
 
-.. code-block:: python
-
-    {
-      "VO name": [
-        [
-          "string in OIDC group attribute",
-          {
-            "group": "group name in the VO",
-            "role": "user"
-          }
-        ],
-        ...
-      ],
-      "another vo name": [
-        ...
-        ]
-      ],
-      ...
-    }
 
 PanDA IAM gives all group names in the OIDC group attribute. This means that each group name must be unique.
 The authorization policy file describes
