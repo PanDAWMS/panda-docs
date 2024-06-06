@@ -5,6 +5,7 @@ Messaging Mechanism
 Messaging mechanism in PanDA WMS system, benefiting from MQ (message queue) service, provides enhancements for the system, by allowing quick communications with messages between PanDA server and JEDI, between iDDS and JEDI (and potentially between PanDA WMS and other external systems).
 
 Before messaging mechanism developped in PanDA WMS, communicaitions among different agents and components only relied on the DB (PanDA database) - one unit updates the DB entries and the other unit polls the DB perioically to get the update and react. In this mechanism, the lataency due to polling periods can only be mitigated by shortening the cycle periods of agents, at the cost of (over)loading the DB.
+
 With messaging mechanism, some communications between agents and components can come and go directly through MQ, without hitting the DB. Thus it reduces both the latency and DB load, which is useful in the cases of time-sensitive tasks (e.g. interactive analysis tasks or very short tasks) and of massive transient information to communicate (e.g. JEDI sending messages of status change of tasks to iDDS to trigger iDDS actions)
 
 The backend MQ can be any message broker which supports STOMP protocol (e.g. ActiveMQ, Artemis, RabbitMQ, etc.).
@@ -13,6 +14,7 @@ Note that PanDA WMS system is still functional without messaging mechanism runni
 
 The main components in the messaging mechanism are: message processors, message senders and backend MQ.
 
+|br|
 
 Message Processors
 ------------------
@@ -28,6 +30,8 @@ The architecture in the message processor agent:
 .. figure:: images/jedi_msgproc_arch.png
   :align: center
 
+
+|br|
 
 
 JEDI Configuration
@@ -64,6 +68,14 @@ The JSON configuration file (configured in ``[msgprocessor]`` ``configFile`` in 
             "cert_file": "/path/of/cert",
             "key_file": "/path/of/key",
             "vhost": "/"
+        },
+        "internal_mb": {
+            "host_port_list": ["your-panda-internal-mb-server.cern.ch:61613"],
+            "use_ssl": false,
+            "username": "...",
+            "passcode": "...",
+            "send_heartbeat_ms": 15000,
+            "vhost": "/"
         }
     },
     "queues": {
@@ -74,6 +86,26 @@ The JSON configuration file (configured in ``[msgprocessor]`` ``configFile`` in 
         "rucio-events": {
             "server": "rucio_mb",
             "destination": "/queue/Consumer.panda.rucio.events"
+        },
+        "jedi_contents_feeder": {
+            "server": "internal_mb",
+            "destination": "/queue/jedi_contents_feeder",
+            "max_buffer_len": 1,
+            "buffer_block_sec": 1,
+            "verbose": true
+        },
+        "jedi_job_generator": {
+            "server": "internal_mb",
+            "destination": "/queue/jedi_job_generator",
+            "max_buffer_len": 1,
+            "buffer_block_sec": 1,
+            "verbose": true
+        },
+        "jedi_jobtaskstatus": {
+            "server": "internal_mb",
+            "destination": "/queue/jedi_jobtaskstatus",
+            "ack_mode": "auto",
+            "buffer_block_sec": 1
         }
     },
     "processors": {
@@ -89,6 +121,27 @@ The JSON configuration file (configured in ``[msgprocessor]`` ``configFile`` in 
             "module": "pandajedi.jedimsgprocessor.panda_callback_msg_processor",
             "name": "PandaCallbackMsgProcPlugin",
             "in_queue": "rucio-events"
+        },
+        "jedi-contents-feeder": {
+            "enable": true,
+            "module": "pandajedi.jedimsgprocessor.jedi_contents_feeder_msg_processor",
+            "name": "JediContentsFeederMsgProcPlugin",
+            "n_threads": 2,
+            "in_queue": "jedi_contents_feeder"
+        },
+        "jedi-job-generator": {
+            "enable": true,
+            "module": "pandajedi.jedimsgprocessor.jedi_job_generator_msg_processor",
+            "name": "JediJobGeneratorMsgProcPlugin",
+            "n_threads": 2,
+            "in_queue": "jedi_job_generator"
+        },
+        "push_jobtask_status": {
+            "enable": true,
+            "module": "pandajedi.jedimsgprocessor.status_report_msg_processor",
+            "name": "StatusReportMsgProcPlugin",
+            "n_threads": 2,
+            "in_queue": "jedi_jobtaskstatus"
         }
     }
     }
@@ -101,7 +154,7 @@ In the JSON object, the configuration of **message broker servers**, **queues**,
 
 Defined under ``"mb_servers"`` object.
 In the ``"mb_servers"`` object, a key can be any arbitrary name standing for the message broker server.
-In the example above, there are 2 message broker servers, named "iDDS_mb" and "rucio_mb".
+In the example above, there are 3 message broker servers, named "iDDS_mb", "rucio_mb" and "internal_mb".
 
 Parameters of a message broker server\:
 
@@ -118,7 +171,7 @@ Parameters of a message broker server\:
 
 Defined under ``"queues"`` object.
 In the ``"queues"`` object, a key can be any arbitrary name standing for a message queue.
-In the example above, there are 2 message queues, named "idds" and "rucio-events".
+In the example above, there are 5 message queues: "idds", "rucio-events", "jedi_contents_feeder", "jedi_job_generator" and "jedi_jobtaskstatus".
 
 Parameters of a message queue\:
 
@@ -149,6 +202,9 @@ Parameters of a message processor\:
 * ``"out_queue"``: Queue name defined under ``"queues"`` object, where the message processor sends messages to this queue. Not required if the processor does not send out messages. Default is null
 * ``"params"``: A set of parameters for the message processor module (parameter definitions depend on the plugin) in JSON object format. Default is null
 * ``"verbose"``: Whether to log verbosely about this message processor. Default is false
+
+
+|br|
 
 
 Message Senders
@@ -274,7 +330,7 @@ Parameters of a message broker server\:
 **Queues**
 
 Defined under ``"queues"`` object.
-In the ``"queues"`` object, a key can be any arbitrary name standing for a message queue.
+In the ``"queues"`` object, the key it the name standing for a message queue. The queue names depend on the senders (i.e. queue names *CANNOT* be arbitrary). For example, for PanDA/JEDI internal messaging the following queue names are used: "jedi_contents_feeder", "jedi_job_generator", "jedi_jobtaskstatus"
 
 Parameters of a message queue\:
 
@@ -282,8 +338,6 @@ Parameters of a message queue\:
 * ``"destination"``: STOMP option, destination path on the message broker server for this message queue. Mandatory
 * ``"enable"``: Whether to listen to this message queue. Useful when one needs to disable the queue temporarily but still wants to keep it the configuration file. Default is true
 * ``"verbose"``: Whether to log verbosely about communication details with this message queue. Note that this value is ignored when verbose=true is set in the ``"mb_servers"`` section - logs will be verbose for all queues under the this message server. Default is false
-
-
 
 
 |br|
