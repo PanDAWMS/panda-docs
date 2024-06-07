@@ -42,4 +42,10 @@ Selected Publications
 
 `Utilizing Distributed Heterogeneous Computing with PanDA in ATLAS <https://doi.org/10.1051/epjconf/202429504053>`_, CHEP 2023
 
+`Accelerating science: The usage of commercial clouds in ATLAS Distributed Computing <https://doi.org/10.1051/epjconf/202429507002>`_, CHEP 2023
+
 `PanDA: Production and Distributed Analysis System <https://doi.org/10.1007/s41781-024-00114-3>`_, Journal of Computing and Software for Big Science
+
+2024
+==============
+`Operational Experience and R&D results using the Google Cloud for High Energy Physics in the ATLAS experiment <https://arxiv.org/abs/2403.15873>`_, arXiv and International Journal of Modern Physics A
