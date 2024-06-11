@@ -83,14 +83,9 @@ If you need to connect from outside, you'll have to establish an SSH tunnel.
 Here's how to set it up in  in `SQL Developer <https://www.oracle.com/database/sqldeveloper/>`_.
 Note that there are compatibility issues with SQL Developer and SSH tunnelling on MacOS with M1 chips as of early 2024.
 
-First, navigate to the SSH panel in SQL Developer  [View -> SSH].
-Once there, you'll see a panel similar to the one shown below.
-
-.. figure:: images/panel.png
-   :alt: SSH panel
-
-
-Right-click on "SSH Hosts" to add a new SSH connection, as demonstrated in the following image.
+First, navigate to the SSH panel in SQL Developer [View -> SSH].
+You'll see a panel just below the Reports panel at bottom left.
+Right-click on "SSH Hosts" there to add a new SSH connection, as demonstrated in the following image.
 Use your lxplus account username.
 
 .. figure:: images/ssh.png
