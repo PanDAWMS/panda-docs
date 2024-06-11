@@ -40,7 +40,7 @@ Check the status and configuration of the logrotate service:
 
 
 Myproxy for PanDA ProxyCache
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 For ATLAS Robot proxy certificate of atlpilo1 and atlpilo2 are in use. Examples below are for atlpilo1.
 
@@ -85,7 +85,7 @@ Reinitialize myproxy:
 
 
 Access to Oracle database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 .. warning::
 
