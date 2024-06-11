@@ -34,6 +34,11 @@ Check the status and configuration of the logrotate service:
  systemctl list-timers | grep logrotate
  cat /etc/systemd/system/logrotate.timer
 
+------------
+
+|br|
+
+
 Myproxy for PanDA ProxyCache
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -74,6 +79,9 @@ Reinitialize myproxy:
 
     myproxy-init -s myproxy.cern.ch -x -Z '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pandasv1/CN=663551/CN=Robot: ATLAS Panda Server1' -d -k panda -c 4383 -t 0 -C ~/.globus/atlpilo1_latest_x509up.rfc.proxy -y ~/.globus/atlpilo1_latest_x509up.rfc.proxy;
 
+--------------
+
+|br|
 
 
 Access to Oracle database
@@ -83,7 +91,7 @@ Access to Oracle database
 
   When running resource-intensive queries, use :blue:`adcrnew-rac52-scan.cern.ch` and :blue:`adcr_adg.cern.ch` instead of
   :blue:`adcr-s.cern.ch` and :blue:`adcr_panda.cern.ch` whenever possible. This helps prevent killing the production database server
-  and ensures smoother operation."
+  and ensures smoother operation.
 
 Via SQL Developer
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -129,3 +137,5 @@ Here is a code snippet to connect to the database:
     print(x[0])
 
 Use your database username and password in the code snippet above.
+
+|br|
