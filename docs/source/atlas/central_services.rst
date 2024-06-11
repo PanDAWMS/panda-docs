@@ -79,6 +79,12 @@ Reinitialize myproxy:
 Access to Oracle database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. warning::
+
+  When running resource-intensive queries, use :blue:`adcrnew-rac52-scan.cern.ch` and :blue:`adcr_adg.cern.ch` instead of
+  :blue:`adcr-s.cern.ch` and :blue:`adcr_panda.cern.ch` whenever possible. This helps prevent killing the production database server
+  and ensures smoother operation."
+
 Via SQL Developer
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -109,7 +115,7 @@ in ATLAS_PANDA, ATLAS_PANDAARCH, and other schemas.
 
 Via CERN SWAN
 ^^^^^^^^^^^^^^^^^^^
-`SWAN service <https://swan.cern.ch/>`_ provides a Jupyter notebook environment with access to the ATLAS Oracle database.
+`CERN SWAN service <https://swan.cern.ch/>`_ provides a Jupyter notebook environment with access to the ATLAS Oracle database.
 Here is a code snippet to connect to the database:
 
 .. code-block:: python
