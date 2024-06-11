@@ -38,7 +38,7 @@ You can create a kubernetes cluster by running the following command:
 
 .. prompt:: bash
 
-  openstack coe cluster create PanDA-DOMA-k8s --keypair lxplus --cluster-template kubernetes-1.29.2-2 --node-count 4 --flavor m2.xlarge --master-flavor m2.xlarge --merge-labels --labels cern_enabled=true,ingress_controller=nginx,cinder_csi_enabled=True
+  [ekaravak@lxplus981 ~]$ openstack coe cluster create PanDA-DOMA-k8s --keypair lxplus --cluster-template kubernetes-1.29.2-2 --node-count 4 --flavor m2.xlarge --master-flavor m2.xlarge --merge-labels --labels cern_enabled=true,ingress_controller=nginx,cinder_csi_enabled=True
 
 This will create a k8s cluster with 1 master node of xlarge flavor and 4 nodes of xlarge flavor. If the xlarge flavor is not available, you can use a different flavor or request it from the CERN IT department by opening a SNOW request ticket. Please make sure you are using the latest cluster template version (kubernetes-1.29.2-2 in our example).
 
@@ -46,7 +46,7 @@ The following command will show the status of the cluster:
 
 .. prompt:: bash
 
-  openstack coe cluster list
+  [ekaravak@lxplus981 ~]$ openstack coe cluster list
 
 It should be ``CREATE_IN_PROGRESS`` while it is being created and ``CREATE_COMPLETE`` when it is ready.
 
@@ -55,8 +55,8 @@ token with
 
 .. prompt:: bash
 
-   openstack coe cluster config PanDA-DOMA-k8s > panda-k8s-env.sh
-   source panda-k8s-env.sh
+   [ekaravak@lxplus981 ~]$ openstack coe cluster config PanDA-DOMA-k8s > panda-k8s-env.sh
+   [ekaravak@lxplus981 ~]$ source panda-k8s-env.sh
 
 Keep the generated ``panda-k8s-env.sh`` and ``.config`` files for further usage. Let's check our nodes now.
 
