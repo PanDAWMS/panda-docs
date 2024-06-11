@@ -76,8 +76,12 @@ Reinitialize myproxy:
 
 
 
-Access to Oracle database via SQL Developer
+Access to Oracle database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Via SQL Developer
+^^^^^^^^^^^^^^^^^^^^^^^
+
 Accessing the ATLAS Oracle database is restricted to within CERN's network.
 If you need to connect from outside, you'll have to establish an SSH tunnel.
 Here's how to set it up in  in `SQL Developer <https://www.oracle.com/database/sqldeveloper/>`_.
@@ -101,3 +105,21 @@ Fill in the required details, such as the database username and password, as sho
 
 Once connected, right-click on the connection and select "Schema Browser" to explore the tables
 in ATLAS_PANDA, ATLAS_PANDAARCH, and other schemas.
+
+
+Via CERN SWAN
+^^^^^^^^^^^^^^^^^^^
+`SWAN service <https://swan.cern.ch/>`_ provides a Jupyter notebook environment with access to the ATLAS Oracle database.
+Here is a code snippet to connect to the database:
+
+.. code-block:: python
+
+    import oracledb
+    oracledb.init_oracle_client()
+    conn = oracledb.connect(user=database_user, password=database_password, dsn="adcr-s.cern.ch:10121/adcr_panda.cern.ch")
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(JediTaskID) FROM ATLAS_PANDA.JEDI_Tasks")
+    x = cur.fetchone()
+    print(x[0])
+
+Use your database username and password in the code snippet above.
