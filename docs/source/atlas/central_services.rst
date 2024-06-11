@@ -74,3 +74,35 @@ Reinitialize myproxy:
 
     myproxy-init -s myproxy.cern.ch -x -Z '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pandasv1/CN=663551/CN=Robot: ATLAS Panda Server1' -d -k panda -c 4383 -t 0 -C ~/.globus/atlpilo1_latest_x509up.rfc.proxy -y ~/.globus/atlpilo1_latest_x509up.rfc.proxy;
 
+
+
+Access to Oracle database via SQL Developer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Accessing the ATLAS Oracle database is restricted to within CERN's network.
+If you need to connect from outside, you'll have to establish an SSH tunnel.
+Here's how to set it up in  in `SQL Developer <https://www.oracle.com/database/sqldeveloper/>`_.
+Note that there are compatibility issues with SQL Developer and SSH tunnelling on MacOS with M1 chips as of early 2024.
+
+First, navigate to the SSH panel in SQL Developer  [View -> SSH].
+Once there, you'll see a panel similar to the one shown below.
+
+.. figure:: images/panel.png
+   :alt: SSH panel
+
+
+Right-click on "SSH Hosts" to add a new SSH connection, as demonstrated in the following image.
+Use your lxplus account username.
+
+.. figure:: images/ssh.png
+   :alt: SSH connection
+
+
+Then, head to the Connections panel and click the green plus sign to add a new connection.
+Fill in the required details, such as the database username and password, as shown in the following image.
+
+.. figure:: images/dbcon.png
+   :alt: Database connection
+
+
+Once connected, right-click on the connection and select "Schema Browser" to explore the tables
+in ATLAS_PANDA, ATLAS_PANDAARCH, and other schemas.
