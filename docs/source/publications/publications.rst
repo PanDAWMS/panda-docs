@@ -1,5 +1,5 @@
 ===========================
-Publications
+Selected Publications
 ===========================
 
 .. contents:: Table of Contents
@@ -24,9 +24,28 @@ Publications
 
 `The Data Ocean project : An ATLAS and Google R&D collaboration <https://doi.org/10.1051/epjconf/201921404020>`_, CHEP 2018
 
+`BigPanDA: PanDA Workload Management System and its Applications beyond ATLAS <https://doi.org/10.1051/epjconf/201921403050>`_, CHEP 2018
+
 2019
 ==============
 `Managing the ATLAS Grid through Harvester <https://doi.org/10.1051/epjconf/202024503010>`_, CHEP 2019
 
 `Using Kubernetes as an ATLAS computing site <https://doi.org/10.1051/epjconf/202024507025>`_, CHEP 2019
 
+2023
+==============
+`US ATLAS and US CMS HPC and Cloud Blueprint <https://arxiv.org/abs/2304.07376>`_, arXiv
+
+`Integrating the PanDA Workload Management System with the Vera C. Rubin Observatory <https://doi.org/10.1051/epjconf/202429504026>`_, CHEP 2023
+
+`Distributed Machine Learning Workflow with PanDA and iDDS in LHC ATLAS <https://doi.org/10.1051/epjconf/202429504019>`_, CHEP 2023
+
+`Utilizing Distributed Heterogeneous Computing with PanDA in ATLAS <https://doi.org/10.1051/epjconf/202429504053>`_, CHEP 2023
+
+`Accelerating science: The usage of commercial clouds in ATLAS Distributed Computing <https://doi.org/10.1051/epjconf/202429507002>`_, CHEP 2023
+
+`PanDA: Production and Distributed Analysis System <https://doi.org/10.1007/s41781-024-00114-3>`_, Journal of Computing and Software for Big Science
+
+2024
+==============
+`Operational Experience and R&D results using the Google Cloud for High Energy Physics in the ATLAS experiment <https://arxiv.org/abs/2403.15873>`_, arXiv and International Journal of Modern Physics A
