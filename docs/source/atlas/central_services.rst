@@ -90,7 +90,7 @@ Access to Oracle database
 .. warning::
 
   When running resource-intensive queries, use :blue:`adcrnew-rac52-scan.cern.ch` and :blue:`adcr_adg.cern.ch` instead of
-  :blue:`adcr-s.cern.ch` and :blue:`adcr_panda.cern.ch` whenever possible. This helps prevent killing the production database server
+  :blue:`adcr-s.cern.ch` and :blue:`adcr_panda.cern.ch` in the following configurations. This helps prevent killing the production database server
   and ensures smoother operation.
 
 Via SQL Developer
