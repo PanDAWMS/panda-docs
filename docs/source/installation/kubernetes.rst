@@ -34,6 +34,7 @@ Setting up a k8s cluster at CERN
 You can create a k8s cluster at CERN by following the CERN Kubernetes instructions here: https://kubernetes.docs.cern.ch/docs/getting-started/#create-a-cluster
 It is fine to use your personal OpenStack project if this cluster is to be used solely for testing. If you plan to use it for production, you should request a new OpenStack project from the CERN IT department.
 To create a new OpenStack project, you can follow the instructions here: https://clouddocs.web.cern.ch/projects/creating_projects.html
+Before creating a kubernetes cluster, please first follow this guide to create a keypair: https://clouddocs.web.cern.ch/tutorial/create_your_openstack_profile.html
 You can create a kubernetes cluster by running the following command:
 
 .. prompt:: bash
