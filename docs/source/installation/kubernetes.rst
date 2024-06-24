@@ -91,15 +91,15 @@ controller by running:
 
 and setting ``"allow-snippet-annotations"`` from ``"false"`` to ``"true"`` (caveat: it *must* be a string).
 
-We now need to set up the LanDB aliases:
+We now need to set up the LanDB aliases, if we assume that the cluster name is ``panda-doma-k8s`` and the node names are ``panda-doma-k8s-xyz-node`` and we have 4 nodes, we can run the following command to set the aliases for each node. The aliases are comma separated and are in the form of ``<cluster_name>-<component>--load-N-``. For example, the first node (node-0) will have the alias ``panda-doma-k8s-xyz-node-load-1-``. The command to set the aliases is as follows:
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ CLUSTER_NAME=panda-doma-k8s
+  [ekaravak@lxplus981 ~]$ CLUSTER_NAME=panda-doma-k8s; NODE_NAME=$CLUSTER_NAME-xyz-node
   for N in 1 2 3 4 ; do
    openstack server set \
        --property landb-alias="$CLUSTER_NAME--load-$N-,$CLUSTER_NAME-harvester--load-$N-,$CLUSTER_NAME-panda--load-$N-,$CLUSTER_NAME-idds--load-$N-,$CLUSTER_NAME-bigmon--load-$N-,$CLUSTER_NAME-server--load-$N-" \
-       $CLUSTER_NAME-$((N-1)) ; done
+       NODE_NAME-$((N-1)) ; done
 
 Then you can deploy PanDA as instructed in the guide below. We use `CERN Root CA <https://ca.cern.ch/ca/>`_ to obtain host certificates
 ("CERN Host Certificates" / "New CERN Host Certificate" / "Automatic Certificate Generation"). This CA is not provided in the generic Docker images (nor by PanDA images installed by Helm).
