@@ -39,7 +39,7 @@ You can create a kubernetes cluster by running the following command:
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ openstack coe cluster create PanDA-DOMA-k8s --keypair lxplus --cluster-template kubernetes-1.29.2-2 --node-count 4 --flavor m2.xlarge --master-flavor m2.xlarge --merge-labels --labels cern_enabled=true,ingress_controller=nginx,cinder_csi_enabled=True
+  openstack coe cluster create PanDA-DOMA-k8s --keypair lxplus --cluster-template kubernetes-1.29.2-2 --node-count 4 --flavor m2.xlarge --master-flavor m2.xlarge --merge-labels --labels cern_enabled=true,ingress_controller=nginx,cinder_csi_enabled=True
 
 This will create a k8s cluster with 1 master node of xlarge flavor and 4 nodes of xlarge flavor. If the xlarge flavor is not available, you can use a different flavor or request it from the CERN IT department by opening a SNOW request ticket. Please make sure you are using the latest cluster template version (kubernetes-1.29.2-2 in our example).
 
@@ -47,7 +47,7 @@ The following command will show the status of the cluster:
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ openstack coe cluster list
+  openstack coe cluster list
 
 It should be ``CREATE_IN_PROGRESS`` while it is being created and ``CREATE_COMPLETE`` when it is ready.
 
@@ -56,15 +56,15 @@ token with
 
 .. prompt:: bash
 
-   [ekaravak@lxplus981 ~]$ openstack coe cluster config PanDA-DOMA-k8s > panda-k8s-env.sh
-   [ekaravak@lxplus981 ~]$ source panda-k8s-env.sh
+   openstack coe cluster config PanDA-DOMA-k8s > panda-k8s-env.sh
+   source panda-k8s-env.sh
 
 Keep the generated ``panda-k8s-env.sh`` and ``.config`` files for further usage. Let's check our nodes now.
 
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ kubectl get nodes
+  kubectl get nodes
   NAME                                   STATUS   ROLES    AGE    VERSION
   panda-doma-k8s-xyz-master-0   Ready    master   137m   v1.29.2
   panda-doma-k8s-xyz-node-0     Ready    <none>   120m   v1.29.2
@@ -75,19 +75,22 @@ Keep the generated ``panda-k8s-env.sh`` and ``.config`` files for further usage.
 PanDA Helm charts use nginx
 `advanced configuration with snippets <https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/advanced-configuration-with-snippets/>`_
 and for secure connection one will also need the SSL passthrough, so nginx is
-a must. So we need to setup the ingress controller on all 4 nodes (excluding the master):
+a must. So we need to setup the ingress controller on all 4 nodes (excluding the master). We can automate this with a loop:
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ kubectl label node panda-doma-k8s-xyz-node-0 role=ingress
-  node/panda-doma-k8s-xyz-node-0 labeled
+nodes=$(kubectl get nodes --selector='!node-role.kubernetes.io/master' -o jsonpath='{.items[*].metadata.name}')
+for node in $nodes; do
+  kubectl label node "$node" role=ingress
+done
 
-We do the same for the remaining nodes. To enabled snippets (they are disabled by default), edit the config of ingress
+
+To enabled snippets (they are disabled by default), edit the config of ingress
 controller by running:
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ kubectl edit cm -n kube-system cern-magnum-ingress-nginx-controller
+  kubectl edit cm -n kube-system cern-magnum-ingress-nginx-controller
 
 and setting ``"allow-snippet-annotations"`` from ``"false"`` to ``"true"`` (caveat: it *must* be a string).
 
@@ -95,7 +98,7 @@ We now need to set up the LanDB aliases:
 
 .. prompt:: bash
 
-  [ekaravak@lxplus981 ~]$ CLUSTER_NAME=panda-doma-k8s
+  CLUSTER_NAME=panda-doma-k8s
   for N in 1 2 3 4 ; do
    openstack server set \
        --property landb-alias="$CLUSTER_NAME--load-$N-,$CLUSTER_NAME-harvester--load-$N-,$CLUSTER_NAME-panda--load-$N-,$CLUSTER_NAME-idds--load-$N-,$CLUSTER_NAME-bigmon--load-$N-,$CLUSTER_NAME-server--load-$N-" \
