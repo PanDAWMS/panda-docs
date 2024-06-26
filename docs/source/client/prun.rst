@@ -483,3 +483,25 @@ Then you just need to execute prun with ``--inOutDsJson``
  prun --inOutDsJson test.json --exec ...
 
 |br|
+
+Running on a particular CPU hardware
+--------------------------------------
+Users can specify the CPU architecture as well as the GPU architecture using the ``--architecture`` option.
+The option's argument is explained in `this section <../advanced/brokerage.html#checks-for-cpu-and-or-gpu-hardware>`__.
+If the option is not specified the system automatically chooses computing resources without considering CPU architecture.
+
+.. prompt:: bash $, auto
+
+ $ # to utilize only x86_64 CPUs
+ $ prun --architecture '#x86_64' ...
+
+ $ # to utilize only intel x86_64 CPUs
+ $ prun --architecture '#x86_64-intel' ...
+
+ $ # to utilize only ARM CPUs
+ $ prun --architecture '#aarch64' ...
+
+ $ # to utilize both x86_64 and ARM CPUs
+ $ prun --architecture '#(x86_64|aarch64)' ...
+
+|br|
