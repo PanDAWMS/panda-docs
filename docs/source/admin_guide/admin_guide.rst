@@ -321,9 +321,9 @@ Each sdf file has
 .. code-block:: text
 
  executable = /opt/panda/misc/runpilot2-wrapper.sh
- arguments = -s {computingSite} -r {computingSite} -q {pandaQueueName} -j {prodSourceLabel} -i {pilotType} \
+ arguments = "-s {computingSite} -r {computingSite} -q {pandaQueueName} -j {prodSourceLabel} -i {pilotType} \
       -t -w generic --pilot-user generic --url https://pandaserver-doma.cern.ch -d --harvester-submit-mode PULL \
-      --allow-same-user=False --job-type={jobType} {pilotResourceTypeOption} {pilotUrlOption}
+      --allow-same-user=False --job-type={jobType} {pilotResourceTypeOption} {pilotUrlOption}"
 
 to launch the pilot on a worker node. ``runpilot2-wrapper.sh`` is available in
 `the pilot-wrapper repository <https://github.com/PanDAWMS/pilot-wrapper>`_.
