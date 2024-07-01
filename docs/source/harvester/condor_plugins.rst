@@ -31,7 +31,7 @@ There are briefly two cases about harvester and condor schedd - local and remote
 Both setups are fine, depending on the admins and the users.
 The bottom-line is, the harvester should be able to submit jobs to and query the condor schedd without issue.
 
-For the remote case, it important to know the pool name and schedd name of the remote schedd service. They are to be put after flags ``-pool`` and ``-name`` of condor command (condor_q, condor_submit, etc.) respectively, and they will be used in configuring harvester queueconfg about htcondor plugins.
+For the remote case, it important to know the pool name and schedd name of the remote schedd service. They are to be put after flags ``-pool`` and ``-name`` of condor command (condor_q, condor_submit, etc.) respectively, and they will be used in configuring harvester queueconfig about htcondor plugins.
 One can get the pool name (usually made up of collector name + port) and schedd name by running the following commands on the schedd node\:
 
 .. code-block:: text
@@ -61,6 +61,8 @@ Here are the examples for both local and remote cases.
    .. code-tab:: Local
 
         # Test READ/WRITE auth/permission with condor_ping
+        # Given the local node to be the harvester with hostname myharvester
+        # Given "atlpan" the user which harvester runs with, and also can authenticate the remote condor schedd (depending on configuration on schedd node)
         [root@harvester-test01 ~]# condor_ping -verbose -debug -type SCHEDD READ WRITE
 
         06/29/24 09:36:33 recognized READ as authorization level, using command 60020.
@@ -103,6 +105,8 @@ Here are the examples for both local and remote cases.
 
 
    .. code-tab:: Remote
+
+        # Test READ/WRITE auth/permission with condor_ping
         # Given the local node to be the harvester with hostname myharvester
         # Given "atlpan" the user which harvester runs with, and also can authenticate the remote condor schedd (depending on configuration on schedd node)
         # Given the pool name and schedd name of remote schedd to be "myschedd.cern.ch:19618" and "myschedd.cern.ch"
@@ -151,23 +155,112 @@ Here are the examples for both local and remote cases.
 Prepare SDF and submit test jobs (Manual Test)
 """""""""""""""""""""""""""""""""""""""""""""""
 
-A submit description file (aka SDF, or JDL) is a file describing the condor jobs to submit (with condor_submit command or python API). See detailed description in `HTCondor docs <https://htcondor.readthedocs.io/en/latest/man-pages/condor_submit.html#submit-description-file-commands>`_ .
+A submit description file (aka SDF, or JDL) is a file describing the condor jobs to submit (with condor_submit command).
 
-One should prepare the SDF file to submit test jobs to their condor schedd.
+One should prepare the SDF file to submit test jobs to their condor schedd to ensure the submission works and the job can finished correctly.
 
+Examples of SDF file\:
+
+.. tabs::
+
+    .. code-tab:: Hello World
+
+        executable   = /usr/bin/echo
+        arguments    = "Hello World!"
+
+        log = /tmp/job.$(Cluster).$(Process).log
+        output = /tmp/job.$(Cluster).$(Process).out
+        error = /tmp/job.$(Cluster).$(Process).err
+
+        request_cpus   = 1
+        request_memory = 1024
+        request_disk   = 10240
+
+        should_transfer_files = yes
+        when_to_transfer_output = on_exit
+
+        queue 1
+
+
+    .. code-tab:: ATLAS Job
+
+        # Running ATLAS pilot wrapper, submitting to PQ INFN-GENOVA through its HTCondorCE htcondorce01.ge.infn.it:9619, authenticating the CE with token
+
+        executable = /cvmfs/atlas.cern.ch/repo/sw/PandaPilotWrapper/latest/runpilot2-wrapper.sh
+        arguments = "-s INFN-GENOVA -r INFN-GENOVA -q INFN-GENOVA -j unified -i PR --pythonversion 3 -w generic --pilot-user ATLAS --url https://pandaserver.cern.ch  --harvester-submit-mode PULL --allow-same-user=False --job-type=unified --resource-type MCORE --pilotversion 3.7.7.3  "
+        initialdir = /tmp/testdir
+        universe = grid
+        log = /tmp/testdir/grid.$(Cluster).$(Process).log
+        output = /tmp/testdir/grid.$(Cluster).$(Process).out
+        error = /tmp/testdir/grid.$(Cluster).$(Process).err
+        transfer_executable = True
+        x509userproxy = /the/x509_proxy/path
+
+        grid_resource = condor htcondorce01.ge.infn.it htcondorce01.ge.infn.it:9619
+        +remote_jobuniverse = 5
+        +remote_ShouldTransferFiles = "YES"
+        +remote_WhenToTransferOutput = "ON_EXIT_OR_EVICT"
+        +remote_TransferOutput = ""
+        +ioIntensity = 0
+        +xcount = 8
+        +maxMemory = 16000
+        +remote_queue = "atlas"
+        +maxWallTime = 2880
+
+        delegate_job_GSI_credentials_lifetime = 0
+
+        +ScitokensFile = "/the/token/path"
+
+        queue 1
+
+
+One can check more examples SDF file in `HTCondor docs <https://htcondor.readthedocs.io/en/latest/users-manual/submitting-a-job.html>`_ .
+
+Examples of submission for both local and remote cases\:
+
+.. tabs::
+
+    .. code-tab:: Local
+
+        # Submit the SDF with condor_submit
+        # Given the local node to be the harvester with hostname myharvester
+        # Given "atlpan" the user which harvester runs with, and also can authenticate the remote condor schedd (depending on configuration on schedd node)
+        [atlpan@myharvester ~]$ condor_submit /path/of/myjob.sdf
+
+
+    .. code-tab:: Remote
+
+        # Submit the SDF with condor_submit
+        # Given the local node to be the harvester with hostname myharvester
+        # Given "atlpan" the user which harvester runs with, and also can authenticate the remote condor schedd (depending on configuration on schedd node)
+        # Given the pool name and schedd name of remote schedd to be "myschedd.cern.ch:19618" and "myschedd.cern.ch"
+        [atlpan@myharvester ~]$ condor_submit -pool myschedd.cern.ch:19618 -name myschedd.cern.ch /path/of/myjob.sdf
+
+
+See more detailed descriptions about condor_submit and SDF file in `HTCondor docs (submitting-a-job) <https://htcondor.readthedocs.io/en/latest/users-manual/submitting-a-job.html>`_ . and `HTCondor docs (condor_submit)  <https://htcondor.readthedocs.io/en/latest/man-pages/condor_submit.html#submit-description-file-commands>`_ .
 
 
 Prepare SDF template
 """"""""""""""""""""
 
-A submit description file template (JDL template), is a SDF with some values replaced with placeholders, so that it works as the template for generating real SDF files to submit. Harvester will resolve the placeholders with real values according to attributes of the worker to submit and/or the setup of the PQ.
+A submit description file template (JDL template), is a SDF with some values replaced with placeholders, so that it works as the template for generating real SDF files to submit. 
 
-One should prepare the SDF template according to the SDF file used for submitting successful test condor jobs. That is to say, replace hard-coded values in the SDF with the placeholders.
+The placeholders are in the form of {keywords} (keywords between brackets, consistent with python fstring format). Harvester will resolve the placeholders with real values according to attributes of the worker to submit and/or the setup of the PanDA queue (PQ).
+
+See :ref:`here <ref-all-placeholders>` for descriptions of all placeholders available.
+
+One should prepare the SDF template according to the SDF file used for submitting successful test condor jobs. That is to say:
+
+* Replace hard-coded values in the SDF with the placeholders available (usually about PQ and resource requirements)
+* Set extra attributes to be corresponding placeholders in the SDF template for better harvester htcondor usage (e.g. ``+harvesterID`` and ``+harvesterWorkerID``, see below)
+
 
 Note that:
 
 * It is better to add ``+harvesterID = "{harvesterID}"`` and ``+harvesterWorkerID = "{workerID}"`` in the SDF template so that harvesterID and workerID are added to the condor job classads; thus the admin can easily query condor jobs on schedd about corresponding harvester workers. Moreover, these two lines in SDF template are mandatory if one wants to enable event-based htcondor_monitor.
+* It is recommended to add ``+sdfPath = "{sdfPath}"`` so that one can track the path of SDF file of the condor job with its classads (can be queried with condor_q or condor_history).
 *  For PUSH mode (1-to-1, 1-to-many, or many-to-1 pandaJob-worker mapping), pilot needs to be submitted together with the pre-fetched PanDA job(s) (fetched by harvester). Thus, in SDF template one should specify the job description file with {jobSpecFileName} placeholder (The true filename typically named ``pandaJobData.out`` or ``HPCJobs.json``, to be matched with pilot) to be one of the transfer_input_files of the condor job, like: ``transfer_input_files = {jobSpecFileName}``
+* Assure the credentials (e.g. proxy certificate file, token) for the condor job to authenticate external components (e.g. PanDA server, CE) are set in the SDF template. For example ``x509userproxy=...`` , ``+ScitokensFile = "{tokenPath}"``
 * Make sure one has one and only one ``queue 1`` at the end of SDF template, so that the condor job with a given workerID is submitted only once, as harvester expects that each harvester worker is mapped to one condor job.
 
 
@@ -371,24 +464,141 @@ For ATLAS Grid, check `here <https://github.com/PanDAWMS/harvester_configuration
 
 
 
+Configure htcondor plugins in ququeconfig
+""""""""""""""""""""""""""""""""""""""""""
+
+With the condor schedd and SDF template ready, one can configure the queueconfig for harvester to serve a PQ with htcondor plugins: htcondor_submitter, htcondor_monitor and htcondor_sweeper.
+
+**Submitter plugin**
+
+To use htcondor_submitter plugin, set ``"module": "pandaharvester.harvestersubmitter.htcondor_submitter"`` and ``"name": "HTCondorSubmitter"`` in ``submitter`` section of the queue in the queueconfig, and the attributes of htcondor_submitter as well.
+
+Examples of submitter section in of certain PQ in DOMA and ATLAS respectively\:
+
+.. tabs::
+
+    .. code-tab:: DOMA
+
+        "submitter": {
+            "module": "pandaharvester.harvestersubmitter.htcondor_submitter",
+            "name": "HTCondorSubmitter",
+            "logBaseURL": "https://panda-doma.cern.ch/condor_logs/condor_logs",
+            "logDir": "/var/log/condor_logs/condor_logs",
+            "nProcesses": 8,
+            "templateFile": "/opt/harvester/sandbox/cnaf_darkside.submit_pilot_token_push.sdf",
+            "useCRIC": true,
+            "useCRICGridCE": false,
+            "x509UserProxy": "/data/harvester/darkside.short.proxy"
+        },
 
 
+    .. code-tab:: ATLAS
+
+        "submitter": {
+            "module": "pandaharvester.harvestersubmitter.htcondor_submitter",
+            "name": "HTCondorSubmitter",
+            "CEtemplateDir": "/cephfs/atlpan/harvester/harvester_configurations/GRID/condor_sdf_templates/atlas-grid-ce_pull.sdf.d",
+            "condorHostConfig": "/opt/harvester/etc/panda/condor_host_config.json",
+            "logBaseURL": "https://[ScheddHostname]/condor_logs_2",
+            "logDir": "/data2/atlpan/condor_logs",
+            "nProcesses": 8,
+            "payloadType": "atlas_pilot_wrapper",
+            "rcPilotRandomWeightPermille": 10,
+            "tokenDir": "/cephfs/atlpan/harvester/tokens/ce/prod",
+            "tokenDirAnalysis": "/cephfs/atlpan/harvester/tokens/ce/pilot",
+            "useCRICGridCE": true,
+            "x509UserProxy": "/cephfs/atlpan/harvester/proxy/x509up_u25606_prod",
+            "x509UserProxyAnalysis": "/cephfs/atlpan/harvester/proxy/x509up_u25606_pilot"
+        },
 
 
+Note that:
+
+* Be aware of how the schedd instances are put in the config. Schedd instances can be put in with ``condorHostConfig`` attribute (recommended, see :ref:`here <_ref-condorHostConfig>`), or with the combination of ``condorPool`` and ``condorSchedd`` attributes 
+* Be aware of how the SDF template is passed in the configuration. It can be passed with ``templateFile`` attribute (simple and straightforward), or indirectly with ``CEtemplateDir`` attribute (used with configuraions of CEs on CRIC)
 
 
+See :ref:`here <_ref-htcondor_submitter>` for descriptions of all configurable attributes and details of htcondor_submitter.
 
 
+**Monitor plugin**
+
+To use htcondor_monitor plugin, set ``"module": "pandaharvester.harvestermonitor.htcondor_monitor"`` and ``"name": "HTCondorMonitor"`` in ``monitor`` section of the queue in the queueconfig, and the attributes of htcondor_monitor as well.
+
+Examples of monitor section in of certain PQ in DOMA and ATLAS respectively\:
+
+.. tabs::
+
+    .. code-tab:: DOMA
+
+        "monitor": {
+            "module": "pandaharvester.harvestermonitor.htcondor_monitor",
+            "name": "HTCondorMonitor",
+        },
+
+
+    .. code-tab:: ATLAS
+
+        "monitor": {
+            "module": "pandaharvester.harvestermonitor.htcondor_monitor",
+            "name": "HTCondorMonitor"
+        },
+
+
+See :ref:`here <_ref-htcondor_monitor>` for descriptions of all configurable attributes and details of htcondor_monitor.
+
+
+**Sweeper plugin**
+
+To use htcondor_sweeper plugin, set ``"module": "pandaharvester.harvestersweeper.htcondor_sweeper"`` and ``"name": "HTCondorSweeper"`` in ``sweeper`` section of the queue in the queueconfig, and the attributes of htcondor_sweeper as well.
+
+Examples of sweeper section in of certain PQ in DOMA and ATLAS respectively\:
+
+.. tabs::
+
+    .. code-tab:: DOMA
+
+        "sweeper": {
+            "module": "pandaharvester.harvestersweeper.htcondor_sweeper",
+            "name": "HTCondorSweeper"
+        },
+
+
+    .. code-tab:: ATLAS
+
+        "sweeper": {
+            "module": "pandaharvester.harvestersweeper.htcondor_sweeper",
+            "name": "HTCondorSweeper"
+        },
+
+
+See :ref:`here <_ref-htcondor_sweeper>` for details of htcondor_sweeper.
+
+
+**Common section**
+
+One can put attributes in common section, which will be passed to all plugins.
+
+Although curretly htcondor plugins do not really require common attributes so far, it is good to put general attributes (that may be used by multiple htcondor plugins in the future) in the common section.
+
+Examples of common section in of certain PQ in ATLAS\:
+
+.. tabs::
+
+    .. code-tab:: ATLAS
+
+        "common": {
+            "payloadType": "atlas_pilot_wrapper"
+        }
 
 
 
 |br|
 
+.. _ref-all-placeholders:
+
 Placeholders in SDF template
 ----------------------------
-
-The placeholders are in the form of {keywords} (keywords between brackets, consistent with python fstring format).
-
 
 **All placeholders available**
 
@@ -450,6 +660,8 @@ The placeholders are in the form of {keywords} (keywords between brackets, consi
 
 |br|
 
+.. _ref-htcondor_submitter:
+
 htcondor_submitter
 ------------------
 
@@ -481,7 +693,60 @@ htcondor_submitter generates the real SDF file according to the SDF template, th
 * ``"x509UserProxyAnalysis"``: x509 user proxy for analysis workers in grandly unified queues (should not be used for unified dispatch); only used for SDF template placeholder {x509UserProxy} if the worker is analysis. Default is null
 
 
+.. _ref-condorHostConfig:
+
+**Configuration file for ``condorHostConfig``**
+
+The configuration file for ``condorHostConfig`` attribute is meant to describe all schedd instances the PQ can submit through with a given weight (proportion to the probability the schedd is selected to submit through). It is useful when there are multiple remote schedd instances.
+
+It shoul be written in JSON with the form:\
+
+.. code-block:: text
+
+    {
+        "schedd_name_1": {
+            "pool": "pool_name_1",
+            "weight": an_integer
+        },
+        "schedd_name_2": {
+            "pool": "pool_name_2",
+            "weight": an_integer
+        },
+        ...
+    }
+
+Where schedd_name_* and pool_name_* are the schedd name and pool name of the schedd instances, and the weight is an positive integer indicating the relative chance to choose the schedd instance (the final probability will be normalized over weights of all schedd instances).
+
+Example of the JSON configuration file for ``condorHostConfig`` \:
+
+.. code-block:: text
+
+    {
+        "myschedd1.cern.ch": {
+            "pool": "myschedd1.cern.ch:19618",
+            "weight": 1
+        },
+        "myschedd2.cern.ch": {
+            "pool": "myschedd2.cern.ch:19618",
+            "weight": 2
+        },
+        "myschedd3.cern.ch": {
+            "pool": "myschedd3.cern.ch:19618",
+            "weight": 3
+        },
+        "myschedd4.cern.ch": {
+            "pool": "myschedd4.cern.ch:19618",
+            "weight": 4
+        }
+    }
+
+
+Here in the example one has 4 schedd instances, with probability 10%, 20%, 30% and 40% respectively.
+
+
 |br|
+
+.. _ref-htcondor_monitor:
 
 htcondor_monitor
 ------------------
@@ -504,6 +769,8 @@ htcondor_monitor supports event-based monitor check (to be explained) feature.
 
 
 |br|
+
+.. _ref-htcondor_sweeper:
 
 htcondor_sweeper
 ------------------
