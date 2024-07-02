@@ -4,7 +4,7 @@ Messaging Mechanism
 
 Messaging mechanism in PanDA WMS system, benefiting from MQ (message queue) service, provides enhancements for the system, by allowing quick communications with messages between PanDA server and JEDI, between iDDS and JEDI (and potentially between PanDA WMS and other external systems).
 
-Before messaging mechanism developped in PanDA WMS, communicaitions among different agents and components only relied on the DB (PanDA database) - one unit updates the DB entries and the other unit polls the DB perioically to get the update and react. In this mechanism, the lataency due to polling periods can only be mitigated by shortening the cycle periods of agents, at the cost of (over)loading the DB.
+Before messaging mechanism developed in PanDA WMS, communications among different agents and components only relied on the DB (PanDA database) - one unit updates the DB entries and the other unit polls the DB periodically to get the update and react. In this mechanism, the latency due to polling periods can only be mitigated by shortening the cycle periods of agents, at the cost of (over)loading the DB.
 
 With messaging mechanism, some communications between agents and components can come and go directly through MQ, without hitting the DB. Thus it reduces both the latency and DB load, which is useful in the cases of time-sensitive tasks (e.g. interactive analysis tasks or very short tasks) and of massive transient information to communicate (e.g. JEDI sending messages of status change of tasks to iDDS to trigger iDDS actions)
 
@@ -19,8 +19,8 @@ The main components in the messaging mechanism are: message processors, message 
 Message Processors
 ------------------
 
-Message processsors are threads launched by the Message Processor agent, which is running on JEDI and keeps listening to the messages queues configured and waiting for new messages.
-Message processsors only run when messages arrive, and take action according to the messages (aka processing the messages).
+Message processors are threads launched by the Message Processor agent, which is running on JEDI and keeps listening to the messages queues configured and waiting for new messages.
+Message processors only run when messages arrive, and take action according to the messages (aka processing the messages).
 
 JEDI messages processors are plugin-based. New plugins can be added when new functionalities are required.
 The message processor agent can be configured to listen to multiple message queues and to run different plugins.
@@ -163,7 +163,7 @@ Parameters of a message broker server\:
 * ``"username"`` and ``"passcode"``: STOMP option, authenticate the message broker server with username and passcode. Default is null
 * ``"cert_file"`` and ``"key_file"``: STOMP option, authenticate the message broker server with key/cert pair. Default is null
 * ``"vhost"``: STOMP option, vhost of the message broker. Default is null
-* ``"send_heartbeat_ms"`` and ``"recv_heartbeat_ms"``: STOMP option, send and receive hearbeat in microsecond, or 0 meaning not sending/receiving hearbeat. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#Heart-beating>`_ . Default is 60000 (10 minutes) for ``"send_heartbeat_ms"`` and 0 (do not want to receive) for ``"recv_heartbeat_ms"``
+* ``"send_heartbeat_ms"`` and ``"recv_heartbeat_ms"``: STOMP option, send and receive heartbeat in microsecond, or 0 meaning not sending/receiving heartbeat. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#Heart-beating>`_ . Default is 60000 (10 minutes) for ``"send_heartbeat_ms"`` and 0 (do not want to receive) for ``"recv_heartbeat_ms"``
 * ``"verbose"``: Whether to log verbosely about communication details with this message broker server. Default is false
 
 
@@ -178,7 +178,7 @@ Parameters of a message queue\:
 * ``"server"``: Name of the message broker server defined under ``"mb_servers"`` for this message queue. Mandatory
 * ``"destination"``: STOMP option, destination path on the message broker server for this message queue. Mandatory
 * ``"enable"``: Whether to listen to this message queue. Useful when one needs to disable the queue temporarily but still wants to keep it the configuration file. Default is true
-* ``"ack_mode"``: STOMP option, acknowledge mode for this message queue. Available modes are **auto**, **client** and **clien-individual**. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#SUBSCRIBE>`_ . Default is client-individual
+* ``"ack_mode"``: STOMP option, acknowledge mode for this message queue. Available modes are **auto**, **client** and **client-individual**. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#SUBSCRIBE>`_ . Default is client-individual
 * ``"max_buffer_len"``: Maximum queue length in the internal buffer before blocking fetch of new messages. Increasing this value may improve the performance by buffering messages, but setting this value to be too high risks losing messages when JEDI service is interrupted. In the cases that message loss is not tolerated, set the value to be 1. Default is 999
 * ``"buffer_block_sec"``: Retry period in seconds to wait for blocking when ``"max_buffer_len"`` is reached. Decreasing this value may improve the performance by reducing wait time, at the cost of higher system load. Default is 10
 * ``"use_transaction"``: Whether to enable transaction in STOMP. Using transaction provides better protection against message loss, at the risk of performance and overloading the MQ. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#BEGIN>`_ . Default is true
@@ -323,7 +323,7 @@ Parameters of a message broker server\:
 * ``"username"`` and ``"passcode"``: STOMP option, authenticate the message broker server with username and passcode. Default is null
 * ``"cert_file"`` and ``"key_file"``: STOMP option, authenticate the message broker server with key/cert pair. Default is null
 * ``"vhost"``: STOMP option, vhost of the message broker. Default is null
-* ``"send_heartbeat_ms"`` and ``"recv_heartbeat_ms"``: STOMP option, send and receive hearbeat in microsecond, or 0 meaning not sending/receiving hearbeat. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#Heart-beating>`_ . Default is 60000 (10 minutes) for ``"send_heartbeat_ms"`` and 0 (do not want to receive) for ``"recv_heartbeat_ms"``
+* ``"send_heartbeat_ms"`` and ``"recv_heartbeat_ms"``: STOMP option, send and receive heartbeat in microsecond, or 0 meaning not sending/receiving heartbeat. More information in `STOMP docs <https://stomp.github.io/stomp-specification-1.2.html#Heart-beating>`_ . Default is 60000 (10 minutes) for ``"send_heartbeat_ms"`` and 0 (do not want to receive) for ``"recv_heartbeat_ms"``
 * ``"verbose"``: Whether to log verbosely about communication details with this message queue. Note that this value is ignored when verbose=true is set in the ``"mb_servers"`` section - logs will be verbose for all queues under the this message server. Default is false
 
 

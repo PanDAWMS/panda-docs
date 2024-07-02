@@ -270,6 +270,16 @@ and is ready to be pickup by the pilot.
 
 6. Harvester Setup
 -------------------------
+
+.. toctree::
+  :maxdepth: 1
+
+  harvester/installation
+  harvester/plugins/htcondor_plugins
+  harvester/misc
+
+(Harvester documentations are being updated)
+
 In this tutorial we use HTCondor as submission backend, so first you need to install HTCondor on the VM where
 Harvester will be installed. `HTCondor documentation <https://htcondor.readthedocs.io/en/latest/>`_ will help.
 
@@ -321,9 +331,9 @@ Each sdf file has
 .. code-block:: text
 
  executable = /opt/panda/misc/runpilot2-wrapper.sh
- arguments = -s {computingSite} -r {computingSite} -q {pandaQueueName} -j {prodSourceLabel} -i {pilotType} \
+ arguments = "-s {computingSite} -r {computingSite} -q {pandaQueueName} -j {prodSourceLabel} -i {pilotType} \
       -t -w generic --pilot-user generic --url https://pandaserver-doma.cern.ch -d --harvester-submit-mode PULL \
-      --allow-same-user=False --job-type={jobType} {pilotResourceTypeOption} {pilotUrlOption}
+      --allow-same-user=False --job-type={jobType} {pilotResourceTypeOption} {pilotUrlOption}"
 
 to launch the pilot on a worker node. ``runpilot2-wrapper.sh`` is available in
 `the pilot-wrapper repository <https://github.com/PanDAWMS/pilot-wrapper>`_.
