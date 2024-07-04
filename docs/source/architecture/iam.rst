@@ -51,7 +51,7 @@ End-users are authorized using the Device-code Flow.
 When users run panda-client tools like ``pathena`` and ``prun`` in console terminals, the tools prompt
 users to authenticate themselves by visiting links in their web browsers.
 Users are redirected to their own ID providers, and after successful authentication,
-those tools obtain ID tokens from Indigo IAM for accessing the PanDA server.
+those tools obtain ID tokens from Indigo IAM to access the PanDA server.
 Typically, these ID tokens have a lifetime of 24 hours, reducing the need for frequent browser sessions.
 The PanDA server authenticates end-users using the ``sub``, ``aud``, and ``name`` claims in the ID token,
 and authorizes them based on the ``groups`` claim.
@@ -65,7 +65,7 @@ Web Application Authorization with Authorization Flow
 
 Web applications like BigMon use the Authorization Code Flow to access the PanDA server
 on behalf of end-users.
-When users click links in web applications which require PanDA server access,
+When users click links in web applications that require PanDA server access,
 they redirect users to their own ID providers through Indigo IAM.
 Once users are successfully authenticated, the web applications obtain ID tokens from Indigo IAM
 for accessing the PanDA server.
@@ -80,12 +80,12 @@ Robotic Client Authorization with Client Credentials Flow
 
 .. figure:: images/pilot_auth.png
 
-Robotic clients like Harvester obtains access tokens from Indigo IAM using the Client Credentials Flow.
+Robotic clients like Harvester obtain access tokens from Indigo IAM using the Client Credentials Flow.
 
 The sequence diagram above shows token usage in Harvester and the pilot.
-Harvester first acquires access tokens from Indigo IAM. These access tokens, along with other files
-in the sandbox, are then transmitted to the pilot. The pilot utilizes these access tokens to interact
-with the PanDA server. Authentication of the pilot by the PanDA server is based on the ``sub`` (client ID)
+Harvester first obtains access tokens from Indigo IAM. These access tokens, along with other files
+in the sandbox, are then sent to the pilot. The pilot utilizes these access tokens to access
+the PanDA server. Authorization of the pilot by the PanDA server is based on the ``sub`` (client ID)
 and ``aud`` claims in the access token, as well as an internal mapping of client IDs to roles.
 The lifetime of access tokens is typically 4 days, ensuring they are valid throughout the pilot's
 operational period in batch systems.
@@ -99,8 +99,8 @@ Distributing Access Tokens for Robotic Clients to Access External Services
 
 The PanDA server has the capability to centrally renew access tokens and distribute them to robotic
 clients. This is typically useful in reducing the frequency of token renewal with Indigo IAM,
-especially when numerous robotic clients are running and they use short-lived access tokens for
-accessing external services.
+especially when numerous robotic clients are running and they use short-lived access tokens to
+access external services.
 
 The sequence diagram above shows the process of renewing and utilizing short-lived access tokens.
 The PanDA server periodically obtains new access tokens from Indigo IAM with the Client Credentials Flow.
