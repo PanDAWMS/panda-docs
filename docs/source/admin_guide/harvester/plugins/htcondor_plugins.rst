@@ -524,7 +524,7 @@ Examples of submitter section in of certain PQ in DOMA and ATLAS respectively\:
 Note that:
 
 * Be aware of how the schedd instances are put in the config. Schedd instances can be put in with ``condorHostConfig`` attribute (recommended, see :ref:`here <ref-condor-host-config>`), or with the combination of ``condorPool`` and ``condorSchedd`` attributes 
-* Be aware of how the SDF template is passed in the configuration. It can be passed with ``templateFile`` attribute (simple and straightforward), or indirectly with ``CEtemplateDir`` attribute (used with configuraions of CEs on CRIC)
+* Be aware of how the SDF template is passed in the configuration. It can be passed with ``templateFile`` attribute (simple and straightforward), or indirectly with ``CEtemplateDir`` attribute (along with configuraions of CEs on CRIC)
 
 
 See :ref:`here <ref-htcondor_submitter>` for descriptions of all configurable attributes and details of htcondor_submitter.
@@ -543,7 +543,7 @@ Examples of monitor section in of certain PQ in DOMA and ATLAS respectively\:
 
         "monitor": {
             "module": "pandaharvester.harvestermonitor.htcondor_monitor",
-            "name": "HTCondorMonitor",
+            "name": "HTCondorMonitor"
         },
 
 
@@ -621,14 +621,14 @@ All placeholders available
 """"""""""""""""""""""""""
 
 * ``{accessPoint}``: The directory path where harvester put files for payload interaction about the worker. Specified from accessPoint in messenger section. Usually accessPoint is under a (shared) filesystem which both the Harvester and the Condor schedd service can access
-* ``{ceEndpoint}``: Endpoint (usually hostname with prefix and/or port) of the computing element (CE). According to the PQ setup in local configuration or on CRIC. If one or more CEs are configured, one of the active CEs will be chosen (based on a weighting algorithm) for the worker and its endpoint will be put in ``{ceEndpoint}``
-* ``{ceFlavour}``: Type (flavor) of the computing element (CE). Specified from the PQ setup on CRIC. This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
-* ``{ceHostname}``: Hostname of the computing element (CE). According to the PQ setup in local configuration or on CRIC. If one or more CEs are configured, one of the active CEs will be chosen (based on a weighting algorithm) for the worker and its hostname will be put in ``{ceHostname}``
-* ``{ceJobmanager}``: Type of job manager behind the computing element (CE). Specified from the PQ setup on CRIC. This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
-* ``{ceQueueName}``: Internal queue inside the computing element (CE) to be used (not to be confused with PanDA queue). Specified from the PQ setup on CRIC. This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
-* ``{ceVersion}``: Version of the computing element (CE) to be used (not to be confused with PanDA queue). Specified from the PQ setup on CRIC. This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
+* ``{ceEndpoint}``: Endpoint (usually hostname with prefix and/or port) of the computing element (CE). According to the PQ setup in local configuration or on CRIC ("ce_endpoint"). If one or more CEs are configured, one of the active CEs will be chosen (based on a weighting algorithm) for the worker and its endpoint will be put in ``{ceEndpoint}``
+* ``{ceFlavour}``: Type (flavor) of the computing element (CE). Specified from the PQ setup on CRIC ("ce_flavour"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
+* ``{ceHostname}``: Hostname of the computing element (CE). According to the PQ setup in local configuration or on CRIC (short hostname in "ce_endpoint"). If one or more CEs are configured, one of the active CEs will be chosen (based on a weighting algorithm) for the worker and its hostname will be put in ``{ceHostname}``
+* ``{ceJobmanager}``: Type of job manager behind the computing element (CE). Specified from the PQ setup on CRIC ("ce_jobmanager"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
+* ``{ceQueueName}``: Internal queue inside the computing element (CE) to be used (not to be confused with PanDA queue). Specified from the PQ setup on CRIC ("ce_queue_name"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
+* ``{ceVersion}``: Version of the computing element (CE) to be used (not to be confused with PanDA queue). Specified from the PQ setup on CRIC ("ce_version"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
 * ``{computingSite}``: Computing site to which the worker to submit. According the worker. Usually ``{computingSite}`` and {pandaQueueName} are identical
-* ``{customSubmitAttributes}``: Custom condor submit attributes to append to the SDF file, in the form "+key = value". According to PQ setup on CRIC.
+* ``{customSubmitAttributes}``: Custom condor submit attributes to append to the SDF file, in the form "+key = value". According to PQ setup on CRIC (associate parameters "jdl.plusattr.<key>" where <key> is the attribute key name).
 * ``{executableFile}``: Path of the executable file to submit. Specified from htcondor_submitter attribute executableFile
 * ``{gtag}``: The URL for the pilot log (usually stdout of the condor job) of the worker. According to htcondor_submitter attribute logBaseURL (which points to logDir) and the worker. Note the functionality to export logs has to be done additionally outside harvester (e.g. httpd file server)
 * ``{harvesterID}``: harvesterID of this Harvester instance. According to harvester configuration
@@ -642,27 +642,27 @@ All placeholders available
 * ``{nCoreTotal}``: Number of total cores requested by the worker. According to the PQ or the worker
 * ``{nNode}``: Number of nodes requested by the worker. According to the PQ or the worker
 * ``{pandaQueueName}``: PanDA queue (PQ) name of the worker. According to the PQ
-* ``{pilotArgs}``: Custom pilot arguments to append to pilot/wrapper command. According to PQ setup on CRIC.
-* ``{pilotDebugOption}``: Pilot debug option to append to pilot/wrapper command (empty string or "-d"). According to PQ setup on CRIC.
+* ``{pilotArgs}``: Custom pilot arguments to append to pilot/wrapper command. According to PQ setup on CRIC (associate parameter "pilot_args").
+* ``{pilotDebugOption}``: Default pilot debug option to append to pilot/wrapper command (empty string or "-d"). According to the prodSourceLabel of the worker. For "ptest" and "rc_test2" the value is "-d", and for the rest it is empty string.
 * ``{pilotJobLabel}``: Pilot job label option to pass to pilot "-j" flag. According to the worker.
 * ``{pilotJobType}``: Pilot job type option to pass to pilot "--job-type" flag. According to the worker.
-* ``{pilotPythonOption}``: Python (to run pilot) version option to append to pilot/wrapper command (empty string or "--pythonversion <the_version>"). According to PQ setup on CRIC.
+* ``{pilotPythonOption}``: Python (to run pilot) version option to append to pilot/wrapper command (empty string or "--pythonversion <the_version>"). According to PQ setup on CRIC ("python_version").
 * ``{pilotResourceTypeOption}``: equivalent to ``--resource-type {resourceType}``, resourceType for pilot resource-type option. According to the PQ and the worker. 
 * ``{pilotType}``: Pilot type option to pass to pilot "-i" flag. According to the worker.
-* ``{pilotUrlOption}``: Pilot url option to append to pilot/wrapper command (empty string or "--piloturl <the_url>"). According to PQ setup on CRIC.
-* ``{pilotVersion}``: Pilot version to pass to pilot "--pilotversion" flag. According to PQ setup on CRIC.
+* ``{pilotUrlOption}``: Pilot url option to append to pilot/wrapper command (empty string or "--piloturl <the_url>"). According to PQ setup on CRIC (associate parameter  "pilot_url").
+* ``{pilotVersion}``: Pilot version to pass to pilot "--pilotversion" flag. According to PQ setup on CRIC ("pilot_version").
 * ``{prodSourceLabel}``: prodSourceLabel of the worker. Specified from htcondor_submitter attribute prodSourceLabel. Should match prodSourceLabel of corresponding PanDA jobs.
 * ``{requestCputime}``: CPU time requested by the worker in seconds. According to the PQ or the worker
 * ``{requestCputimeMinute}``: CPU time requested by the worker in minutes. According to the PQ or the worker
 * ``{requestDisk}``: Disk space requested by the worker in KB. Derived from the PQ or the worker
-* ``{requestGpus}``: Number of GPUs the worker requests. According to the worker and the PQ setup on CRIC.
+* ``{requestGpus}``: Number of GPUs the worker requests. According to the worker and the PQ setup on CRIC (whether "resource_type" = "gpu"). Currently the number is always 1 or 0
 * ``{requestRam}``: Memory requested by the worker in MB. According to the PQ or the worker
 * ``{requestRamBytes}``: Memory requested by the worker in bytes. According to the PQ or the worker
 * ``{requestRamBytesPerCore}``: Memory per core requested by the worker in bytes. According to the PQ or the worker
 * ``{requestRamPerCore}``: Memory per core requested by the worker in MB. According to the PQ or the worker
 * ``{requestWalltime}``: Walltime requested by the worker in seconds. According to the PQ or the worker
 * ``{requestWalltimeMinute}``: Walltime requested by the worker in minutes. According to the PQ or the worker
-* ``{requireGpus}``: Whether the worker requires GPU. According to the worker and the PQ setup on CRIC.
+* ``{requireGpus}``: Whether the worker requires GPU. According to the worker and the PQ setup on CRIC (whether "resource_type" = "gpu").
 * ``{resourceType}``: resourceType of the worker. According to the PQ and the worker.
 * ``{sdfPath}``: Path of the SDF file. Derived from htcondor_submitter attribute templateFile or CEtemplateDir
 * ``{submissionHost}``: Hostname of the submission host of the worker. According to the worker.
@@ -687,7 +687,7 @@ htcondor_submitter generates the real SDF file according to the SDF template, th
 Attributes of htcondor_submitter
 """"""""""""""""""""""""""""""""
 
-* ``"CEtemplateDir"``: Path of the directory containing SDF templates, one for each CE flavor. Only useful when useCRICGridCE = true, so that harvester selects one of the CEs on CRIC, and get the correct template file in CEtemplateDir according to the CE flavor (also set on CRIC). Will be ignored if templateFile is set. Currently the valid filename of SDF templates under CEtemplateDir should be either *htcondor-ce.sdf* for HTCondorCE or *arc-ce_arc.sdf* for ARC CE REST interface. Default is false
+* ``"CEtemplateDir"``: Path of the directory containing SDF templates, one for each CE flavor. Only useful when useCRICGridCE = true, so that harvester selects one of the CEs on CRIC, and get the correct template file in CEtemplateDir according to the CE flavor (also set on CRIC "ce_flavour"). Will be ignored if templateFile is set. Currently the valid filename of SDF templates under CEtemplateDir should be either *htcondor-ce.sdf* for HTCondorCE or *arc-ce_arc.sdf* for ARC CE REST interface. Default is false
 * ``"condorHostConfig"``: Path of JSON config file of remote condor hosts: condor schedds/pools and their weighting. For each worker, one of condor hosts in condorHostConfig will be selected, with probability according to the given weight, and harvester will submit **from** this condor host (not to be confused with batch-systems or CEs of the PQ, where submits **to**). If set, condorSchedd and condorPool are ignored. Default is null
 * ``"condorPool"``: Condor pool name (condor collector). If there are multiple condor schedds/pools, use condorHostConfig instead. Default is null, i.e. localhost:9618
 * ``"condorSchedd"``: Condor schedd name. If there are multiple condor schedds/pools, use condorHostConfig instead. Default is null, i.e. localhost
@@ -702,7 +702,7 @@ Attributes of htcondor_submitter
 * ``"tokenDir"``: Default token directory for a queue; only used for SDF template placeholder {token*} Default is null
 * ``"tokenDirAnalysis"``: token directory for analysis workers in grandly unified queues (should not be used for unified dispatch); only used for SDF template placeholder {token*} if the worker is analysis. Default is null
 * ``"useAnalysisCredentials"``: Try to use analysis credentials first. Default is false
-* ``"useCRIC"``: Whether to use CRIC; i.e. to fill worker attributes and some SDF template placeholders with the PQ setup on CRIC. If false, the SDF template placeholders depending on CRIC should not be used. Default is false
+* ``"useCRIC"``: Whether to use CRIC; i.e. to fill worker attributes and some SDF template placeholders with the PQ setup on CRIC. If false, the SDF template placeholders depending on CRIC (non-empty "harvester_template") should not be used. Default is false
 * ``"useCRICGridCE"``: Whether to select Grid CEs from PQ setup on CRIC. If true, useCRIC will be overwritten to be true as well and for each worker, one of the CEs on CRIC will be selected (weighted by an internal algorithm) to submit the worker to. For Grid, useful with CEtemplateDir attribute. Default is false
 * ``"useFQDN"``: Whether to use FQDN for harvester internal record. If false or null, short hostname is used. Default is null
 * ``"useSpool"``: Whether to use condor spool mechanism. If false, need shared FS across remote schedd. Default is false
