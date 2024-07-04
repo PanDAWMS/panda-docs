@@ -42,12 +42,12 @@ client is explained below.
 
 |br|
 
-End-user Authorization with Device-code Flow
+End-user Authorization with Device Code Flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: images/enduser_auth.png
 
-End-users are authorized using the Device-code Flow.
+End-users are authorized using the Device Code Flow.
 When users run panda-client tools like ``pathena`` and ``prun`` in console terminals, the tools prompt
 users to authenticate themselves by visiting links in their web browsers.
 Users are redirected to their own ID providers, and after successful authentication,
@@ -58,7 +58,7 @@ and authorizes them based on the ``groups`` claim.
 
 |br|
 
-Web Application Authorization with Authorization Flow
+Web Application Authorization with Authorization Code Flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: images/bigmon_auth.png
