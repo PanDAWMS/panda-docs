@@ -21,7 +21,7 @@ Google, ...
 
 .. figure:: images/iam.png
 
-The figure above shows the procedure of user authentication and authorization, where the device code flow is used
+The figure above shows the procedure of end-user authentication and authorization, where the device code flow is used
 to allow users to run command-line tools.
 First, the user invokes a command-line tool which checks if a valid ID token is locally available.
 If not, the command-line tool sends an authentication request to Indigo IAM on behalf of the user and retrieves
@@ -31,6 +31,83 @@ of tokens are exchanged between CILogon and Indigo IAM, and an ID token is issue
 tool gets the ID token and put it to the HTTP request header when accessing the PanDA server.
 The PanDA server decodes the token and authorizes the user based on OIDC claims such as name, username, and groups.
 
+|br|
+
+Detailed Authorization Flows for OIDC clients
+---------------------------------------------------
+PanDA's IAM scheme supports three types of OIDC clients: one for end-users, another for Web applications such as BigMon,
+and a third for robotic clients like Harvester. It also has a capability to distribute
+tokens for robotic clients to access external services. Authorization Flow for each OIDC
+client is explained below.
+
+|br|
+
+End-user Authorization with Device-code Flow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: images/enduser_auth.png
+
+End-users are authorized using the Device-code Flow.
+When users run panda-client tools like ``pathena`` and ``prun`` in console terminals, the tools prompt
+users to authenticate themselves by visiting links in their web browsers.
+Users are redirected to their own ID providers, and after successful authentication,
+those tools obtain ID tokens from Indigo IAM to access the PanDA server.
+Typically, these ID tokens have a lifetime of 24 hours, reducing the need for frequent browser sessions.
+The PanDA server authenticates end-users using the ``sub``, ``aud``, and ``name`` claims in the ID token,
+and authorizes them based on the ``groups`` claim.
+
+|br|
+
+Web Application Authorization with Authorization Flow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: images/bigmon_auth.png
+
+Web applications like BigMon use the Authorization Code Flow to access the PanDA server
+on behalf of end-users.
+When users click links in web applications that require PanDA server access,
+they redirect users to their own ID providers through Indigo IAM.
+Once users are successfully authenticated, the web applications obtain ID tokens from Indigo IAM
+for accessing the PanDA server.
+Typically, these ID tokens have a lifetime of 24 hours.
+The PanDA server authenticates users (delegators) using the ``sub``, ``aud``, and ``name`` claim in the ID token,
+and authorizes them based on the ``groups`` claim.
+
+|br|
+
+Robotic Client Authorization with Client Credentials Flow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: images/pilot_auth.png
+
+Robotic clients like Harvester obtain access tokens from Indigo IAM using the Client Credentials Flow.
+
+The sequence diagram above shows token usage in Harvester and the pilot.
+Harvester first obtains access tokens from Indigo IAM. These access tokens, along with other files
+in the sandbox, are then sent to the pilot. The pilot utilizes these access tokens to access
+the PanDA server. Authorization of the pilot by the PanDA server is based on the ``sub`` (client ID)
+and ``aud`` claims in the access token, as well as an internal mapping of client IDs to roles.
+The lifetime of access tokens is typically 4 days, ensuring they are valid throughout the pilot's
+operational period in batch systems.
+
+|br|
+
+Distributing Access Tokens for Robotic Clients to Access External Services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: images/dist_token.png
+
+The PanDA server has the capability to centrally renew access tokens and distribute them to robotic
+clients. This is typically useful in reducing the frequency of token renewal with Indigo IAM,
+especially when numerous robotic clients are running and they use short-lived access tokens to
+access external services.
+
+The sequence diagram above shows the process of renewing and utilizing short-lived access tokens.
+The PanDA server periodically obtains new access tokens from Indigo IAM with the Client Credentials Flow.
+The pilot retrieves these access tokens from the PanDA server immediately before accessing storage,
+using the long-lived access tokens provided by Harvester.
+
+|br|
 
 DOMA PanDA IAM
 ---------------
@@ -84,6 +161,15 @@ The configuration file contains
 
 The first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
 the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
+The file may include the following optional attributes:
+
+ * "secondary_ids"
+ * "robot_ids"
+
+The former comprises a list of OIDC client IDs used by clients accessing the PanDA server on behalf
+of the user via ID tokens, while the latter consists of OIDC client IDs used by robotic clients like
+the pilot accessing the PanDA server via access tokens.
+
 Those configuration files must be reachable through Web interface of the PanDA server, so that make sure that
 the directory needs to be exposed in ``httpd.conf`` like
 
