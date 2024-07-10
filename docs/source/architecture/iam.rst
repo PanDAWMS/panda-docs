@@ -88,7 +88,8 @@ in the sandbox, are then sent to the pilot. The pilot utilizes these access toke
 the PanDA server. Authorization of the pilot by the PanDA server is based on the ``sub`` (client ID)
 and ``aud`` claims in the access token, as well as an internal mapping of client IDs to roles.
 The lifetime of access tokens is typically 4 days, ensuring they are valid throughout the pilot's
-operational period in batch systems.
+operational period in batch systems. If access tokens must have shorter lifetimes as per experiment
+policies, you can employ the mechanism described in the :ref:`following section <ref_token_exchange>`.
 
 |br|
 
@@ -106,6 +107,19 @@ The sequence diagram above shows the process of renewing and utilizing short-liv
 The PanDA server periodically obtains new access tokens from Indigo IAM with the Client Credentials Flow.
 The pilot retrieves these access tokens from the PanDA server immediately before accessing storage,
 using the long-lived access tokens provided by Harvester.
+
+|br|
+
+.. _ref_token_exchange:
+
+Token Exchange for Robotic Clients to Access the PanDA Server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: images/exchange.png
+
+The above mechanism is also applicable for renewing access tokens for robotic clients to access the PanDA server.
+This is particularly useful for providing only short-lived access tokens to robotic clients like pilots, that operate
+for durations longer than the lifetime of the original tokens.
 
 |br|
 
