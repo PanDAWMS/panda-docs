@@ -112,7 +112,7 @@ using the long-lived access tokens provided by Harvester.
 
 .. _ref_token_exchange:
 
-Token Exchange for Robotic Clients to Access the PanDA Server
+Token Renewal for Robotic Clients to Access the PanDA Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: images/exchange.png
