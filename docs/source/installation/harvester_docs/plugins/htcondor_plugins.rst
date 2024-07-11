@@ -1,6 +1,8 @@
 ===================================
-Harvester HTCondor Plugins
+HTCondor Plugins
 ===================================
+
+*This documentation is for Harvester v0.5.7 or above*
 
 
 Harvester HTCondor plugins can be used to interface HTCondor workload management system where a condor schedd service is running, including condor batch-system and condor-c (grid submission) service.
@@ -253,7 +255,7 @@ A submit description file template (JDL template), is a SDF with some values rep
 
 The placeholders are in the form of {keywords} (keywords between brackets, consistent with python fstring format). Harvester will resolve the placeholders with real values according to attributes of the worker to submit and/or the setup of the PanDA queue (PQ).
 
-See :ref:`here <ref-all-placeholders>` for descriptions of all placeholders available.
+See :ref:`here <ref-htcondor-all-placeholders>` for descriptions of all placeholders available.
 
 One should prepare the SDF template according to the SDF file used for submitting successful test condor jobs. That is to say:
 
@@ -523,11 +525,11 @@ Examples of submitter section in of certain PQ in DOMA and ATLAS respectively\:
 
 Note that:
 
-* Be aware of how the schedd instances are put in the config. Schedd instances can be put in with ``condorHostConfig`` attribute (recommended, see :ref:`here <ref-condor-host-config>`), or with the combination of ``condorPool`` and ``condorSchedd`` attributes 
-* Be aware of how the SDF template is passed in the configuration. It can be passed with ``templateFile`` attribute (simple and straightforward), or indirectly with ``CEtemplateDir`` attribute (along with configuraions of CEs on CRIC)
+* Be aware of how the schedd instances are put in the config. Schedd instances can be put in with ``condorHostConfig`` attribute (recommended, see :ref:`here <ref-htcondor-condor-host-config>`), or with the combination of ``condorPool`` and ``condorSchedd`` attributes 
+* Be aware of how the SDF template is passed in the configuration. It can be passed with ``templateFile`` attribute (simple and straightforward), or indirectly with ``CEtemplateDir`` attribute (along with configurations of CEs on CRIC)
 
 
-See :ref:`here <ref-htcondor_submitter>` for descriptions of all configurable attributes and details of htcondor_submitter.
+See :ref:`here <ref-htcondor-htcondor_submitter>` for descriptions of all configurable attributes and details of htcondor_submitter.
 
 
 Monitor plugin
@@ -555,7 +557,7 @@ Examples of monitor section in of certain PQ in DOMA and ATLAS respectively\:
         },
 
 
-See :ref:`here <ref-htcondor_monitor>` for descriptions of all configurable attributes and details of htcondor_monitor.
+See :ref:`here <ref-htcondor-htcondor_monitor>` for descriptions of all configurable attributes and details of htcondor_monitor.
 
 
 Sweeper plugin
@@ -583,7 +585,7 @@ Examples of sweeper section in of certain PQ in DOMA and ATLAS respectively\:
         },
 
 
-See :ref:`here <ref-htcondor_sweeper>` for details of htcondor_sweeper.
+See :ref:`here <ref-htcondor-htcondor_sweeper>` for details of htcondor_sweeper.
 
 
 Common section
@@ -607,10 +609,9 @@ Examples of common section in of certain PQ in ATLAS\:
 
 |br|
 
-|br|
+================================================================
 
-
-.. _ref-all-placeholders:
+.. _ref-htcondor-all-placeholders:
 
 Placeholders in SDF template
 ----------------------------
@@ -676,7 +677,7 @@ All placeholders available
 
 |br|
 
-.. _ref-htcondor_submitter:
+.. _ref-htcondor-htcondor_submitter:
 
 htcondor_submitter
 ------------------
@@ -710,7 +711,7 @@ Attributes of htcondor_submitter
 * ``"x509UserProxyAnalysis"``: x509 user proxy for analysis workers in grandly unified queues (should not be used for unified dispatch); only used for SDF template placeholder ``{x509UserProxy}`` if the worker is analysis. Default is null
 
 
-.. _ref-condor-host-config:
+.. _ref-htcondor-condor-host-config:
 
 Configuration file for condorHostConfig
 """""""""""""""""""""""""""""""""""""""
@@ -764,7 +765,7 @@ Here in the example one has 4 schedd instances, with probability 10%, 20%, 30% a
 
 |br|
 
-.. _ref-htcondor_monitor:
+.. _ref-htcondor-htcondor_monitor:
 
 htcondor_monitor
 ------------------
@@ -789,7 +790,7 @@ Attributes of htcondor_monitor
 
 |br|
 
-.. _ref-htcondor_sweeper:
+.. _ref-htcondor-htcondor_sweeper:
 
 htcondor_sweeper
 ------------------

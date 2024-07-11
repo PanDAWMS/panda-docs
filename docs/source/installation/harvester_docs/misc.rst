@@ -1,5 +1,5 @@
 ===================================
-Harvester Miscellaneous
+Miscellaneous
 ===================================
 
 
@@ -131,6 +131,7 @@ numbers may be increased if necessary.
 The following changes are required in panda_harvester.cfg:
 
 .. code-block:: text
+
      [frontend]
      # type
      type = apache
@@ -151,6 +152,7 @@ etc/rc.d/init.d/panda_harvester-apachectl.rpmnew.template. You need change `VIRT
 **Test Apache messenger**
 
 .. code-block:: text
+     
      $ curl http://localhost:26080/entry -H "Content-Type: application/json" -d '{"methodName":"test", "workerID":123, "data":"none"}'
 
 It will receive a message like 'workerID=123 not found in DB'. 
@@ -225,3 +227,23 @@ A complete nginx config may look like
 Then reload nginx service, and it's done.
 
 The test approach is the same as *Test Apache messenger* section above.
+
+
+.. _ref-misc-remote_config_files:
+
+Remote configuration files
+--------------------------
+
+It is possible to load harvester and/or queue configuration files via http/https. 
+This is typically useful to have a centralized pool of configuration files, so that it is easy to see with which configuration each harvester instance is running. 
+
+There are two environment variables *HARVESTER_INSTANCE_CONFIG_URL* and *HARVESTER_QUEUE_CONFIG_URL* to define URLs for system config and queue config files, respectively. 
+If those variable are set, the harvester instance loads config files from those URLs and then overwrites parameters if they are specified in local config files. Sensitive information like database password should be stored only in local config files. 
+System config files are read only when the harvester instance is launched, while queue config files are read every 10 min so that queue configuration can be dynamically changed during the instance is running. 
+
+Note that remote queue config file is periodically cached in the database by Cacher which automatically gets started when the harvester instance is launched, so you don't have to do anything manually. However, when you edit remote queue config file and then want to run some unit tests which don't run Cacher, you have to manually cache it using cacherTest.py.
+
+.. code-block:: text
+
+     $ python lib/python*/site-packages/pandaharvester/harvestertest/cacherTest.py
+

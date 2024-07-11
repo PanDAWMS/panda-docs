@@ -1,5 +1,5 @@
 ===================================
-Harvester Installation
+Installation
 ===================================
 
 Requirements

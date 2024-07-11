@@ -14,7 +14,7 @@ Here are installation manuals of PanDA components.
 
    server
    jedi
-   harvester
+   harvester_docs/main
    PanDA monitor <https://some.webpage/>
    kubernetes
 
