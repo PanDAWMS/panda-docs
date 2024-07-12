@@ -108,6 +108,26 @@ The PanDA server periodically obtains new access tokens from Indigo IAM with the
 The pilot retrieves these access tokens from the PanDA server immediately before accessing storage,
 using the long-lived access tokens provided by Harvester.
 
+This mechanism is activated by placing a configuration file on the PanDA server, which is specified by the
+``token_cache_config`` attribute in ``panda_server.cfg``. This file is a JSON dump of a dictionary structured as
+
+.. code-block:: json
+
+    {
+        "client_name": {
+            "client_id": "OIDC client ID",
+            "secret": "client secret",
+            "endpoint": "token_request_endpoint_url",
+            "use_token_key": true or false,
+        },
+        ...
+    }
+
+
+where "client_name" is an arbitrary name for the client, "client_id" is the OIDC client ID, "secret" is the client secret,
+"endpoint" is the token request endpoint URL, and "use_token_key" is a boolean value indicating whether to use token keys.
+Token keys provide an additional layer of security by limiting the lifetime of access tokens, as described in the next section.
+
 |br|
 
 .. _ref_token_exchange:
@@ -120,6 +140,14 @@ Token Renewal for Robotic Clients to Access the PanDA Server
 The above mechanism is also applicable for renewing access tokens for robotic clients to access the PanDA server.
 This is particularly useful for providing only short-lived access tokens to robotic clients like pilots, that operate
 for durations longer than the lifetime of the original tokens.
+Note that the diagram includes two OIDC clients and three types of access tokens.
+One OIDC client is designated for Harvester, and the other is assigned to the pilot. Access tokens associated
+with the former client are utilized by Harvester itself to access the PanDA server.
+On the other hand, access tokens linked to the latter client are acquired by the PanDA server and the Harvester
+on behalf of the pilot, and the pilot uses these tokens to access the PanDA server.
+Harvester retrieves token keys from the PanDA server and forwards them to the pilot along with the access tokens.
+Token keys have a limited lifetime, ensuring that even if an access token is compromised, obtaining new access
+tokens permanently is impossible.
 
 |br|
 
