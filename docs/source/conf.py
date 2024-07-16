@@ -38,7 +38,8 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'sphinxcontrib.httpdomain',
 ]
 
 sphinx_tabs_disable_tab_closing = True

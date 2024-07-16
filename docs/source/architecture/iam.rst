@@ -142,16 +142,57 @@ Token Renewal for Robotic Clients to Access the PanDA Server
 .. figure:: images/exchange.png
 
 The above mechanism is also applicable for renewing access tokens for robotic clients to access the PanDA server.
-This is particularly useful for providing only short-lived access tokens to robotic clients like pilots, that operate
-for durations longer than the lifetime of the original tokens.
+In this setup, the PanDA server acts as both a token issuer and a resource provider.
+This dual role may seem unconventional but enables robotic clients such as the pilot to utilize only short-lived
+tokens on WNs. This approach aligns with the preferences of the WLCG AuthZ working group, as outlined in
+`the WLCG Common JWT Profiles <https://github.com/WLCG-AuthZ-WG/common-jwt-profile/blob/master/profile.md#refresh-tokens-and-token-revocation>`_,
+and ensures that grid jobs can operate for durations longer than the lifetime of the original tokens.
+
+The sequence diagram above shows the process of renewing and utilizing access tokens for the pilot.
 Note that the diagram includes two OIDC clients and three types of access tokens.
 One OIDC client is designated for Harvester, and the other is assigned to the pilot. Access tokens associated
 with the former client are utilized by Harvester itself to access the PanDA server.
 On the other hand, access tokens linked to the latter client are acquired by the PanDA server and the Harvester
 on behalf of the pilot, and the pilot uses these tokens to access the PanDA server.
-Harvester retrieves token keys from the PanDA server and forwards them to the pilot along with the access tokens.
-Token keys have a limited lifetime, ensuring that even if an access token is compromised, obtaining new access
-tokens permanently is impossible.
+Harvester retrieves token keys from the PanDA server using the ``TokenKeyCredManager`` credential manager plugin,
+and forwards them to the pilot along with the access tokens.
+The plugin is enabled by adding the following item to ``pluginConfigs`` in the ``[credmanager]``
+section of ``panda_harvester.cfg``:
+
+.. code-block:: json
+
+   {
+       "module": "pandaharvester.harvestercredmanager.token_key_cred_manager",
+       "name": "TokenKeyCredManager",
+       "configs": {
+          "<unique name>": {
+          "token_key_file": "</path/to/token_key>",
+          "client_name": "<client_name>"
+          }
+       }
+   }
+
+where *<unique name>* is an arbitrary name for the configuration, *token_key_file* is the path to the file where
+the token string is stored, and *client_name* is the client name associated with the access tokens for the pilot.
+The pilot gets a new access token from the PanDA server using the following REST API endpoint:
+
+.. http:post:: /server/panda/get_access_token
+    :noindex:
+
+      Get an access token for a client
+
+    :param client_name: client name associated with the access tokens
+    :param token_key: token key string if retrieval of access tokens requires a token key
+    :reqheader Authorization: "Bearer {old access token string}"
+    :reqheader Origin: VO.role
+    :status 200: no error
+    :status 403: when the old access token is invalid
+    :resjson StatusCode: 0 for success, 50 for invalid token key, 70 for unauthorized, 90 for missing access token
+    :resjson userProxy: new access token string
+    :resjson errorDialog: error message for non-zero StatusCode
+
+Token keys have a limited lifetime, ensuring that even if an access token is compromised, it will be impossible
+to obtain new access tokens indefinitely.
 The user associated with the Harvester's OIDC client must set the *t* flag in the ``GRIDPREF`` column of the ``USERS``
 table in the PanDA database to obtain token keys from the PanDA server.
 Conversely, the user linked to the pilot's OIDC client should not have the *t* flag.
