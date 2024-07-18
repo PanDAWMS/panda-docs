@@ -184,7 +184,7 @@ The pilot gets a new access token from the PanDA server using the following REST
     :param client_name: client name associated with the access tokens
     :param token_key: token key string if retrieval of access tokens requires a token key
     :reqheader Authorization: "Bearer {old access token string}"
-    :reqheader Origin: VO.role
+    :reqheader Origin: vo.role
     :status 200: no error
     :status 403: when the old access token is invalid
     :resjson StatusCode: 0 for success, 50 for invalid token key, 70 for unauthorized, 90 for missing access token
