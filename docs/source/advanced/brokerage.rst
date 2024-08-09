@@ -374,6 +374,10 @@ If the task uses a container, i.e., the ``container_name`` attribute is set, the
    * ``container_name`` is resolved to the source path using the dictionary of the "ALL" queue, and
      the resolved source path must be forward-matched with one of the strings in the ``containers`` list.
 
+Note that `@base_platform` may include the container image name of the base platform, formatted as
+`@base_platform_name+base_container_image`. This string is provided to the pilot for configuring the
+container environment before executing the payload, but it is not utilized by the brokerage.
+
 Checks for Releases, Caches, or Nightlies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
