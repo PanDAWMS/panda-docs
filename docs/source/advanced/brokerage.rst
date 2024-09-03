@@ -134,7 +134,7 @@ Here is the ATLAS production job brokerage flow:
      (where no jobs got started in the last 2 hours although activated jobs had been there).
 
    * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs, skip opportunistic queues
-     (defined as queues with *pledgedcpu=-1*).
+     (defined as queues with ``pledgedcpu``=-1).
 
    * Zero Share, which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgen:100%,type=simul:100%,type=any:0%*,
      in this case, only evgen or simul jobs can be assigned as others have zero shares. See a more detailed description further below in this page.
@@ -226,6 +226,12 @@ Here is the ATLAS production job brokerage flow:
    * If processingType=*urgent* or priority :raw-html:`&GreaterEqual;` 1000, the :ref:`Network weight <ref_network_weight>`
      must be larger than or equal to ``NW_THRESHOLD`` :raw-html:`&times;` ``NW_WEIGHT_MULTIPLIER``
      (both defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+
+   * When ``WORK_SHORTAGE`` in :doc:`gdpconfig </advanced/gdpconfig>` is set to True, the following queues are skipped:
+
+      * Opportunistic queues defined with ``pledgedcpu``=-1.
+
+      * Partially pledged queues defined with positive ``pledgedcpu`` when the total number of running cores is larger than ``pledgedcpu``.
 
 #. Calculate brokerage weight for remaining candidates.
    The initial weight is based on running vs queued jobs.
