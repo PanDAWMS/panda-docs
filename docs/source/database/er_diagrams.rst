@@ -130,8 +130,6 @@ The PANDAMETA schema was used initially to store Grid and PanDA configuration, b
 ``SCHEDCONFIG`` stores PanDA queue configuration. We are moving to the ``SCHEDCONFIG_JSON`` table in the main schema. This
 table is still used for joined queries, but once we are on a higher Oracle version that allows querying the fielsds in
 the JSON documents, we should try to move away completely from ``SCHEDCONFIG``.
-``CLOUDCONFIG`` lists the clouds (WLCG regional and political groupings) and the main Tier 1 queue in each cloud.
-``INSTALLED_SW`` tracks the software that is installed in each queue.
 
 .. figure:: images/ATLAS_PANDAMETA.png
    :width: 1000

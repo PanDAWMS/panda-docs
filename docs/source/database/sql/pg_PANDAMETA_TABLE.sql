@@ -100,39 +100,6 @@ CREATE TABLE classlist (
 ALTER TABLE classlist OWNER TO panda;
 ALTER TABLE classlist ADD PRIMARY KEY (class,name);
 
-CREATE TABLE cloudconfig (
-	name varchar(20) NOT NULL,
-	description varchar(50) NOT NULL,
-	tier1 varchar(20) NOT NULL,
-	tier1se varchar(400) NOT NULL,
-	relocation varchar(10),
-	weight bigint NOT NULL DEFAULT '0',
-	server varchar(100) NOT NULL,
-	status varchar(20) NOT NULL,
-	transtimelo bigint NOT NULL DEFAULT '0',
-	transtimehi bigint NOT NULL DEFAULT '0',
-	waittime bigint NOT NULL DEFAULT '0',
-	comment_ varchar(200),
-	space bigint NOT NULL DEFAULT '0',
-	moduser varchar(30),
-	modtime timestamp NOT NULL DEFAULT LOCALTIMESTAMP,
-	validation varchar(20),
-	mcshare bigint NOT NULL DEFAULT '0',
-	countries varchar(80),
-	fasttrack varchar(20),
-	nprestage bigint NOT NULL DEFAULT 0,
-	pilotowners varchar(300),
-	dn varchar(100),
-	email varchar(60),
-	fairshare varchar(256),
-	auto_mcu smallint DEFAULT 0
-) ;
-COMMENT ON COLUMN cloudconfig.comment_ IS E'ORIGINAL NAME:comment';
-ALTER TABLE cloudconfig OWNER TO panda;
-ALTER TABLE cloudconfig ADD PRIMARY KEY (name);
-ALTER TABLE cloudconfig ADD CONSTRAINT cloudconfig_auto_mcu_nn CHECK ((auto_mcu IS NOT NULL AND auto_mcu::text <> ''));
-ALTER TABLE cloudconfig ADD CONSTRAINT cloudconfig_auto_mcu_check CHECK (auto_mcu IN (0,1));
-
 CREATE TABLE cloudspace (
 	cloud varchar(20) NOT NULL,
 	store varchar(50) NOT NULL,
@@ -1091,20 +1058,6 @@ ALTER TABLE servicelist OWNER TO panda;
 CREATE INDEX servicelist_nameuserid_idx ON servicelist (name, host, config, userid);
 CREATE INDEX servicelist_name_idx ON servicelist (name, host, config);
 ALTER TABLE servicelist ADD PRIMARY KEY (id);
-
-CREATE TABLE siteaccess (
-	id bigint NOT NULL,
-	dn varchar(100),
-	pandasite varchar(100),
-	poffset bigint NOT NULL DEFAULT 0,
-	rights varchar(30),
-	status varchar(20),
-	workinggroups varchar(100),
-	created timestamp
-) ;
-ALTER TABLE siteaccess OWNER TO panda;
-CREATE UNIQUE INDEX siteaccess_dnsite_idx ON siteaccess (dn, pandasite);
-ALTER TABLE siteaccess ADD PRIMARY KEY (id);
 
 CREATE TABLE sitedata (
 	site varchar(60),

@@ -131,22 +131,7 @@ You need to manually register VO, global shares, and computing resources unless 
 registered through information system. If you integrate CRIC as explained at
 :doc:`CRIC integration guide </advanced/cric>`, you can register them through CRIC.
 
-4.1. Resource Group Registration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-It is possible to define grouping among computing resources but generally it is enough to have one
-group for each organization. Groups are registered in the ``CLOUDCONFIG`` table in the PANDAMETA schema
-using the following SQL statement.
-
-.. code-block:: sql
-
-  INSERT INTO DOMA_PANDAMETA.CLOUDCONFIG (NAME,DESCRIPTION,TIER1,TIER1SE,WEIGHT,SERVER,STATUS,
-     TRANSTIMELO,TRANSTIMEHI,WAITTIME,SPACE,MODTIME,MCSHARE,NPRESTAGE)
-     VALUES('A_GROUP0','some description','NA','NA',0,'NA','online',0,0,0,0,CURRENT_DATE,0,0);
-
-where *NAME* is an arbitrary group name and *STATUS* needs to be set to "online". Replace "PANDAMETA" with your
-schema name for the meta tables.
-
-4.2. Global Share Registration
+4.1. Global Share Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Each organization defines computing resource allocation among various working groups and/or user activities
 using global shares. Normal global shares are registered in the ``GLOBAL_SHARES`` table, while special and/or
@@ -161,7 +146,7 @@ adds a special test share.
 where *VO* and *QUEUE_TYPE* are organization and activity names, respectively. Replace "PANDA" with your
 schema name for the JEDI tables.
 
-4.3. Computing resource Registration
+4.2. Computing resource Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The following SQL statement adds a test resource.
 
@@ -175,7 +160,7 @@ The following SQL statement adds a test resource.
 
 where *cloud* is the group name, and *status* needs to be 'online'.
 
-4.4. Resource Type Registration
+4.3. Resource Type Registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You need the catchall resource type at least.
 
