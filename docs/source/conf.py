@@ -40,6 +40,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinxcontrib.httpdomain',
+    'sphinxcontrib.redoc',
 ]
 
 sphinx_tabs_disable_tab_closing = True
@@ -106,3 +107,13 @@ def setup (app):
     if os.path.exists(action_file):
         subprocess.run('/bin/bash {} {}'.format(action_file, src_dir), universal_newlines=True,
                        shell=True, stdout=sys.stdout, stderr=sys.stderr)
+
+
+redoc = [
+    {
+        'name': 'PanDA API',
+        'page': 'api',
+        'spec': 'api_specs/test.yaml',
+        'embed': True,
+    },
+    ]
