@@ -98,7 +98,7 @@ The following environment variables need to change if necessary.
      - https://pandaserver-doma.cern.ch/server/panda
    * - PANDA_URL
      - Base HTTP URL of PanDA server
-     - http://pandaserver-doma.cern.ch:25080/server/panda
+     - https://pandaserver-doma.cern.ch/server/panda
    * - PANDAMON_URL
      - URL of PanDA monitor
      - https://panda-doma.cern.ch
@@ -129,7 +129,7 @@ The following environment variables need to change if necessary.
    .. code-tab:: bash DOMA users
 
       export PANDA_URL_SSL=https://pandaserver-doma.cern.ch/server/panda
-      export PANDA_URL=http://pandaserver-doma.cern.ch:25080/server/panda
+      export PANDA_URL=https://pandaserver-doma.cern.ch/server/panda
       export PANDACACHE_URL=https://pandaserver-doma.cern.ch/server/panda
       export PANDAMON_URL=https://panda-doma.cern.ch
       export PANDA_AUTH=oidc

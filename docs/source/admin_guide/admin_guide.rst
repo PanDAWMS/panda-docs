@@ -202,8 +202,8 @@ You need to set *PANDA_URL_SSL* and *PANDA_URL* after sourcing panda_setup.sh, t
 
 .. code-block:: text
 
- export PANDA_URL_SSL=https://pandaserver-doma.cern.ch:25443/server/panda
- export PANDA_URL=http://pandaserver-doma.cern.ch:25080/server/panda
+ export PANDA_URL_SSL=https://pandaserver-doma.cern.ch/server/panda
+ export PANDA_URL=https://pandaserver-doma.cern.ch/server/panda
 
 in addition to the parameters mentioned at :ref:`client setup for OIDC-based auth <architecture/iam:Client setup>`,
 e.g.,
