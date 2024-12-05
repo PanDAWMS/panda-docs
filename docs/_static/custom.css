@@ -1,0 +1,38 @@
+.wy-side-nav-search {
+    background-color:white
+}
+
+.wy-nav-content {
+    max-width: 1000px !important;
+}
+
+.red {
+    color:red;
+}
+
+.blue {
+    color:blue;
+}
+
+.hblue {
+    color:blue;
+    background-color:lightcyan;
+    font-size: 90%;
+}
+
+.orange {
+    color:darkorange;
+    font-size: 95%;
+}
+
+.green {
+    color:green;
+}
+
+.purple {
+    color:purple;
+}
+
+.brown {
+    color:brown;
+}
