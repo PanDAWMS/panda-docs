@@ -7,7 +7,7 @@ operating at massive data processing scale, designed to have
 the flexibility to adapt to emerging computing technologies in processing, storage, networking and distributed
 computing middleware.
 
-For details about our PanDA server API, visit the `API documentation page <panda_api.html>`_.
+For details about our PanDA server API, visit the `API documentation page <_static/panda_api.html>`_.
 
 .. toctree::
    :maxdepth: 1

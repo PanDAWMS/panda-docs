@@ -10,4 +10,4 @@ mv pilot2/doc/getting_started ${DEST}/architecture/${PILOT_DOCS_DIR}
 mv pilot2/doc/components ${DEST}/architecture/${PILOT_DOCS_DIR}
 mv pilot2/pilot ${DEST}/
 
-cp source/api_specs/panda_api.html build/html/panda_api.html
+cp source/api_specs/panda_api.html _static/panda_api.html
