@@ -231,10 +231,10 @@ def convert_docstrings_to_openapi(docstrings):
 
 if __name__ == "__main__":
     # Define the path to the Python file to convert
-    file_path = "../../panda-server/pandaserver/api/v1/harvester_api.py"
+    file_path = "panda-server/pandaserver/api/v1/harvester_api.py"
     docstrings = extract_docstrings(file_path)
 
     # Convert docstrings to OpenAPI
     open_api_doc = convert_docstrings_to_openapi(docstrings)
-    with open("source/api_specs/panda_api.yaml", "w") as output_file:
+    with open("panda_api.yaml", "w") as output_file:
         yaml.dump(open_api_doc, output_file, sort_keys=False)
