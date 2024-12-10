@@ -179,7 +179,7 @@ def get_custom_metadata(docstring):
     return custom_sections
 
 
-def convert_docstrings_to_openapi(docstrings):
+def convert_docstrings_to_openapi(docstrings, tag):
     """
     Convert extracted docstrings to OpenAPI format.
 
@@ -190,8 +190,7 @@ def convert_docstrings_to_openapi(docstrings):
         dict: A dictionary where keys are function/class/module names and values are OpenAPI descriptions.
     """
 
-    # Initialize the OpenAPI dictionary
-    openapi = {"swagger": "2.0", "schemes": ["http", "https"], "host": "pandaserver.cern.ch", "basePath": "/", "info": {"title": "PanDA API", "version": "1.0.0"}, "paths": {}}
+    paths = {}
 
     for name, docstring in docstrings.items():
         try:
@@ -205,36 +204,46 @@ def convert_docstrings_to_openapi(docstrings):
             method = custom_metadata.get("HTTP Method", "POST").lower()
             path = custom_metadata.get("Path", name)
 
-            openapi["paths"][path] = {}
-            openapi["paths"][path][method] = {"summary": summary, "description": description}
+            paths[path] = {}
+            paths[path][method] = {"summary": summary, "description": description, "tags": [tag]}
 
             # Extract parameters from the docstring
             parameters = extract_parameters(parsed_docstring)
             if method in ["post", "put"]:
                 request_body_schema = extract_parameters_as_json(parsed_docstring)
-                openapi["paths"][path][method]["requestBody"] = {"required": True, "content": {"application/json": {"schema": request_body_schema}}}
+                paths[path][method]["requestBody"] = {"required": True, "content": {"application/json": {"schema": request_body_schema}}}
             elif method in ["get", "delete"]:
-                openapi["paths"][path][method]["parameters"] = parameters
+                paths[path][method]["parameters"] = parameters
 
             if parsed_docstring.returns:
                 return_type = parsed_docstring.returns.type_name
                 return_desc = parsed_docstring.returns.description
 
             # Add default responses
-            openapi["paths"][path][method]["responses"] = copy.deepcopy(DEFAULT_RESPONSE_TEMPLATE)
+            paths[path][method]["responses"] = copy.deepcopy(DEFAULT_RESPONSE_TEMPLATE)
 
         except (AttributeError, TypeError):
             print(f"Docstring for {name} could not be parsed. Failed with error:\n{traceback.format_exc()}")
 
-    return openapi
+    return paths
 
 
 if __name__ == "__main__":
     # Define the path to the Python file to convert
-    file_path = "panda-server/pandaserver/api/v1/harvester_api.py"
-    docstrings = extract_docstrings(file_path)
+    base_path = "panda-server/pandaserver/api/v1/"
+    file_paths = ["harvester_api.py", "task_api.py"]
+    # Initialize the OpenAPI dictionary
+    open_api = {"swagger": "2.0", "schemes": ["http", "https"], "host": "pandaserver.cern.ch", "basePath": "/", "info": {"title": "PanDA API", "version": "1.0.0"}, "paths": {}, "tags": []}
 
-    # Convert docstrings to OpenAPI
-    open_api_doc = convert_docstrings_to_openapi(docstrings)
+    for file_path in file_paths:
+        tag = file_path.split("_")[0]
+        open_api["tags"].append({"name": tag, "description": f"Operations related to {tag}"})
+        full_path = base_path + file_path
+        docstrings = extract_docstrings(full_path)
+
+        # Convert docstrings to OpenAPI
+        paths = convert_docstrings_to_openapi(docstrings, tag)
+        open_api["paths"].update(paths)
+
     with open("panda_api.yaml", "w") as output_file:
-        yaml.dump(open_api_doc, output_file, sort_keys=False)
+        yaml.dump(open_api, output_file, sort_keys=False)

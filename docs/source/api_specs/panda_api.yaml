@@ -15,6 +15,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       requestBody:
         required: true
         content:
@@ -112,6 +114,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       requestBody:
         required: true
         content:
@@ -199,6 +203,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       requestBody:
         required: true
         content:
@@ -272,6 +278,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       parameters:
       - name: harvester_id
         in: query
@@ -334,6 +342,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       parameters: []
       responses:
         '200':
@@ -391,6 +401,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       requestBody:
         required: true
         content:
@@ -475,6 +487,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       parameters:
       - name: harvester_id
         in: query
@@ -550,6 +564,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       parameters:
       - name: command_ids
         in: query
@@ -622,6 +638,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       requestBody:
         required: true
         content:
@@ -711,6 +729,8 @@ paths:
 
 
         '
+      tags:
+      - harvester
       requestBody:
         required: true
         content:
@@ -787,3 +807,239 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
+  /task/v1/retry:
+    post:
+      summary: Retry a given task. Requires a secure connection without a production
+        role to retry own tasks and with a production role to retry others' tasks.
+      description: ''
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jedi_task_id:
+                  type: integer
+                  description: JEDI Task ID
+                new_parameters:
+                  type: string
+                  description: a json string of new parameters the task uses when
+                    rerunning
+                no_child_retry:
+                  type: boolean
+                  description: if True, the child tasks are not retried
+                disable_staging_mode:
+                  type: boolean
+                  description: if True, the task skips staging state and directly
+                    goes to subsequent state
+                keep_gshare_priority:
+                  type: boolean
+                  description: if True, the task keeps current gshare and priority
+              required:
+              - jedi_task_id
+              - new_parameters
+              - no_child_retry
+              - disable_staging_mode
+              - keep_gshare_priority
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/enable_job_cloning:
+    post:
+      summary: Enable job cloning for a given task. Requires secure connection and
+        production role.
+      description: ''
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jedi_task_id:
+                  type: integer
+                  description: JEDI Task ID
+                mode:
+                  type: string
+                  description: mode of operation, runonce or storeonce
+                multiplicity:
+                  type: integer
+                  description: number of clones to be created for each target
+                num_sites:
+                  type: integer
+                  description: number of sites to be used for each target
+              required:
+              - jedi_task_id
+              - mode
+              - multiplicity
+              - num_sites
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/disable_job_cloning:
+    post:
+      summary: Disable job cloning for a given task. Requires secure connection and
+        production role.
+      description: ''
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jedi_task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - jedi_task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+tags:
+- name: harvester
+  description: Operations related to harvester
+- name: task
+  description: Operations related to task
