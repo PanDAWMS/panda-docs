@@ -17,7 +17,11 @@ DEFAULT_RESPONSE_TEMPLATE = {
                 "schema": {
                     "type": "object",
                     "properties": {
-                        "success": {"type": "boolean", "example": True, "description": "Indicates whether the request was successful (True) or not (False)"},
+                        "success": {
+                            "type": "boolean",
+                            "example": True,
+                            "description": "Indicates whether the request was successful (True) or not (False)",
+                        },
                         "message": {
                             "type": "string",
                             "description": "Message indicating the nature of the failure. Empty or meaningless if the request was successful.",
@@ -34,9 +38,23 @@ DEFAULT_RESPONSE_TEMPLATE = {
     },
     "403": {
         "description": "Forbidden",
-        "content": {"text/plain": {"schema": {"type": "string", "example": "You are calling an undefined method is not allowed for the requested URL"}}},
+        "content": {
+            "text/plain": {
+                "schema": {
+                    "type": "string",
+                    "example": "You are calling an undefined method is not allowed for the requested URL",
+                }
+            }
+        },
     },
-    "404": {"description": "Not Found", "content": {"text/plain": {"schema": {"type": "string", "example": "Resource not found"}}}},
+    "404": {
+        "description": "Not Found",
+        "content": {
+            "text/plain": {
+                "schema": {"type": "string", "example": "Resource not found"}
+            }
+        },
+    },
     "500": {
         "description": "INTERNAL SERVER ERROR",
         "content": {
@@ -107,13 +125,23 @@ def extract_parameters(parsed):
         elif "bool" in param.type_name:
             param_type = "boolean"
 
-        print(f"Param: {param.arg_name}, Type: {param_type}, Optional: {param.is_optional} {param.description}")
+        print(
+            f"Param: {param.arg_name}, Type: {param_type}, Optional: {param.is_optional} {param.description}"
+        )
         is_required = not param.is_optional
 
-        parameter_schema = {"name": param.arg_name, "in": "query", "required": is_required, "schema": {"type": param_type}, "description": param.description}
+        parameter_schema = {
+            "name": param.arg_name,
+            "in": "query",
+            "required": is_required,
+            "schema": {"type": param_type},
+            "description": param.description,
+        }
 
         if param_type == "array":
-            parameter_schema["schema"]["items"] = {"type": "string"}  # Default array item type
+            parameter_schema["schema"]["items"] = {
+                "type": "string"
+            }  # Default array item type
 
         parameters.append(parameter_schema)
 
@@ -198,20 +226,29 @@ def convert_docstrings_to_openapi(docstrings, tag):
             summary = parsed_docstring.short_description
 
             # Remove the custom "API details" section from the long description
-            description = re.sub(r"API details:\n(?:\s+.*\n?)*", "", parsed_docstring.long_description)
+            description = re.sub(
+                r"API details:\n(?:\s+.*\n?)*", "", parsed_docstring.long_description
+            )
 
             custom_metadata = get_custom_metadata(docstring)
             method = custom_metadata.get("HTTP Method", "POST").lower()
             path = custom_metadata.get("Path", name)
 
             paths[path] = {}
-            paths[path][method] = {"summary": summary, "description": description, "tags": [tag]}
+            paths[path][method] = {
+                "summary": summary,
+                "description": description,
+                "tags": [tag],
+            }
 
             # Extract parameters from the docstring
             parameters = extract_parameters(parsed_docstring)
             if method in ["post", "put"]:
                 request_body_schema = extract_parameters_as_json(parsed_docstring)
-                paths[path][method]["requestBody"] = {"required": True, "content": {"application/json": {"schema": request_body_schema}}}
+                paths[path][method]["requestBody"] = {
+                    "required": True,
+                    "content": {"application/json": {"schema": request_body_schema}},
+                }
             elif method in ["get", "delete"]:
                 paths[path][method]["parameters"] = parameters
 
@@ -223,7 +260,9 @@ def convert_docstrings_to_openapi(docstrings, tag):
             paths[path][method]["responses"] = copy.deepcopy(DEFAULT_RESPONSE_TEMPLATE)
 
         except (AttributeError, TypeError):
-            print(f"Docstring for {name} could not be parsed. Failed with error:\n{traceback.format_exc()}")
+            print(
+                f"Docstring for {name} could not be parsed. Failed with error:\n{traceback.format_exc()}"
+            )
 
     return paths
 
@@ -233,11 +272,21 @@ if __name__ == "__main__":
     base_path = "panda-server/pandaserver/api/v1/"
     file_paths = ["harvester_api.py", "task_api.py"]
     # Initialize the OpenAPI dictionary
-    open_api = {"swagger": "2.0", "schemes": ["http", "https"], "host": "pandaserver.cern.ch", "basePath": "/", "info": {"title": "PanDA API", "version": "1.0.0"}, "paths": {}, "tags": []}
+    open_api = {
+        "swagger": "2.0",
+        "schemes": ["http", "https"],
+        "host": "pandaserver.cern.ch",
+        "basePath": "/",
+        "info": {"title": "PanDA API", "version": "1.0.0"},
+        "paths": {},
+        "tags": [],
+    }
 
     for file_path in file_paths:
         tag = file_path.split("_")[0]
-        open_api["tags"].append({"name": tag, "description": f"Operations related to {tag}"})
+        open_api["tags"].append(
+            {"name": tag, "description": f"Operations related to {tag}"}
+        )
         full_path = base_path + file_path
         docstrings = extract_docstrings(full_path)
 
