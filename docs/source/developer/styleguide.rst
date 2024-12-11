@@ -193,11 +193,15 @@ fields correspond to the OpenAPI fields.
 .. figure:: images/docstring.png
 .. figure:: images/openapi.png
 
-1. Short summary. This is the first line of the docstring and is used as the summary in the OpenAPI specification. Keep this one short.
-2. Long description. Here you can provide a more detailed description of the endpoint. This will be used as the description in the OpenAPI specification.
-2'. The "API details" section is not really part of standard docstring formatting, but we use it to provide additional key-value pairs that are parsed manually. We remove this section from the final OpenAPI documentation.
-3. The "Args" section will be used to generate the parameters in the OpenAPI specification. For GET requests, these will be query parameters. For POST requests, these will be request body parameters.
-4. "Returns" is overwritten by a generic, more detailed "Response" section in the OpenAPI specification. We are returning always a json dictionary with the same format.
+\1. Short summary. This is the first line of the docstring and is used as the summary in the OpenAPI specification. Keep this one short.
+
+\2. Long description. Here you can provide a more detailed description of the endpoint. This will be used as the description in the OpenAPI specification.
+
+\2'. The "API details" section is not really part of standard docstring formatting, but we use it to provide additional key-value pairs that are parsed manually. We remove this section from the final OpenAPI documentation.
+
+\3. The "Args" section will be used to generate the parameters in the OpenAPI specification. For GET requests, these will be query parameters. For POST requests, these will be request body parameters.
+
+\4. "Returns" is overwritten by a generic, more detailed "Response" section in the OpenAPI specification. We are returning always a json dictionary with the same format.
 
 You can use code blocks in the docstrings to provide examples of the request and response.
 
