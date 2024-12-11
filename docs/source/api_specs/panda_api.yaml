@@ -7,6 +7,27 @@ basePath: /
 info:
   title: PanDA API
   version: 1.0.0
+  description: "\n### HTTP methods:\n* GET: Retrieve data from the server. Parameters\
+    \ have to be sent **in the URL**.\n* PUT: Update data on the server. Parameters\
+    \ have to be sent **in the body** in json encoded format. When the client wants\
+    \ to gzip the data, the content encoding has to be set accordingly.\n\n### Response\
+    \ formats: \nThe return codes are usually specified with each API function, but\
+    \ in general:\n* 200: Function called correctly and response will be `Content-type:\
+    \ application/json`. This does not necessarily mean that the operation was successful,\
+    \ but that the function was called correctly.     Reasons why the operation could\
+    \ fail are:\n    * Wrong parameters or the JSON could not be decoded.\n    * The\
+    \ function was called using the wrong HTTP method (e.g. GET instead of PUT). \
+    \ \n    * The function expects authentication (certificate/token) and it was not\
+    \ provided.\n    * The function expects production role and it was not provided.\n\
+    \    * Caught exceptions when interacting with the database.\n    \nThe usual\
+    \ response dictionary has the following format:\n```\n{ \"success\": True/False,\
+    \ \"message\": \"Usually an error when there was a failure. The message can generally\
+    \ be ignored if the operation was successful.\", \"response\": \"The data returned\
+    \ if the operation was successful.\" }\n```\n* 403: Forbidden. The client called\
+    \ a forbidden function or there was an authentication issue. The response will\
+    \ use `Content-type: text/plain`.\n* 500: Server crashed calling the method. The\
+    \ response will use `Content-type: text/plain`.\n* 503: The server is overloaded.\
+    \ The call did not reach PanDA and the response comes from directly `httpd`. \n"
 paths:
   /v1/harvester/update_workers:
     post:

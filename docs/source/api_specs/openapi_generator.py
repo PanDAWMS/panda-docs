@@ -6,68 +6,7 @@ import traceback
 import yaml
 from docstring_parser import parse
 
-EXCLUDED_FUNCTIONS = ["init_task_buffer"]
-EXCLUDED_PARAMS = ["req"]
-
-DEFAULT_RESPONSE_TEMPLATE = {
-    "200": {
-        "description": "Method called correctly",
-        "content": {
-            "application/json": {
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "success": {
-                            "type": "boolean",
-                            "example": True,
-                            "description": "Indicates whether the request was successful (True) or not (False)",
-                        },
-                        "message": {
-                            "type": "string",
-                            "description": "Message indicating the nature of the failure. Empty or meaningless if the request was successful.",
-                        },
-                        "response": {
-                            "type": "object",
-                            "description": "The data returned if the operation is successful. Null if it fails or the method does not generate return data.",
-                        },
-                    },
-                    "required": ["success", "message", "response"],
-                }
-            }
-        },
-    },
-    "403": {
-        "description": "Forbidden",
-        "content": {
-            "text/plain": {
-                "schema": {
-                    "type": "string",
-                    "example": "You are calling an undefined method is not allowed for the requested URL",
-                }
-            }
-        },
-    },
-    "404": {
-        "description": "Not Found",
-        "content": {
-            "text/plain": {
-                "schema": {"type": "string", "example": "Resource not found"}
-            }
-        },
-    },
-    "500": {
-        "description": "INTERNAL SERVER ERROR",
-        "content": {
-            "text/plain": {
-                "schema": {
-                    "type": "string",
-                    "example": "INTERNAL SERVER ERROR. The server encountered an internal error and was unable to complete your request.",
-                }
-            }
-        },
-    },
-}
-
+from constants import EXCLUDED_FUNCTIONS, EXCLUDED_PARAMS, DEFAULT_RESPONSE_TEMPLATE, DESCRIPTION
 
 def extract_docstrings(file_path):
     """
@@ -277,7 +216,11 @@ if __name__ == "__main__":
         "schemes": ["http", "https"],
         "host": "pandaserver.cern.ch",
         "basePath": "/",
-        "info": {"title": "PanDA API", "version": "1.0.0"},
+        "info": {
+            "title": "PanDA API",
+            "version": "1.0.0",
+            "description": DESCRIPTION
+            },
         "paths": {},
         "tags": [],
     }
