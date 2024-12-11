@@ -30,6 +30,8 @@ understandable code. Here are some best practices:
 
 - **Docstrings**: Use docstrings for all public modules, functions, classes, and methods.
   Docstrings should follow the `PEP 257 <https://www.python.org/dev/peps/pep-0257/>`_ style guide.
+  While the usage is not always consistent, we would like to adhere to the `Google Style <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
+  for PanDA server and JEDI. In particular, this style is mandatory to generate the OpenAPI for PanDA server.
 
 - **Inline Comments**: They should be used to explain why a particular piece of code does something, not what it does.
   Place the comment above the code and align it with the code it's commenting on.
@@ -180,3 +182,28 @@ A sample ``.pre-commit-config.yaml`` with our current tools of choice is shown b
         hooks:
         -   id: isort
             name: isort (python)
+
+PanDA server API
+================
+We are building the PanDA server API using the OpenAPI specification and using ReDoc to generate the it. Frameworks like FastAPI or Flask-RESTful
+generate the API from the OpenAPI specification automatically. However we are not using these frameworks and instead need to
+generate the OpenAPI yaml specification file from the Google-style docstrings in the code. Please pay attention to how the docstring
+fields correspond to the OpenAPI fields.
+
+.. figure:: images/docstring.png
+.. figure:: images/openapi.png
+
+1. Short summary. This is the first line of the docstring and is used as the summary in the OpenAPI specification. Keep this one short.
+2. Long description. Here you can provide a more detailed description of the endpoint. This will be used as the description in the OpenAPI specification.
+2'. The "API details" section is not really part of standard docstring formatting, but we use it to provide additional key-value pairs that are parsed manually. We remove this section from the final OpenAPI documentation.
+3. The "Args" section will be used to generate the parameters in the OpenAPI specification. For GET requests, these will be query parameters. For POST requests, these will be request body parameters.
+4. "Returns" is overwritten by a generic, more detailed "Response" section in the OpenAPI specification. We are returning always a json dictionary with the same format.
+
+You can use code blocks in the docstrings to provide examples of the request and response.
+
+The script to parse the docstring is here: https://github.com/PanDAWMS/panda-docs/blob/main/docs/source/api_specs/. If you run the api_doc.sh script,
+it will clone the panda-server repository, parse the docstrings, install redoc-cli, and generate the standalone OpenAPI documentation under the _static folder.
+This specification will be uploaded to github and later to readthedocs.
+
+
+
