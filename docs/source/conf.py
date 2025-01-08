@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'PanDAWMS'
-copyright = '2020, PanDA'
+copyright = '2025, PanDA'
 author = 'PanDA'
 
 import sphinx_rtd_theme
