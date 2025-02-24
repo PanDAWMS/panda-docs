@@ -50,6 +50,7 @@ computing middleware.
    advanced/site_task_classification
    advanced/carbon_footprint
    advanced/task_params
+   advanced/analysis_data_carousel
 
 .. toctree::
    :maxdepth: 1
