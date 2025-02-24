@@ -1,3 +1,4 @@
+Sphinx<8.2.0
 sphinx-rtd-theme
 sphinx-prompt
 sphinx-tabs
