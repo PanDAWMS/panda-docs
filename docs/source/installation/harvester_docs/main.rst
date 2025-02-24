@@ -7,8 +7,10 @@ Harvester
   :titlesonly:
 
   installation
+  harvester_configuration
   service
   plugins/main
+  fifo
   misc
 
 

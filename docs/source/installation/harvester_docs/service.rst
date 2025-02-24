@@ -61,7 +61,7 @@ where\:
 * ``start``: start Harvester service - The master uWSGI process starts, and it spawns sub-processes (uWSGI workers, which run Harvester)
 * ``stop``: stop Harvester service - Terminates all uWSGI processes (master and sub-)
 * ``restart``: equivalent to stop and then start
-* ``reload``: run uWSGI reload - The master uWSGI process remains alive, terminates all sub-processes and then re-spawns new ones. In most cases, reload can do the same work as restart
+* ``reload``: run uWSGI reload - The master uWSGI process remains alive, terminates all sub-processes and then re-spawns new ones. Usually, reload does the same work as restart. However, if the uWSGI is configured to be multi-processed (in uWSGI config, processes = 2 or larger), the uWSGI reload will terminate and re-spawn sub-processes one by one, so that there is at least one process running at a time and Harvester service is still available during reload. 
 
 
 |br|
