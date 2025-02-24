@@ -1,0 +1,1066 @@
+swagger: '2.0'
+schemes:
+- http
+- https
+host: pandaserver.cern.ch
+basePath: /
+info:
+  title: PanDA API
+  version: 1.0.0
+  description: "\n### HTTP methods:\n* GET: Retrieve data from the server. Parameters\
+    \ have to be sent **in the URL**.\n* PUT: Update data on the server. Parameters\
+    \ have to be sent **in the body** in json encoded format. When the client wants\
+    \ to gzip the data, the content encoding has to be set accordingly.\n\n### Response\
+    \ formats: \nThe return codes are usually specified with each API function, but\
+    \ in general:\n* 200: Function called correctly and response will be `Content-type:\
+    \ application/json`. This does not necessarily mean that the operation was successful,\
+    \ but that the function was called correctly.     Reasons why the operation could\
+    \ fail are:\n    * Wrong parameters or the JSON could not be decoded.\n    * The\
+    \ function was called using the wrong HTTP method (e.g. GET instead of PUT). \
+    \ \n    * The function expects authentication (certificate/token) and it was not\
+    \ provided.\n    * The function expects production role and it was not provided.\n\
+    \    * Caught exceptions when interacting with the database.\n    \nThe usual\
+    \ response dictionary has the following format:\n```\n{ \"success\": True/False,\
+    \ \"message\": \"Usually an error when there was a failure. The message can generally\
+    \ be ignored if the operation was successful.\", \"response\": \"The data returned\
+    \ if the operation was successful.\" }\n```\n* 403: Forbidden. The client called\
+    \ a forbidden function or there was an authentication issue. The response will\
+    \ use `Content-type: text/plain`.\n* 500: Server crashed calling the method. The\
+    \ response will use `Content-type: text/plain`.\n* 503: The server is overloaded.\
+    \ The call did not reach PanDA and the response comes from directly `httpd`. \n"
+paths:
+  /v1/harvester/update_workers:
+    post:
+      summary: Update workers.
+      description: 'Update the details for a list of workers. Requires a secure connection.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                harvester_id:
+                  type: string
+                  description: harvester id, e.g. `harvester_central_A`
+                workers:
+                  type: array
+                  description: 'list of worker dictionaries that describe the fields
+                    of a pandaserver/taskbuffer/WorkerSpec object.
+
+                    ```
+
+                    [{"workerID": 1, "batchID": 1, "queueName": "queue1", "status":
+                    "running",
+
+                    "computingSite": "site1", "nCore": 1, "nodeID": None,
+
+                    "submitTime": "02-NOV-24 00:02:18", "startTime": "02-NOV-24 00:02:18",
+                    "endTime": None,
+
+                    "jobType": "managed", "resourceType": "SCORE", "nativeExitCode":
+                    None, "nativeStatus": None,
+
+                    "diagMessage": None, "nJobs": 1, "computingElement": "ce1", "syncLevel":
+                    0,
+
+                    "submissionHost": "submissionhost1", "harvesterHost": "harvesterhost1",
+
+                    "errorCode": None, "minRamCount": 2000},...]
+
+                    ```'
+                  items:
+                    type: object
+              required:
+              - harvester_id
+              - workers
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/update_harvester_service_metrics:
+    post:
+      summary: Update harvester service metrics.
+      description: 'Update the service metrics for a harvester instance. Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                harvester_id:
+                  type: string
+                  description: harvester id, e.g. `harvester_central_A`
+                metrics:
+                  type: array
+                  description: "list of triplets `[[host, timestamp, metric_dict],[host,\
+                    \ timestamp, metric_dict]...]`. The metric dictionary is json\
+                    \ encoded, as it is stored in the database like that.\n```\nharvester_host\
+                    \ = \"harvester_host.cern.ch\"\ncreation_time = datetime.now().strftime(\"\
+                    %Y-%m-%d %H:%M:%S.%f\")\nmetric = {\n    \"rss_mib\": 2737.36,\n\
+                    \    \"memory_pc\": 39.19,\n    \"cpu_pc\": 15.23,\n    \"volume_data_pc\"\
+                    : 20.0,\n    \"cert_lifetime\": {\n        \"/data/atlpan/proxy/x509up_u25606_prod\"\
+                    : 81,\n        \"/data/atlpan/proxy/x509up_u25606_pilot\": 81,\n\
+                    \        \"/cephfs/atlpan/harvester/proxy/x509up_u25606_prod\"\
+                    : 96,\n        \"/cephfs/atlpan/harvester/proxy/x509up_u25606_pilot\"\
+                    : 96,\n    },\n}\n\n# DBProxy expects the metrics in json format\
+                    \ and stores them directly in the database\nmetrics = [[creation_time,\
+                    \ harvester_host, json.dumps(metric)]]\n```"
+                  items:
+                    type: object
+              required:
+              - harvester_id
+              - metrics
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/add_harvester_dialogs:
+    post:
+      summary: Heartbeat for harvester.
+      description: 'Send a heartbeat for harvester and optionally update the instance
+        data. User and host are retrieved from the request object and updated in the
+        database. Requires a secure connection.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                harvester_id:
+                  type: string
+                  description: harvester id, e.g. `harvester_central_A`
+                data:
+                  type: array
+                  description: list of data to be updated in the PanDA database
+                  items:
+                    type: object
+              required:
+              - harvester_id
+              - data
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/get_current_worker_id:
+    get:
+      summary: Get the current worker ID.
+      description: 'Retrieve the current worker ID.
+
+
+        '
+      tags:
+      - harvester
+      parameters:
+      - name: harvester_id
+        in: query
+        required: true
+        schema:
+          type: string
+        description: harvester id, e.g. `harvester_central_A`
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/get_worker_statistics:
+    get:
+      summary: Get worker statistics.
+      description: 'Get statistics for all the workers managed across the Grid.
+
+
+        '
+      tags:
+      - harvester
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/report_worker_statistics:
+    post:
+      summary: Report worker statistics.
+      description: 'Report statistics for the workers managed by a harvester instance
+        at a PanDA queue. Requires a secure connection.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                harvester_id:
+                  type: string
+                  description: harvester id, e.g. `harvester_central_A`
+                panda_queue:
+                  type: string
+                  description: Name of the PanDA queue, e.g. `CERN`.
+                statistics:
+                  type: string
+                  description: 'JSON string containing a dictionary with the statistics
+                    to be reported. It will be stored as a json in the database. E.g.
+
+                    ```
+
+                    json.dumps({"user": {"SCORE": {"running": 1, "submitted": 1}},
+                    "managed": {"MCORE": {"running": 1, "submitted": 1}}})
+
+                    ```'
+              required:
+              - harvester_id
+              - panda_queue
+              - statistics
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/get_harvester_commands:
+    get:
+      summary: Get harvester commands.
+      description: 'Retrieves the commands for a specified harvester instance. Requires
+        a secure connection and production role.
+
+
+        '
+      tags:
+      - harvester
+      parameters:
+      - name: harvester_id
+        in: query
+        required: true
+        schema:
+          type: string
+        description: harvester id, e.g. `harvester_central_A`
+      - name: n_commands
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: The number of commands to retrieve, e.g. `10`.
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to `30`.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/acknowledge_harvester_commands:
+    get:
+      summary: Acknowledge harvester commands.
+      description: 'Acknowledges the list of command IDs in the PanDA database. Requires
+        a secure connection and production role.
+
+
+        '
+      tags:
+      - harvester
+      parameters:
+      - name: command_ids
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+        description: A list of command IDs to acknowledge, e.g. `[1, 2, 3, 4,...]`.
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to `30`.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/add_sweep_harvester_command:
+    post:
+      summary: Add sweep command for harvester.
+      description: 'Send a command to harvester to kill the workers in a PanDA queue,
+        with the possibility of specifying filters by status, CE or submission host.
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panda_queue:
+                  type: string
+                  description: Name of the PanDA queue, e.g. `CERN`.
+                status_list:
+                  type: array
+                  description: list of worker statuses to be considered, e.g. `['submitted',
+                    'running']`
+                  items:
+                    type: object
+                ce_list:
+                  type: array
+                  description: list of the Computing Elements to be considered, e.g.
+                    `['ce1.cern.ch', 'ce2.cern.ch']`
+                  items:
+                    type: object
+                submission_host_list:
+                  type: array
+                  description: list of the harvester submission hosts to be considered,
+                    e.g. `['submission_host1.cern.ch', 'submission_host2.cern.ch']`
+                  items:
+                    type: object
+              required:
+              - panda_queue
+              - status_list
+              - ce_list
+              - submission_host_list
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/add_target_slots:
+    post:
+      summary: Set target slots.
+      description: 'Set the target number of slots for a PanDA queue, when you want
+        to build up job pressure. Requires secure connection and production role.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panda_queue:
+                  type: string
+                  description: Name of the PanDA queue, e.g. `CERN`.
+                slots:
+                  type: integer
+                  description: Number of slots to set, e.g. `10000`.
+                global_share:
+                  type: string
+                  description: Global share the slots apply to. Optional - by default
+                    it applies to the whole queue. E.g. `User Analysis`
+                resource_type:
+                  type: string
+                  description: Resource type the slots apply to. Optional - by default
+                    it applies to the whole queue. E.g. `SCORE` or `MCORE`.
+                expiration_date:
+                  type: string
+                  description: The expiration date of the slots. Optional - by default
+                    it applies indefinitely.
+              required:
+              - panda_queue
+              - slots
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/retry:
+    post:
+      summary: Retry a given task. Requires a secure connection without a production
+        role to retry own tasks and with a production role to retry others' tasks.
+      description: ''
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jedi_task_id:
+                  type: integer
+                  description: JEDI Task ID
+                new_parameters:
+                  type: string
+                  description: a json string of new parameters the task uses when
+                    rerunning
+                no_child_retry:
+                  type: boolean
+                  description: if True, the child tasks are not retried
+                disable_staging_mode:
+                  type: boolean
+                  description: if True, the task skips staging state and directly
+                    goes to subsequent state
+                keep_gshare_priority:
+                  type: boolean
+                  description: if True, the task keeps current gshare and priority
+              required:
+              - jedi_task_id
+              - new_parameters
+              - no_child_retry
+              - disable_staging_mode
+              - keep_gshare_priority
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/enable_job_cloning:
+    post:
+      summary: Enable job cloning for a given task. Requires secure connection and
+        production role.
+      description: ''
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jedi_task_id:
+                  type: integer
+                  description: JEDI Task ID
+                mode:
+                  type: string
+                  description: mode of operation, runonce or storeonce
+                multiplicity:
+                  type: integer
+                  description: number of clones to be created for each target
+                num_sites:
+                  type: integer
+                  description: number of sites to be used for each target
+              required:
+              - jedi_task_id
+              - mode
+              - multiplicity
+              - num_sites
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/disable_job_cloning:
+    post:
+      summary: Disable job cloning for a given task. Requires secure connection and
+        production role.
+      description: ''
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jedi_task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - jedi_task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+tags:
+- name: harvester
+  description: Operations related to harvester
+- name: task
+  description: Operations related to task

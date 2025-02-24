@@ -60,3 +60,5 @@ computing middleware.
    atlas/server
    atlas/jedi
    atlas/cache
+
+For details about our PanDA server API, visit the `API documentation page <_static/panda_api.html>`_.

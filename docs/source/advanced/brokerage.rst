@@ -134,7 +134,7 @@ Here is the ATLAS production job brokerage flow:
      (where no jobs got started in the last 2 hours although activated jobs had been there).
 
    * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs, skip opportunistic queues
-     (defined as queues with *pledgedcpu=-1*).
+     (defined as queues with ``pledgedcpu=-1``).
 
    * Zero Share, which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgen:100%,type=simul:100%,type=any:0%*,
      in this case, only evgen or simul jobs can be assigned as others have zero shares. See a more detailed description further below in this page.
@@ -174,7 +174,7 @@ Here is the ATLAS production job brokerage flow:
 
      .. math::
 
-        inputDiskCount + max (0.5 GB, outDiskCount \times nEvents \: or \: outDiskCount \times inputDiskCount) + workDiskCount
+        inputDiskCount + max (1.5 GB, outDiskCount \times nEvents \: or \: outDiskCount \times inputDiskCount) + workDiskCount
 
      *inputDiskCount* is the total size of job input files, a discrete function of *nEvents*.
      *nEvents* is the smallest number of events in a single job allowed based on the task requirements and is used to estimate the output size
@@ -226,6 +226,12 @@ Here is the ATLAS production job brokerage flow:
    * If processingType=*urgent* or priority :raw-html:`&GreaterEqual;` 1000, the :ref:`Network weight <ref_network_weight>`
      must be larger than or equal to ``NW_THRESHOLD`` :raw-html:`&times;` ``NW_WEIGHT_MULTIPLIER``
      (both defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+
+   * When ``WORK_SHORTAGE`` in :doc:`gdpconfig </advanced/gdpconfig>` is set to True, the following queues are skipped:
+
+      * Opportunistic queues defined with ``pledgedcpu=-1``.
+
+      * Partially pledged queues defined with positive ``pledgedcpu`` when the total number of running cores is larger than ``pledgedcpu``.
 
 #. Calculate brokerage weight for remaining candidates.
    The initial weight is based on running vs queued jobs.
@@ -373,6 +379,10 @@ If the task uses a container, i.e., the ``container_name`` attribute is set, the
 
    * ``container_name`` is resolved to the source path using the dictionary of the "ALL" queue, and
      the resolved source path must be forward-matched with one of the strings in the ``containers`` list.
+
+Note that ``@base_platform`` may include the container image name of the base platform, formatted as
+``@base_platform_name+base_container_image``. This string is provided to the pilot for configuring the
+container environment before executing the payload, but it is not utilized by the brokerage.
 
 Checks for Releases, Caches, or Nightlies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
