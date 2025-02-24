@@ -103,7 +103,7 @@ ready
    The task is ready to generate jobs.
 
 pending
-   The task has a temporary problem, e.g., there are no free computing resources for new jobs.
+   The task has a temporary problem or is waiting for an input; e.g. there are no free computing resources for new jobs.
 
 scouting
    The task is running scout jobs to gather job metrics.
