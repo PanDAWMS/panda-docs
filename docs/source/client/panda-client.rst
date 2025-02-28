@@ -89,7 +89,6 @@ The following environment variables need to change if necessary.
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 50
 
    * - Name
      - Description
