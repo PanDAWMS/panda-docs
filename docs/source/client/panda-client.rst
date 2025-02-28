@@ -106,7 +106,9 @@ The following environment variables need to change if necessary.
      - Base URL of PanDA sandbox server
      - https://pandaserver-doma.cern.ch/server/panda
    * - PANDA_AUTH
-     - Authentication mechanism. oidc to enable OIDC/OAuth2.0. x509_no_grid to use X509 without grid niddleware
+     - | Authentication mechanism. oidc to enable OIDC/OAuth2.0.
+       | x509_no_grid to use X509 without grid niddleware.
+       | x509 by default.
      - oidc
    * - PANDA_AUTH_VO
      - Virtual organization name (required only when PANDA_AUTH=oidc)
@@ -123,12 +125,16 @@ The following environment variables need to change if necessary.
    * - PANDA_NICKNAME
      - Grid nickname (required only when PANDA_AUTH = x509_no_grid)
      - my_nickname
-   * PANDA_PRODUCTION_ROLE
-     - Production role name ("production" by default)
+   * - PANDA_PRODUCTION_ROLE
+     - Production role name. "production" by default
      - prod
-   * PANDA_NICKNAME_REPLACE
-     - Replace substring in the nickname using the given regular expression pattern. The pattern is <separator>source<separator>destination<separator> where <separator> is a character that does not appear in the source or destination strings.
+   * - PANDA_NICKNAME_REPLACE
+     - | Replace substring in the nickname using the given regular expression pattern.
+       | The pattern is <separator>source<separator>destination<separator> where
+       | <separator> is a character that does not appear in the source or destination
+       | strings. The example shows how to remove @blah from the nickname.
      - /@.+$//
+
 
 .. tabs::
 
