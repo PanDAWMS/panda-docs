@@ -123,6 +123,12 @@ The following environment variables need to change if necessary.
    * - PANDA_NICKNAME
      - Grid nickname (required only when PANDA_AUTH = x509_no_grid)
      - my_nickname
+   * PANDA_PRODUCTION_ROLE
+     - Production role name ("production" by default)
+     - prod
+   * PANDA_NICKNAME_REPLACE
+     - Replace substring in the nickname using the given string pattern. The pattern is <separator>source<separator>destination<separator> where <separator> is a character that does not appear in the source or destination strings.
+     - /@.+$//
 
 .. tabs::
 
