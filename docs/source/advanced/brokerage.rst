@@ -174,7 +174,7 @@ Here is the ATLAS production job brokerage flow:
 
      .. math::
 
-        inputDiskCount + max (1.5 GB, outDiskCount \times nEvents \: or \: outDiskCount \times inputDiskCount) + workDiskCount
+        inputDiskCount + max (1.5 GB, outDiskCount \times nEvents \: or \: outDiskCount \times inputDiskCount) + max (300 MB, workDiskCount)
 
      *inputDiskCount* is the total size of job input files, a discrete function of *nEvents*.
      *nEvents* is the smallest number of events in a single job allowed based on the task requirements and is used to estimate the output size
