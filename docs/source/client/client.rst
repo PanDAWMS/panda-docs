@@ -29,6 +29,8 @@ For end-users
    pchain
    secret
 
+Further specific ATLAS examples can be found here: https://atlas-computing.docs.cern.ch/analysis/pathena-prun-examples.html
+
 Python API references
 ======================
 
