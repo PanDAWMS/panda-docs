@@ -7,6 +7,8 @@ EXCLUDED_PARAMS = ["req"]
 
 # General description at the top of the documentation
 DESCRIPTION = """
+### Protocol: we generally require communication over HTTPS. The server will not accept HTTP requests unless explicitly mentioned.
+
 ### HTTP methods:
 * GET: Retrieve data from the server. Parameters have to be sent **in the URL**.
 * PUT: Update data on the server. Parameters have to be sent **in the body** in json encoded format. When the client wants to gzip the data, the content encoding has to be set accordingly.
