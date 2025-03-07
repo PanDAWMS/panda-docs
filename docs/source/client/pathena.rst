@@ -133,6 +133,10 @@ replace some parameters with *%XYZ* using the following table
      - %DB:DatasetName:FileName (e.g., %DB:ddo.000001.Atlas.Ideal.DBRelease.v050101:DBRelease-5.1.1.tar.gz. %DB:LATEST if you use the latest DBR). Note that if your trf uses named parameters (e.g., DBRelease=DBRelease-5.1.1.tar.gz) you will need DBRelease=%DB:DatasetName:FileName (e.g., DBRelease=%DB:ddo.000001.Atlas.Ideal.DBRelease.v050101:DBRelease-5.1.1.tar.gz)
    * - Random seed
      - %RNDM:basenumber (e.g., %RNDM:100, this will be incremented per job)
+   * - The number of cores
+     - %CORE_NUMBER
+   * - The number of processes
+     - %PROC_NUMBER
 
 Then you just need to give the string to ``--trf``, e.g.
 
