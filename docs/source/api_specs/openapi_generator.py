@@ -6,7 +6,13 @@ import traceback
 import yaml
 from docstring_parser import parse
 
-from constants import EXCLUDED_FUNCTIONS, EXCLUDED_PARAMS, DEFAULT_RESPONSE_TEMPLATE, DESCRIPTION
+from constants import (
+    EXCLUDED_FUNCTIONS,
+    EXCLUDED_PARAMS,
+    DEFAULT_RESPONSE_TEMPLATE,
+    DESCRIPTION,
+)
+
 
 def extract_docstrings(file_path):
     """
@@ -209,18 +215,25 @@ def convert_docstrings_to_openapi(docstrings, tag):
 if __name__ == "__main__":
     # Define the path to the Python file to convert
     base_path = "panda-server/pandaserver/api/v1/"
-    file_paths = ["harvester_api.py", "task_api.py"]
+    file_paths = [
+        "event_api.py",
+        "file_server_api.py",
+        "harvester_api.py",
+        "idds_api.py",
+        "job_api.py",
+        "metaconfig_api.py",
+        "pilot_api.py",
+        "statistics_api.py",
+        "system_api.py",
+        "task_api.py",
+    ]
     # Initialize the OpenAPI dictionary
     open_api = {
         "swagger": "2.0",
         "schemes": ["http", "https"],
         "host": "pandaserver.cern.ch",
         "basePath": "/",
-        "info": {
-            "title": "PanDA API",
-            "version": "1.0.0",
-            "description": DESCRIPTION
-            },
+        "info": {"title": "PanDA API", "version": "1.0.0", "description": DESCRIPTION},
         "paths": {},
         "tags": [],
     }

@@ -7,28 +7,1219 @@ basePath: /
 info:
   title: PanDA API
   version: 1.0.0
-  description: "\n### HTTP methods:\n* GET: Retrieve data from the server. Parameters\
-    \ have to be sent **in the URL**.\n* PUT: Update data on the server. Parameters\
-    \ have to be sent **in the body** in json encoded format. When the client wants\
-    \ to gzip the data, the content encoding has to be set accordingly.\n\n### Response\
-    \ formats: \nThe return codes are usually specified with each API function, but\
-    \ in general:\n* 200: Function called correctly and response will be `Content-type:\
-    \ application/json`. This does not necessarily mean that the operation was successful,\
-    \ but that the function was called correctly.     Reasons why the operation could\
-    \ fail are:\n    * Wrong parameters or the JSON could not be decoded.\n    * The\
-    \ function was called using the wrong HTTP method (e.g. GET instead of PUT). \
-    \ \n    * The function expects authentication (certificate/token) and it was not\
-    \ provided.\n    * The function expects production role and it was not provided.\n\
-    \    * Caught exceptions when interacting with the database.\n    \nThe usual\
-    \ response dictionary has the following format:\n```\n{ \"success\": True/False,\
-    \ \"message\": \"Usually an error when there was a failure. The message can generally\
-    \ be ignored if the operation was successful.\", \"response\": \"The data returned\
-    \ if the operation was successful.\" }\n```\n* 403: Forbidden. The client called\
-    \ a forbidden function or there was an authentication issue. The response will\
-    \ use `Content-type: text/plain`.\n* 500: Server crashed calling the method. The\
-    \ response will use `Content-type: text/plain`.\n* 503: The server is overloaded.\
-    \ The call did not reach PanDA and the response comes from directly `httpd`. \n"
+  description: "\n### Protocol: we generally require communication over HTTPS. The\
+    \ server will not accept HTTP requests unless explicitly mentioned.\n\n### HTTP\
+    \ methods:\n* GET: Retrieve data from the server. Parameters have to be sent **in\
+    \ the URL**.\n* PUT: Update data on the server. Parameters have to be sent **in\
+    \ the body** in json encoded format. When the client wants to gzip the data, the\
+    \ content encoding has to be set accordingly.\n\n### Response formats: \nThe return\
+    \ codes are usually specified with each API function, but in general:\n* 200:\
+    \ Function called correctly and response will be `Content-type: application/json`.\
+    \ This does not necessarily mean that the operation was successful, but that the\
+    \ function was called correctly.     Reasons why the operation could fail are:\n\
+    \    * Wrong parameters or the JSON could not be decoded.\n    * The function\
+    \ was called using the wrong HTTP method (e.g. GET instead of PUT).  \n    * The\
+    \ function expects authentication (certificate/token) and it was not provided.\n\
+    \    * The function expects production role and it was not provided.\n    * Caught\
+    \ exceptions when interacting with the database.\n    \nThe usual response dictionary\
+    \ has the following format:\n```\n{ \"success\": True/False, \"message\": \"Usually\
+    \ an error when there was a failure. The message can generally be ignored if the\
+    \ operation was successful.\", \"response\": \"The data returned if the operation\
+    \ was successful.\" }\n```\n* 403: Forbidden. The client called a forbidden function\
+    \ or there was an authentication issue. The response will use `Content-type: text/plain`.\n\
+    * 500: Server crashed calling the method. The response will use `Content-type:\
+    \ text/plain`.\n* 503: The server is overloaded. The call did not reach PanDA\
+    \ and the response comes from directly `httpd`. \n"
 paths:
+  /event/v1/get_available_event_range_count:
+    get:
+      summary: Get available event range count
+      description: 'This function returns the count of available event ranges for
+        a given job_id, jobset_id, and task_id. Requires a secure connection and production
+        role.
+
+
+        '
+      tags:
+      - event
+      parameters:
+      - name: job_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: PanDA job ID
+      - name: jobset_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: Jobset ID
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI task ID
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to 60.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /event/v1/get_event_range_statuses:
+    get:
+      summary: Get event range statuses
+      description: 'Gets a dictionary with the status of the event ranges for the
+        given pairs of PanDA job IDs and JEDI task IDs. Requires a secure connection.
+
+
+        '
+      tags:
+      - event
+      parameters:
+      - name: job_task_ids
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: 'json encoded string with JEDI task ID + PanDA job ID pairs,
+          in the format `[{"task_id": <task>, "job_id": <job>}, ...]`'
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /event/v1/acquire_event_ranges:
+    post:
+      summary: Acquire event ranges
+      description: 'Acquires a list of event ranges with a given PandaID for execution.
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: string
+                  description: PanDa job ID.
+                jobset_id:
+                  type: string
+                  description: Jobset ID.
+                task_id:
+                  type: integer
+                  description: JEDI task ID. Defaults to None.
+                n_ranges:
+                  type: integer
+                  description: The number of event ranges to retrieve. Defaults to
+                    10.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 60.
+                scattered:
+                  type: boolean
+                  description: Whether the event ranges are scattered. Defaults to
+                    None.
+                segment_id:
+                  type: integer
+                  description: The segment ID. Defaults to None.
+              required:
+              - job_id
+              - jobset_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /event/v1/update_single_event_range:
+    post:
+      summary: Update single event range
+      description: 'Updates the status of a specific event range. Requires a secure
+        connection and production role.
+
+
+        '
+      tags:
+      - event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_range_id:
+                  type: string
+                  description: The ID of the event range to update.
+                event_range_status:
+                  type: string
+                  description: The new status of the event range.
+                core_count:
+                  type: integer
+                  description: The number of cores used. Defaults to None.
+                cpu_consumption_time:
+                  type: number
+                  description: The CPU consumption time. Defaults to None.
+                object_store_id:
+                  type: integer
+                  description: The object store ID. Defaults to None.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 60.
+              required:
+              - event_range_id
+              - event_range_status
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /event/v1/update_event_ranges:
+    post:
+      summary: Update event ranges
+      description: 'Updates the event ranges in bulk. Requires a secure connection
+        and production role.
+
+
+        '
+      tags:
+      - event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_ranges:
+                  type: string
+                  description: JSON-encoded string containing the list of event ranges
+                    to update.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 120.
+                version:
+                  type: integer
+                  description: 'The version of the event ranges.  Defaults to 0.
+
+                    Version 0: normal event service
+
+                    Version 1: jumbo jobs with zip file support
+
+                    Version 2: fine-grained processing where events can be updated
+                    before being dispatched'
+              required:
+              - event_ranges
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/upload_jedi_log:
+    post:
+      summary: Upload event picking request to the server.
+      description: 'Uploads an event picking request to the server. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                run_event_list:
+                  type: string
+                  description: run and event list.
+                data_type:
+                  type: string
+                  description: data type.
+                stream_name:
+                  type: string
+                  description: stream name.
+                dataset_name:
+                  type: string
+                  description: dataset name.
+                ami_tag:
+                  type: string
+                  description: AMI tag.
+                user_dataset_name:
+                  type: string
+                  description: user dataset name.
+                locked_by:
+                  type: string
+                  description: locking agent.
+                parameters:
+                  type: string
+                  description: parameters.
+                input_file_list:
+                  type: string
+                  description: input file list.
+                n_sites:
+                  type: string
+                  description: number of sites.
+                user_task_name:
+                  type: string
+                  description: user task name.
+                ei_api:
+                  type: string
+                  description: event index API.
+                include_guids:
+                  type: boolean
+                  description: flag to indicate if GUIDs are included with the run-event
+                    list
+              required:
+              - run_event_list
+              - data_type
+              - stream_name
+              - dataset_name
+              - ami_tag
+              - user_dataset_name
+              - locked_by
+              - parameters
+              - input_file_list
+              - n_sites
+              - user_task_name
+              - ei_api
+              - include_guids
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/update_jedi_log:
+    post:
+      summary: Update a JEDI log file
+      description: 'Updates a JEDI log file, appending more content at the end of
+        the file. Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: werkzeug.FileStorage object to be updated.
+              required:
+              - file
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/download_jedi_log:
+    post:
+      summary: Download JEDI log file
+      description: 'Downloads the JEDI log file, if required at a particular offset.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                log_name:
+                  type: string
+                  description: log file name
+                offset:
+                  type: integer
+                  description: offset in the file
+              required:
+              - log_name
+              - offset
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/upload_cache_file:
+    post:
+      summary: Upload a cache file
+      description: 'Uploads a file to the cache. When not touched, cache files are
+        expired after some time.
+
+        User caches will get registered in the PanDA database and will account towards
+        user limits.
+
+        PanDA log files will be stored in gzip format. Requires a secure connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: werkzeug.FileStorage object to be uploaded.
+              required:
+              - file
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/touch_cache_file:
+    post:
+      summary: Touch file in the cache directory.
+      description: 'Touches a file in the cache directory. It avoids the file to expire
+        and being deleted by server clean up processes. Requires a secure connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_name:
+                  type: string
+                  description: file name to be deleted
+              required:
+              - file_name
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/delete_cache_file:
+    post:
+      summary: Delete cache file
+      description: 'Deletes a file from the cache directory. Currently a dummy method.
+        Requires a secure connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_name:
+                  type: string
+                  description: file name to be deleted
+              required:
+              - file_name
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/register_cache_file:
+    post:
+      summary: Register cache file
+      description: 'Registers a file from the cache directory into the PanDA database,
+        so that PanDA knows the server it''s on. Requires a secure connection and
+        production role.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_name:
+                  type: string
+                  description: user that uploaded the file
+                file_name:
+                  type: string
+                  description: file name
+                file_size:
+                  type: integer
+                  description: file size
+                checksum:
+                  type: string
+                  description: checksum
+              required:
+              - user_name
+              - file_name
+              - file_size
+              - checksum
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/validate_cache_file:
+    post:
+      summary: Validate cache file
+      description: 'Validates a cache file owned by the caller by checking the file
+        metadata that was registered in the database. Requires a secure connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_size:
+                  type: integer
+                  description: file size
+                checksum:
+                  type: string
+                  description: checksum
+              required:
+              - file_size
+              - checksum
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/upload_hpo_checkpoint:
+    post:
+      summary: Upload a HPO checkpoint file
+      description: 'Uploads a HPO checkpoint file to the server. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: werkzeug.FileStorage object to be uploaded.
+              required:
+              - file
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /file_server/v1/delete_hpo_checkpoint:
+    post:
+      summary: Delete a HPO checkpoint file.
+      description: 'Deletes a HPO checkpoint file from the server. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: string
+                  description: JEDI task ID
+                sub_id:
+                  type: string
+                  description: sub ID.
+              required:
+              - task_id
+              - sub_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /v1/harvester/update_workers:
     post:
       summary: Update workers.
@@ -295,7 +1486,7 @@ paths:
   /v1/harvester/get_current_worker_id:
     get:
       summary: Get the current worker ID.
-      description: 'Retrieve the current worker ID.
+      description: 'Retrieve the current worker ID. Requires a secure connection.
 
 
         '
@@ -359,7 +1550,8 @@ paths:
   /v1/harvester/get_worker_statistics:
     get:
       summary: Get worker statistics.
-      description: 'Get statistics for all the workers managed across the Grid.
+      description: 'Get statistics for all the workers managed across the Grid. Requires
+        a secure connection.
 
 
         '
@@ -578,7 +1770,7 @@ paths:
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
   /v1/harvester/acknowledge_harvester_commands:
-    get:
+    post:
       summary: Acknowledge harvester commands.
       description: 'Acknowledges the list of command IDs in the PanDA database. Requires
         a secure connection and production role.
@@ -587,21 +1779,24 @@ paths:
         '
       tags:
       - harvester
-      parameters:
-      - name: command_ids
-        in: query
+      requestBody:
         required: true
-        schema:
-          type: array
-          items:
-            type: string
-        description: A list of command IDs to acknowledge, e.g. `[1, 2, 3, 4,...]`.
-      - name: timeout
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: The timeout value. Defaults to `30`.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                command_ids:
+                  type: array
+                  description: A list of command IDs to acknowledge, e.g. `[1, 2,
+                    3, 4,...]`.
+                  items:
+                    type: object
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to `30`.
+              required:
+              - command_ids
       responses:
         '200':
           description: Method called correctly
@@ -828,11 +2023,2192 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
+  /job/v1/get_status:
+    get:
+      summary: Get status of a job.
+      description: 'Gets the status for a job and command to the pilot if any. Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - job
+      parameters:
+      - name: job_ids
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: list of PanDA job IDs.
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to 60.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/get_description:
+    get:
+      summary: Get description of a job.
+      description: 'Gets the description of a job from the main/active schema. The
+        description includes job attributes, job parameters and related file attributes.
+        Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      parameters:
+      - name: job_ids
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: List of PanDA job IDs.
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to 60.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/get_description_incl_archive:
+    get:
+      summary: Get description of a job.
+      description: 'Gets the description of a job, also looking into the secondary/archive
+        schema. The description includes job attributes, job parameters and related
+        file attributes. Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      parameters:
+      - name: job_ids
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: List of PanDA job IDs.
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to 60.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/generate_offline_execution_script:
+    get:
+      summary: Get execution script for a job.
+      description: 'Gets the execution script for a job, including Rucio download
+        of input, ALRB setup, downloading transformation script and running the script.
+        Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      parameters:
+      - name: job_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: PanDA job ID
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to 60.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/get_metadata_for_analysis_jobs:
+    get:
+      summary: Get metadata for analysis jobs
+      description: 'Gets the metadata from the metatable for analysis jobs in `finished`
+        status. Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI task ID
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/kill:
+    post:
+      summary: Kill the jobs
+      description: 'Kills the jobs with the given PanDA IDs. Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/reassign:
+    post:
+      summary: Reassign a list of jobs
+      description: 'Reassigns a list of jobs. Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_ids:
+                  type: string
+                  description: List of PanDA job IDs
+              required:
+              - job_ids
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/set_command:
+    post:
+      summary: Set a pilot command
+      description: 'Sets a command to the pilot for a job. Requires a secure connection
+        and production role.
+
+
+        '
+      tags:
+      - job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: integer
+                  description: PanDA job ID
+                command:
+                  type: string
+                  description: The command for the pilot, e.g. `tobekilled`
+              required:
+              - job_id
+              - command
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/set_debug_mode:
+    post:
+      summary: Set the debug mode
+      description: 'Sets the debug mode for a job. Requires a secure connection and
+        production role.
+
+
+        '
+      tags:
+      - job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: integer
+                  description: PanDA job ID
+                mode:
+                  type: boolean
+                  description: True to set debug mode, False to unset debug mode
+              required:
+              - job_id
+              - mode
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /job/v1/submit:
+    post:
+      summary: Set the debug mode
+      description: 'Sets the debug mode for a job. Requires a secure connection.
+
+
+        '
+      tags:
+      - job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jobs:
+                  type: string
+                  description: JSON string with a list of job specs
+              required:
+              - jobs
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /metaconfig/v1/get_banned_users:
+    get:
+      summary: Get banned users
+      description: 'Gets the list of banned users from the system (users with `status=disabled`
+        in ATLAS_PANDAMETA.users). Requires a secure connection.
+
+
+        '
+      tags:
+      - metaconfig
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /metaconfig/v1/get_site_specs:
+    get:
+      summary: Get site specs
+      description: 'Gets a dictionary of site specs. By default `analysis` sites are
+        returned. Requires a secure connection.
+
+
+        '
+      tags:
+      - metaconfig
+      parameters:
+      - name: type
+        in: query
+        required: true
+        schema:
+          type: string
+        description: type of site as defined in CRIC (currently `unified`, `production`,
+          `analysis`, `all`)
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /metaconfig/v1/get_resource_types:
+    get:
+      summary: Get resource types
+      description: 'Gets the resource types (`SCORE`, `MCORE`, etc.) together with
+        their definitions. Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - metaconfig
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /pilot/v1/acquire_jobs:
+    post:
+      summary: Acquire jobs
+      description: 'Acquire jobs for the pilot. The jobs are reserved, the job status
+        is updated and the jobs are returned. Requires a secure connection.
+
+
+        '
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_name:
+                  type: string
+                  description: The PanDA queue name
+                timeout:
+                  type: integer
+                  description: Request timeout in seconds. Optional and defaults to
+                    60.
+                memory:
+                  type: integer
+                  description: Memory limit for the job. Optional and defaults to
+                    `None`.
+                disk_space:
+                  type: integer
+                  description: Disk space limit for the job. Optional and defaults
+                    to `None`.
+                prod_source_label:
+                  type: string
+                  description: Prodsourcelabel, e.g. `user`, `managed`, `unified`...
+                    Optional and defaults to `None`.
+                node:
+                  type: string
+                  description: Identifier of the worker node/slot. Optional and defaults
+                    to `None`.
+                computing_element:
+                  type: string
+                  description: Computing element. Optional and defaults to `None`.
+                prod_user_id:
+                  type: string
+                  description: User ID of the job. Optional and defaults to `None`.
+                get_proxy_key:
+                  type: boolean
+                  description: Flag to request a proxy key.Optional and defaults to
+                    `None`.
+                task_id:
+                  type: integer
+                  description: JEDI task ID of the job. Optional and defaults to `None`.
+                n_jobs:
+                  type: integer
+                  description: Number of jobs for bulk requests. Optional and defaults
+                    to `None`.
+                background:
+                  type: boolean
+                  description: Background flag. Optional and defaults to `None`.
+                resource_type:
+                  type: string
+                  description: Resource type of the job, e.g. `SCORE`, `MCORE`,....
+                    Optional and defaults to `None`.
+                harvester_id:
+                  type: string
+                  description: Harvester ID, used to update the worker entry in the
+                    DB. Optional and defaults to `None`.
+                worker_id:
+                  type: integer
+                  description: Worker ID, used to update the worker entry in the DB.
+                    Optional and defaults to `None`.
+                scheduler_id:
+                  type: string
+                  description: Scheduler, e.g. harvester ID. Optional and defaults
+                    to `None`.
+                job_type:
+                  type: string
+                  description: 'Job type, e.g. `user`, `unified`, ... This is necessary
+                    on top of the `prodsourcelabel`
+
+                    to disambiguate the cases of test jobs that can be production
+                    or analysis. Optional and defaults to `None`.'
+                via_topic:
+                  type: boolean
+                  description: Topic for message broker. Optional and defaults to
+                    `None`.
+              required:
+              - site_name
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  get_job_status:
+    post:
+      summary: Get job status
+      description: Gets the status for a list of jobs. Requires a secure connection.
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_ids:
+                  type: integer
+                  description: list of job IDs.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 60.
+              required:
+              - job_ids
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /pilot/v1/update_job:
+    post:
+      summary: Update job
+      description: 'Updates the details for a job, stores the metadata and excerpts
+        from the pilot log. Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: integer
+                  description: PanDA job ID
+                job_status:
+                  type: string
+                  description: Job status
+                job_sub_status:
+                  type: string
+                  description: Job sub status. Optional, defaults to `None`
+                start_time:
+                  type: string
+                  description: Job start time in format `"%Y-%m-%d %H:%M:%S"`. Optional,
+                    defaults to `None`
+                end_time:
+                  type: string
+                  description: Job end time in format `"%Y-%m-%d %H:%M:%S"`. Optional,
+                    defaults to `None`
+                pilot_timing:
+                  type: string
+                  description: String with pilot timings. Optional, defaults to `None`
+                site_name:
+                  type: string
+                  description: PanDA queue name. Optional, defaults to `None`
+                node:
+                  type: string
+                  description: Identifier for worker node/slot. Optional, defaults
+                    to `None`
+                scheduler_id:
+                  type: string
+                  description: Scheduler ID, such as harvester instance. Optional,
+                    defaults to `None`
+                pilot_id:
+                  type: string
+                  description: Pilot ID. Optional, defaults to `None`
+                batch_id:
+                  type: string
+                  description: Batch ID. Optional, defaults to `None`
+                trans_exit_code:
+                  type: string
+                  description: Transformation exit code. Optional, defaults to `None`
+                pilot_error_code:
+                  type: string
+                  description: Pilot error code. Optional, defaults to `None`
+                pilot_error_diag:
+                  type: string
+                  description: Pilot error message. Optional, defaults to `None`
+                exe_error_code:
+                  type: integer
+                  description: Execution error code. Optional, defaults to `None`
+                exe_error_diag:
+                  type: string
+                  description: Execution error message. Optional, defaults to `None`
+                n_events:
+                  type: integer
+                  description: Number of events. Optional, defaults to `None`
+                n_input_files:
+                  type: integer
+                  description: Number of input files. Optional, defaults to `None`
+                attempt_nr:
+                  type: integer
+                  description: Job attempt number. Optional, defaults to `None`
+                cpu_consumption_time:
+                  type: integer
+                  description: CPU consumption time. Optional, defaults to `None`
+                cpu_consumption_unit:
+                  type: string
+                  description: CPU consumption unit, being used for updating some
+                    CPU details. Optional, defaults to `None`
+                cpu_conversion_factor:
+                  type: number
+                  description: CPU conversion factor. Optional defaults to `None`
+                core_count:
+                  type: integer
+                  description: Number of cores of the job. Optional, defaults to `None`
+                mean_core_count:
+                  type: integer
+                  description: Mean core count. Optional, defaults to `None`
+                max_rss:
+                  type: integer
+                  description: Measured max RSS memory. Optional, defaults to `None`
+                max_vmem:
+                  type: integer
+                  description: Measured max Virtual memory. Optional, defaults to
+                    `None`
+                max_swap:
+                  type: integer
+                  description: Measured max swap memory. Optional, defaults to `None`
+                max_pss:
+                  type: integer
+                  description: Measured max PSS memory. Optional, defaults to `None`
+                avg_rss:
+                  type: integer
+                  description: Measured average RSS. Optional, defaults to `None`
+                avg_vmem:
+                  type: integer
+                  description: Measured average Virtual memory.Optional, defaults
+                    to `None`
+                avg_swap:
+                  type: integer
+                  description: Measured average swap memory. Optional, defaults to
+                    `None`
+                avg_pss:
+                  type: integer
+                  description: Measured average PSS. Optional, defaults to `None`
+                tot_rchar:
+                  type: integer
+                  description: Measured total read characters. Optional, defaults
+                    to `None`
+                tot_wchar:
+                  type: integer
+                  description: Measured total written characters. Optional, defaults
+                    to `None`
+                tot_rbytes:
+                  type: integer
+                  description: Measured total read bytes. Optional, defaults to `None`
+                tot_wbytes:
+                  type: integer
+                  description: Measured total written bytes. Optional, defaults to
+                    `None`
+                rate_rchar:
+                  type: integer
+                  description: Measured rate for read characters. Optional, defaults
+                    to `None`
+                rate_wchar:
+                  type: integer
+                  description: Measured rate for written characters. Optional, defaults
+                    to `None`
+                rate_rbytes:
+                  type: integer
+                  description: Measured rate for read bytes. Optional, defaults to
+                    `None`
+                rate_wbytes:
+                  type: integer
+                  description: Measured rate for written bytes. Optional, defaults
+                    to `None`
+                corrupted_files:
+                  type: string
+                  description: List of corrupted files in comma separated format.
+                    Optional, defaults to `None`
+                cpu_architecture_level:
+                  type: integer
+                  description: CPU architecture level (e.g. `x86_64-v3`). Optional,
+                    defaults to `None`
+                job_metrics:
+                  type: string
+                  description: Job metrics. Optional, defaults to `None`
+                job_output_report:
+                  type: string
+                  description: Job output report. Optional, defaults to `""`
+                pilot_log:
+                  type: string
+                  description: Pilot log excerpt. Optional, defaults to `""`
+                meta_data:
+                  type: string
+                  description: Job metadata. Optional, defaults to `""`
+                stdout:
+                  type: string
+                  description: Standard output. Optional, defaults to `""`
+                timeout:
+                  type: integer
+                  description: Timeout for the operation in seconds. Optional, defaults
+                    to 60
+              required:
+              - job_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /pilot/v1/update_jobs_bulk:
+    post:
+      summary: Update jobs in bulk
+      description: 'Bulk method to update the details for jobs, store the metadata
+        and excerpt from the pilot log. Internally, this method loops over
+
+        the jobs and calls `update_job` for each job. Requires a secure connection
+        and production role.
+
+
+        '
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_list:
+                  type: array
+                  description: list of job dictionaries to update. The mandatory and
+                    optional keys for each job dictionary is the same as the arguments
+                    for `update_job`.
+                  items:
+                    type: object
+              required:
+              - job_list
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /pilot/v1/update_worker_status:
+    post:
+      summary: Update worker status
+      description: 'Updates the status of a worker with the information seen by the
+        pilot. Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                worker_id:
+                  type: string
+                  description: The worker ID.
+                harvester_id:
+                  type: string
+                  description: The harvester ID.
+                status:
+                  type: string
+                  description: The status of the worker. Must be either 'started'
+                    or 'finished'.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 60.
+                node_id:
+                  type: string
+                  description: The node ID. Defaults to None.
+              required:
+              - worker_id
+              - harvester_id
+              - status
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /pilot/v1/update_worker_node:
+    post:
+      summary: Update worker node
+      description: 'Updates a worker node in the worker node map. When already found,
+        it updates the `last_seen` time. When not found, it adds the worker node.
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - pilot
+  /statistics/v1/job_stats_by_cloud:
+    get:
+      summary: Job statistics by cloud.
+      description: 'Get the job statistics by cloud, which includes the active jobs
+        and jobs in final states modified in the last 12 hours. You have to filter
+        the statistics by type, which can be either "production" or "analysis". Used
+        by panglia monitoring. Requires a secure connection.
+
+
+        '
+      tags:
+      - statistics
+      parameters:
+      - name: type
+        in: query
+        required: true
+        schema:
+          type: string
+        description: can be "analysis" or "production". Defaults to "production" when
+          not provided.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /statistics/v1/production_job_stats_by_cloud_and_processing_type:
+    get:
+      summary: Production job statistics by cloud and processing type.
+      description: 'Get the production job statistics by cloud and processing type,
+        which includes the active jobs and jobs in final states modified in the last
+        12 hours. Used by panglia monitoring. Requires a secure connection.
+
+
+        '
+      tags:
+      - statistics
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /statistics/v1/active_job_stats_by_site:
+    get:
+      summary: Active job statistics by site
+      description: 'Get the active (not in a final state) job statistics by site.
+        Used by Harvester. Requires a secure connection.
+
+
+        '
+      tags:
+      - statistics
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /statistics/v1/job_stats_by_site_and_resource_type:
+    get:
+      summary: Job statistics by site and resource type
+      description: 'Get the job statistics by computing site (PanDA queue) and resource
+        type (SCORE, MCORE, ...). This includes the active jobs and jobs in final
+        states modified in the specified time window (default of 12 hours). Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - statistics
+      parameters:
+      - name: time_window
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: time window in minutes for the statistics (affects only archived
+          jobs)
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /statistics/v1/retry:
+    get:
+      summary: Job statistics by site, global share and resource type
+      description: 'Get the job statistics by computing site (PanDA queue), global
+        share and resource type (SCORE, MCORE, ...). This includes the active jobs
+        and jobs in final states modified in the specified time window (default of
+        12 hours). Requires a secure connection.
+
+
+        '
+      tags:
+      - statistics
+      parameters:
+      - name: time_window
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: time window in minutes for the statistics (affects only archived
+          jobs)
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /system/v1/get_attributes:
+    get:
+      summary: Get attributes
+      description: 'Gets all parameters and environment variables.
+
+
+        '
+      tags:
+      - system
+      parameters:
+      - name: '**kwargs'
+        in: query
+        required: true
+        schema:
+          type: string
+        description: arbitrary keyword parameters that will be printed out
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /system/v1/get_voms_attributes:
+    get:
+      summary: Get VOMS attributes
+      description: 'Gets the VOMS attributes (i.e. the ones starting with GRST) in
+        sorted order. Requires a secure connection.
+
+
+        '
+      tags:
+      - system
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /system/v1/get_user_attributes:
+    get:
+      summary: Get user attributes
+      description: 'Gets user attributes as seen by PanDA for debug purposes. Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - system
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /system/v1/get_https_endpoint:
+    get:
+      summary: Get the HTTPS endpoint
+      description: 'Gets the server name (not the load balanced service name!) and
+        port for HTTPS.
+
+
+        '
+      tags:
+      - system
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /system/v1/get_http_endpoint:
+    get:
+      summary: Get the HTTP endpoint
+      description: 'Gets the server name (not the load balanced service name!) and
+        port for HTTP.
+
+
+        '
+      tags:
+      - system
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /system/v1/is_alive:
+    get:
+      summary: Is alive
+      description: 'Check if the server is alive. Basic function for the health check
+        used in SLS monitoring.
+
+
+        '
+      tags:
+      - system
+      parameters: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /task/v1/retry:
     post:
-      summary: Retry a given task. Requires a secure connection without a production
-        role to retry own tasks and with a production role to retry others' tasks.
-      description: ''
+      summary: Task retry
+      description: 'Retry a given task e.g. in exhausted state. Requires a secure
+        connection without a production role to retry own tasks and with a production
+        role to retry others'' tasks.
+
+
+        '
       tags:
       - task
       requestBody:
@@ -842,13 +4218,15 @@ paths:
             schema:
               type: object
               properties:
-                jedi_task_id:
+                task_id:
                   type: integer
                   description: JEDI Task ID
                 new_parameters:
                   type: string
-                  description: a json string of new parameters the task uses when
-                    rerunning
+                  description: 'a json dictionary with the new parameters for rerunning
+                    the task. The new parameters are merged with the existing ones.
+
+                    The parameters are the attributes in the JediTaskSpec object (https://github.com/PanDAWMS/panda-jedi/blob/master/pandajedi/jedicore/JediTaskSpec.py).'
                 no_child_retry:
                   type: boolean
                   description: if True, the child tasks are not retried
@@ -860,11 +4238,891 @@ paths:
                   type: boolean
                   description: if True, the task keeps current gshare and priority
               required:
-              - jedi_task_id
-              - new_parameters
-              - no_child_retry
-              - disable_staging_mode
-              - keep_gshare_priority
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/resume:
+    post:
+      summary: Task resume
+      description: 'Resume a given task. This transitions a paused or throttled task
+        back to its previous active state. Resume can also be used to kick a task
+        in staging state to the next state.
+
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/release:
+    post:
+      summary: Task release
+      description: 'Release a given task. This triggers the avalanche for tasks in
+        scouting state or dynamically reconfigures the task to skip over the scouting
+        state.
+
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/reassign:
+    post:
+      summary: Task reassign
+      description: 'Reassign a given task to a site, nucleus or cloud - depending
+        on the parameters. Requires a secure connection.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+                site:
+                  type: string
+                  description: site name
+                cloud:
+                  type: string
+                  description: cloud name
+                nucleus:
+                  type: string
+                  description: nucleus name
+                soft:
+                  type: boolean
+                  description: soft reassign
+                mode:
+                  type: string
+                  description: soft/nokill reassign
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/pause:
+    post:
+      summary: Task pause
+      description: 'Pause a given task. Requires a secure connection and production
+        role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/kill:
+    post:
+      summary: Task kill
+      description: 'Kill a given task. Requires a secure connection.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+                broadcast:
+                  type: boolean
+                  description: broadcast kill command to pilots to kill the jobs
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/kill_unfinished_jobs:
+    post:
+      summary: Kill all unfinished jobs in a task
+      description: 'Kills all unfinished jobs in a task. Requires a secure connection.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/finish:
+    post:
+      summary: Task finish
+      description: 'Finish a given task. Requires a secure connection.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+                soft:
+                  type: boolean
+                  description: soft finish
+                broadcast:
+                  type: boolean
+                  description: broadcast finish command to pilots
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/reactivate:
+    post:
+      summary: Reactivate task
+      description: 'Reactivate a given task, i.e. recycle a finished/done task. A
+        reactivated task will generate new jobs and then go to done/finished.
+
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+                keep_attempt_nr:
+                  type: boolean
+                  description: keep the original attempt number
+                trigger_job_generation:
+                  type: boolean
+                  description: trigger the job generation
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/avalanche:
+    post:
+      summary: Task avalanche
+      description: 'Avalanche a given task. Requires a secure connection and production
+        role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/reload_input:
+    post:
+      summary: Reload input
+      description: 'Request to reload the input for a given task. Requires a secure
+        connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+              required:
+              - task_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/reassign_global_share:
+    post:
+      summary: Enable Jumbo jobs
+      description: 'Enables the Jumbo jobs for a given task ID. Requires a secure
+        connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI task ID
+                jumbo_jobs_total:
+                  type: integer
+                  description: Total number of jumbo jobs
+                jumbo_jobs_per_site:
+                  type: integer
+                  description: Number of jumbo jobs per site. Defaults to `jumbo_jobs_total`.
+              required:
+              - task_id
+              - jumbo_jobs_total
+              - jumbo_jobs_per_site
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_jumbo_job_datasets:
+    get:
+      summary: Get jumbo job datasets
+      description: 'Gets a map of the jumbo-job-enabled tasks to their datasets, filtering
+        by the last modification time (now - from_offset to now - to_offset).
+
+        Requires a secure connection.
+
+
+        '
+      tags:
+      - task
+      parameters:
+      - name: from_offset
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: '`now - from_offset` in days will serve as the floor for modification
+          time (Previously called n_days)'
+      - name: to_offset
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: '`now - to_offset` in days will serve as the ceiling for modification
+          time. Defaults to 0. (Previously called grace_period)'
       responses:
         '200':
           description: Method called correctly
@@ -915,9 +5173,12 @@ paths:
                   error and was unable to complete your request.
   /task/v1/enable_job_cloning:
     post:
-      summary: Enable job cloning for a given task. Requires secure connection and
-        production role.
-      description: ''
+      summary: Enable job cloning
+      description: 'Enable job cloning for a given task. Requires secure connection
+        and production role.
+
+
+        '
       tags:
       - task
       requestBody:
@@ -941,9 +5202,6 @@ paths:
                   description: number of sites to be used for each target
               required:
               - jedi_task_id
-              - mode
-              - multiplicity
-              - num_sites
       responses:
         '200':
           description: Method called correctly
@@ -994,9 +5252,12 @@ paths:
                   error and was unable to complete your request.
   /task/v1/disable_job_cloning:
     post:
-      summary: Disable job cloning for a given task. Requires secure connection and
-        production role.
-      description: ''
+      summary: Disable job cloning
+      description: 'Disable job cloning for a given task. Requires secure connection
+        and production role.
+
+
+        '
       tags:
       - task
       requestBody:
@@ -1059,8 +5320,913 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
+  /task/v1/increase_attempts:
+    post:
+      summary: Increase possible task attempts
+      description: 'Increase possible task attempts. Requires secure connection and
+        production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI Task ID
+                increase:
+                  type: integer
+                  description: number of attempts to increase
+              required:
+              - task_id
+              - increase
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_status:
+    get:
+      summary: Get task status
+      description: 'Get the status of a given task. Requires secure connection.
+
+
+        '
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI Task ID
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_details:
+    get:
+      summary: Get task details
+      description: 'Get the details of a given task. Requires secure connection.
+
+
+        '
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI Task ID
+      - name: include_parameters
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: flag to include task parameter information (Previously fullFlag)
+      - name: include_status
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: flag to include status information (Previously withTaskInfo)
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/change_attribute:
+    post:
+      summary: Change a task attribute
+      description: 'Change a task attribute within the list of valid attributes ("ramCount",
+        "wallTime", "cpuTime", "coreCount").
+
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI task ID
+                attribute_name:
+                  type: string
+                  description: attribute to change
+                value:
+                  type: integer
+                  description: value to set to the attribute
+              required:
+              - task_id
+              - attribute_name
+              - value
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/change_modification_time:
+    post:
+      summary: Change task modification time
+      description: 'Change the modification time for a task to `now() + positive_hour_offset`.
+        Requires a secure connection and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI task ID
+                positive_hour_offset:
+                  type: integer
+                  description: number of hours to add to the current time
+              required:
+              - task_id
+              - positive_hour_offset
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/change_priority:
+    post:
+      summary: Change priority
+      description: 'Change the priority of a given task. Requires a secure connection
+        and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI task ID
+                priority:
+                  type: integer
+                  description: new priority for the task
+              required:
+              - task_id
+              - priority
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/change_split_rule:
+    post:
+      summary: Change the split rule
+      description: 'Change the split rule for a task. Requires a secure connection
+        and production role.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI task ID
+                attribute_name:
+                  type: string
+                  description: split rule attribute to change
+                value:
+                  type: integer
+                  description: value to set to the attribute
+              required:
+              - task_id
+              - attribute_name
+              - value
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_tasks_modified_since:
+    get:
+      summary: Get tasks modified since
+      description: 'Get the tasks with `modificationtime > since`. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - task
+      parameters:
+      - name: since
+        in: query
+        required: true
+        schema:
+          type: string
+        description: time in the format `%Y-%m-%d %H:%M:%S`, e.g. `2024-12-18 14:30:45`.
+          The tasks with `modificationtime > since` will be returned
+      - name: dn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: user DN
+      - name: full
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: flag to include full task information. If `full=False` the basic
+          fields are `jediTaskID, modificationTime, status, processingType, transUses,
+          transHome, architecture, reqID, creationDate, site, cloud, taskName`
+      - name: min_task_id
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: minimum task ID
+      - name: prod_source_label
+        in: query
+        required: false
+        schema:
+          type: string
+        description: task type (e.g. `user`, `managed`, `test`, etc.)
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_datasets_and_files:
+    get:
+      summary: Get datasets and files
+      description: "Get the files in the datasets associated to a given task. You\
+        \ can filter passing a list of dataset types. The return format is:\n```\n\
+        [\n    {\n        \"dataset\": {\n            \"name\": dataset_name,\n  \
+        \          \"id\": dataset_id\n        },\n        \"files\": [\n        \
+        \    {\n                \"lfn\": lfn,\n                \"scope\": file_scope,\n\
+        \                \"id\": file_id,\n                \"status\": status\n  \
+        \          },\n            ...\n        ]\n    },\n    ...\n]\n```\nRequires\
+        \ a secure connection.\n\n"
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI task ID
+      - name: dataset_types
+        in: query
+        required: false
+        schema:
+          type: string
+        description: list of dataset types, defaults to `["input", "pseudo_input"]`
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_job_ids:
+    get:
+      summary: Get job IDs
+      description: 'Get a list with the job IDs `[job_id, ...]` (in any status) associated
+        to a given task. Requires a secure connection.
+
+
+        '
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI task ID
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/submit:
+    post:
+      summary: Register task
+      description: 'Insert the task parameters to register a task. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_parameters:
+                  type: string
+                  description: Dictionary with all the required task parameters. The
+                    parameters are the attributes in the JediTaskSpec object (https://github.com/PanDAWMS/panda-jedi/blob/master/pandajedi/jedicore/JediTaskSpec.py).
+                parent_tid:
+                  type: integer
+                  description: Parent task ID
+              required:
+              - task_parameters
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /task/v1/get_task_parameters:
+    get:
+      summary: Get task parameters
+      description: 'Get a dictionary with the task parameters used to create a task.
+
+
+        '
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: JEDI task ID
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
 tags:
+- name: event
+  description: Operations related to event
+- name: file
+  description: Operations related to file
 - name: harvester
   description: Operations related to harvester
+- name: idds
+  description: Operations related to idds
+- name: job
+  description: Operations related to job
+- name: metaconfig
+  description: Operations related to metaconfig
+- name: pilot
+  description: Operations related to pilot
+- name: statistics
+  description: Operations related to statistics
+- name: system
+  description: Operations related to system
 - name: task
   description: Operations related to task
