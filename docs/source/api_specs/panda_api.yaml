@@ -24,7 +24,7 @@ info:
     \ exceptions when interacting with the database.\n    \nThe usual response dictionary\
     \ has the following format:\n```\n{ \"success\": True/False, \"message\": \"Usually\
     \ an error when there was a failure. The message can generally be ignored if the\
-    \ operation was successful.\", \"response\": \"The data returned if the operation\
+    \ operation was successful.\", \"data\": \"The data returned if the operation\
     \ was successful.\" }\n```\n* 403: Forbidden. The client called a forbidden function\
     \ or there was an authentication issue. The response will use `Content-type: text/plain`.\n\
     * 500: Server crashed calling the method. The response will use `Content-type:\
@@ -73,14 +73,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -143,14 +143,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -214,14 +214,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -285,14 +285,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -356,14 +356,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -422,14 +422,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -506,14 +506,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -572,14 +572,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -663,14 +663,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -749,14 +749,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -833,14 +833,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -952,14 +952,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1022,14 +1022,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1095,14 +1095,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1170,14 +1170,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1240,14 +1240,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1310,14 +1310,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1393,14 +1393,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1467,14 +1467,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1537,14 +1537,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1611,14 +1611,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1709,14 +1709,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1740,7 +1740,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/harvester/update_harvester_service_metrics:
+  /v1/harvester/update_service_metrics:
     post:
       summary: Update harvester service metrics.
       description: 'Update the service metrics for a harvester instance. Requires
@@ -1797,14 +1797,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1828,7 +1828,87 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/harvester/add_harvester_dialogs:
+  /v1/harvester/add_dialogs:
+    post:
+      summary: Add harvester dialog messages.
+      description: 'Add messages for a harvester instance. Requires a secure connection.
+
+
+        '
+      tags:
+      - harvester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                harvester_id:
+                  type: string
+                  description: harvester id, e.g. `harvester_central_A`
+                dialogs:
+                  type: array
+                  description: "list of dialog dictionaries, e.g.\n```\ndialogs =\
+                    \ [{\n    \"diagID\": 1,\n    \"moduleName\": \"test_module\"\
+                    ,\n    \"identifier\": \"test identifier\",\n    \"creationTime\"\
+                    : datetime.now().strftime(\"%Y-%m-%d %H:%M:%S.%f\"),\n    \"messageLevel\"\
+                    : \"INFO\",\n    \"diagMessage\": \"test message\",\n    },...]\n\
+                    ```"
+                  items:
+                    type: object
+              required:
+              - harvester_id
+              - dialogs
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/harvester/heartbeat:
     post:
       summary: Heartbeat for harvester.
       description: 'Send a heartbeat for harvester and optionally update the instance
@@ -1874,14 +1954,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1938,14 +2018,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -1997,14 +2077,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2083,14 +2163,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2160,14 +2240,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2236,14 +2316,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2267,7 +2347,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/harvester/add_sweep_harvester_command:
+  /v1/harvester/add_sweep_command:
     post:
       summary: Add sweep command for harvester.
       description: 'Send a command to harvester to kill the workers in a PanDA queue,
@@ -2328,14 +2408,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2414,14 +2494,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2485,14 +2565,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2557,14 +2637,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2629,14 +2709,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2701,14 +2781,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2766,14 +2846,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2831,14 +2911,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2900,14 +2980,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -2974,14 +3054,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3048,14 +3128,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3117,14 +3197,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3176,14 +3256,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3242,14 +3322,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3301,14 +3381,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3438,14 +3518,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3507,14 +3587,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3736,14 +3816,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3813,14 +3893,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -3898,14 +3978,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4018,14 +4098,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4086,14 +4166,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4146,14 +4226,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4205,14 +4285,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4273,14 +4353,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4341,14 +4421,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4405,14 +4485,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4464,14 +4544,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4523,14 +4603,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4582,14 +4662,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4641,14 +4721,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4700,14 +4780,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4787,14 +4867,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4860,14 +4940,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -4933,14 +5013,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5018,14 +5098,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5088,14 +5168,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5160,14 +5240,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5225,14 +5305,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5300,14 +5380,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5378,14 +5458,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5448,14 +5528,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5518,14 +5598,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5596,14 +5676,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5671,14 +5751,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5750,14 +5830,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5820,14 +5900,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5894,14 +5974,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -5958,14 +6038,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6034,14 +6114,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6114,14 +6194,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6188,14 +6268,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6262,14 +6342,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6340,14 +6420,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6432,14 +6512,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6506,14 +6586,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6571,14 +6651,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6645,14 +6725,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
@@ -6709,14 +6789,14 @@ paths:
                     type: string
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
-                  response:
+                  data:
                     type: object
                     description: The data returned if the operation is successful.
                       Null if it fails or the method does not generate return data.
                 required:
                 - success
                 - message
-                - response
+                - data
         '403':
           description: Forbidden
           content:
