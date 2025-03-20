@@ -31,6 +31,428 @@ info:
     \ text/plain`.\n* 503: The server is overloaded. The call did not reach PanDA\
     \ and the response comes from directly `httpd`. \n"
 paths:
+  /secrets/v1/set_user_secrets:
+    post:
+      summary: Set user secrets
+      description: 'Set a key-value pair to store in PanDA. Requires a secure connection.
+
+
+        '
+      tags:
+      - credential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: Key to reference the secret
+                value:
+                  type: string
+                  description: Value of the secret
+              required:
+              - key
+              - value
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /creds/v1/set_user_secrets:
+    post:
+      summary: Get user secrets
+      description: 'Get the secrets for a user identified by a list of keys. Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - credential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keys:
+                  type: string
+                  description: List of keys to reference the secrets to retrieve
+              required:
+              - keys
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /creds/v1/get_key_pair:
+    get:
+      summary: Get key pair
+      description: 'This function retrieves the distinguished name (DN) from the request
+        and uses it to get a key pair. Requires a secure connection.
+
+
+        '
+      tags:
+      - credential
+      parameters:
+      - name: public_key_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: The name of the public key.
+      - name: private_key_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: The name of the private key.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /creds/v1/get_proxy:
+    get:
+      summary: Get proxy
+      description: 'Get the x509 proxy certificate for a user with a role. Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - credential
+      parameters:
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
+        description: The role of the user. Defaults to None.
+      - name: dn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: The distinguished name of the user. Defaults to None.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /creds/v1/get_access_token:
+    get:
+      summary: Get access token
+      description: 'Get the OAuth access token for the specified client. Requires
+        a secure connection.
+
+
+        '
+      tags:
+      - credential
+      parameters:
+      - name: client_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: client_name for the token as defined in token_cache_config
+      - name: token_key
+        in: query
+        required: false
+        schema:
+          type: string
+        description: key to get the token from the token cache. Defaults to None.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /creds/v1/get_token_key:
+    get:
+      summary: Get token key
+      description: 'This function retrieves the distinguished name (DN) from the request
+        and uses it to get a token key for the specified client. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - credential
+      parameters:
+      - name: client_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: The name of the client requesting the token key
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /event/v1/get_available_event_range_count:
     get:
       summary: Get available event range count
@@ -1692,7 +2114,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/harvester/get_harvester_commands:
+  /v1/harvester/get_commands:
     get:
       summary: Get harvester commands.
       description: 'Retrieves the commands for a specified harvester instance. Requires
@@ -1769,7 +2191,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/harvester/acknowledge_harvester_commands:
+  /v1/harvester/acknowledge_commands:
     post:
       summary: Acknowledge harvester commands.
       description: 'Acknowledges the list of command IDs in the PanDA database. Requires
@@ -3518,6 +3940,115 @@ paths:
         '
       tags:
       - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site:
+                  type: string
+                  description: Site name (e.g. ATLAS site name, not PanDA queue).
+                host_name:
+                  type: string
+                  description: Host name. In the case of reporting in format `slot@worker_node.example.com`,
+                    the slot ID will be parsed out.
+                cpu_model:
+                  type: string
+                  description: CPU model, e.g. `AMD EPYC 7351`
+                n_logical_cpus:
+                  type: integer
+                  description: 'Number of logical CPUs: n_sockets * cores_per_socket
+                    * threads_per_core.
+
+                    When SMT is enabled, this is the number of threads. Otherwise
+                    it is the number of cores.'
+                n_sockets:
+                  type: integer
+                  description: Number of sockets.
+                cores_per_socket:
+                  type: integer
+                  description: Number of cores per socket.
+                threads_per_core:
+                  type: integer
+                  description: Number of threads per core. When SMT is disabled, this
+                    is 1. Otherwise a number > 1.
+                cpu_architecture:
+                  type: string
+                  description: CPU architecture, e.g. `x86_64`
+                cpu_architecture_level:
+                  type: string
+                  description: CPU architecture level, e.g. `x86-64-v3`
+                clock_speed:
+                  type: number
+                  description: Clock speed in GHz.
+                total_memory:
+                  type: integer
+                  description: Total memory in MB.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 60.
+              required:
+              - site
+              - host_name
+              - cpu_model
+              - n_logical_cpus
+              - n_sockets
+              - cores_per_socket
+              - threads_per_core
+              - cpu_architecture
+              - cpu_architecture_level
+              - clock_speed
+              - total_memory
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  response:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - response
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /statistics/v1/job_stats_by_cloud:
     get:
       summary: Job statistics by cloud.
@@ -6210,6 +6741,8 @@ paths:
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
 tags:
+- name: credential
+  description: Operations related to credential
 - name: event
   description: Operations related to event
 - name: file

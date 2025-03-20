@@ -35,7 +35,7 @@ def extract_docstrings(file_path):
 
     # Walk through all nodes in the file
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) and node.name not in EXCLUDED_FUNCTIONS:
+        if isinstance(node, ast.FunctionDef) and node.name not in EXCLUDED_FUNCTIONS and not node.name.startswith("_"):
             # Get the name of the function/class/module
             name = node.name if hasattr(node, "name") else "__module__"
             # Get the docstring
@@ -216,6 +216,7 @@ if __name__ == "__main__":
     # Define the path to the Python file to convert
     base_path = "panda-server/pandaserver/api/v1/"
     file_paths = [
+        "credential_management_api.py",
         "event_api.py",
         "file_server_api.py",
         "harvester_api.py",
