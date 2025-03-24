@@ -50,8 +50,9 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
      where *spaceFree* is the free space size in the associated storage, *spaceExpired* is the size of the space
      that expired secondary data occupies, *normalizedExpOutSize* is the expected size of the output file normalized
      by cpuTime :raw-html:`&times;` corePower :raw-html:`&times;` day (0.25), *RW* is the total amount
-     of exiting workload assigned to the nucleus, and *diskThreshold* is the threshold defined per gshare
-     as ``DISK_THRESHOLD_<gshare>`` in :doc:`gdpconfig </advanced/gdpconfig>` (100 TB by default).
+     of exiting workload assigned to the nucleus. *diskThreshold* is the threshold defined per gshare
+     as ``DISK_THRESHOLD_<gshare>`` in :doc:`gdpconfig </advanced/gdpconfig>`. If not specified per gshare,
+     ``DISK_THRESHOLD`` defines it for all, with a default value of 100 TB.
 
    * Nuclei must pass the data locality check with the following rules:
 
