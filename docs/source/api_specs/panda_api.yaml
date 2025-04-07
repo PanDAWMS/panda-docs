@@ -31,80 +31,7 @@ info:
     \ text/plain`.\n* 503: The server is overloaded. The call did not reach PanDA\
     \ and the response comes from directly `httpd`. \n"
 paths:
-  /secrets/v1/set_user_secrets:
-    post:
-      summary: Set user secrets
-      description: 'Set a key-value pair to store in PanDA. Requires a secure connection.
-
-
-        '
-      tags:
-      - credential
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                key:
-                  type: string
-                  description: Key to reference the secret
-                value:
-                  type: string
-                  description: Value of the secret
-              required:
-              - key
-              - value
-      responses:
-        '200':
-          description: Method called correctly
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                    description: Indicates whether the request was successful (True)
-                      or not (False)
-                  message:
-                    type: string
-                    description: Message indicating the nature of the failure. Empty
-                      or meaningless if the request was successful.
-                  data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
-                required:
-                - success
-                - message
-                - data
-        '403':
-          description: Forbidden
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: You are calling an undefined method is not allowed for the
-                  requested URL
-        '404':
-          description: Not Found
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Resource not found
-        '500':
-          description: INTERNAL SERVER ERROR
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: INTERNAL SERVER ERROR. The server encountered an internal
-                  error and was unable to complete your request.
-  /creds/v1/set_user_secrets:
+  /v1/creds/set_user_secrets:
     post:
       summary: Get user secrets
       description: 'Get the secrets for a user identified by a list of keys. Requires
@@ -174,7 +101,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /creds/v1/get_key_pair:
+  /v1/creds/get_key_pair:
     get:
       summary: Get key pair
       description: 'This function retrieves the distinguished name (DN) from the request
@@ -245,7 +172,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /creds/v1/get_proxy:
+  /v1/creds/get_proxy:
     get:
       summary: Get proxy
       description: 'Get the x509 proxy certificate for a user with a role. Requires
@@ -316,7 +243,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /creds/v1/get_access_token:
+  /v1/creds/get_access_token:
     get:
       summary: Get access token
       description: 'Get the OAuth access token for the specified client. Requires
@@ -387,7 +314,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /creds/v1/get_token_key:
+  /v1/creds/get_token_key:
     get:
       summary: Get token key
       description: 'This function retrieves the distinguished name (DN) from the request
@@ -453,7 +380,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /event/v1/get_available_event_range_count:
+  /v1/event/get_available_event_range_count:
     get:
       summary: Get available event range count
       description: 'This function returns the count of available event ranges for
@@ -537,7 +464,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /event/v1/get_event_range_statuses:
+  /v1/event/get_event_range_statuses:
     get:
       summary: Get event range statuses
       description: 'Gets a dictionary with the status of the event ranges for the
@@ -603,7 +530,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /event/v1/acquire_event_ranges:
+  /v1/event/acquire_event_ranges:
     post:
       summary: Acquire event ranges
       description: 'Acquires a list of event ranges with a given PandaID for execution.
@@ -694,7 +621,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /event/v1/update_single_event_range:
+  /v1/event/update_single_event_range:
     post:
       summary: Update single event range
       description: 'Updates the status of a specific event range. Requires a secure
@@ -780,7 +707,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /event/v1/update_event_ranges:
+  /v1/event/update_event_ranges:
     post:
       summary: Update event ranges
       description: 'Updates the event ranges in bulk. Requires a secure connection
@@ -864,11 +791,12 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/upload_jedi_log:
+  /v1/file_server/upload_jedi_log:
     post:
-      summary: Upload event picking request to the server.
-      description: 'Uploads an event picking request to the server. Requires a secure
-        connection.
+      summary: Upload a JEDI log file
+      description: 'Uploads a JEDI log file and returns the URL to the file. If there
+        is already a log file for the task, it will be overwritten. Requires a secure
+        connection and production role.
 
 
         '
@@ -881,60 +809,11 @@ paths:
             schema:
               type: object
               properties:
-                run_event_list:
+                file:
                   type: string
-                  description: run and event list.
-                data_type:
-                  type: string
-                  description: data type.
-                stream_name:
-                  type: string
-                  description: stream name.
-                dataset_name:
-                  type: string
-                  description: dataset name.
-                ami_tag:
-                  type: string
-                  description: AMI tag.
-                user_dataset_name:
-                  type: string
-                  description: user dataset name.
-                locked_by:
-                  type: string
-                  description: locking agent.
-                parameters:
-                  type: string
-                  description: parameters.
-                input_file_list:
-                  type: string
-                  description: input file list.
-                n_sites:
-                  type: string
-                  description: number of sites.
-                user_task_name:
-                  type: string
-                  description: user task name.
-                ei_api:
-                  type: string
-                  description: event index API.
-                include_guids:
-                  type: boolean
-                  description: flag to indicate if GUIDs are included with the run-event
-                    list
+                  description: werkzeug.FileStorage object to be uploaded.
               required:
-              - run_event_list
-              - data_type
-              - stream_name
-              - dataset_name
-              - ami_tag
-              - user_dataset_name
-              - locked_by
-              - parameters
-              - input_file_list
-              - n_sites
-              - user_task_name
-              - ei_api
-              - include_guids
+              - file
       responses:
         '200':
           description: Method called correctly
@@ -983,7 +862,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/update_jedi_log:
+  /v1/file_server/update_jedi_log:
     post:
       summary: Update a JEDI log file
       description: 'Updates a JEDI log file, appending more content at the end of
@@ -1053,7 +932,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/download_jedi_log:
+  /v1/file_server/download_jedi_log:
     post:
       summary: Download JEDI log file
       description: 'Downloads the JEDI log file, if required at a particular offset.
@@ -1126,7 +1005,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/upload_cache_file:
+  /v1/file_server/upload_cache_file:
     post:
       summary: Upload a cache file
       description: 'Uploads a file to the cache. When not touched, cache files are
@@ -1201,7 +1080,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/touch_cache_file:
+  /v1/file_server/touch_cache_file:
     post:
       summary: Touch file in the cache directory.
       description: 'Touches a file in the cache directory. It avoids the file to expire
@@ -1271,7 +1150,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/delete_cache_file:
+  /v1/file_server/delete_cache_file:
     post:
       summary: Delete cache file
       description: 'Deletes a file from the cache directory. Currently a dummy method.
@@ -1341,7 +1220,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/register_cache_file:
+  /v1/file_server/register_cache_file:
     post:
       summary: Register cache file
       description: 'Registers a file from the cache directory into the PanDA database,
@@ -1424,7 +1303,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/validate_cache_file:
+  /v1/file_server/validate_cache_file:
     post:
       summary: Validate cache file
       description: 'Validates a cache file owned by the caller by checking the file
@@ -1498,7 +1377,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/upload_hpo_checkpoint:
+  /v1/file_server/upload_hpo_checkpoint:
     post:
       summary: Upload a HPO checkpoint file
       description: 'Uploads a HPO checkpoint file to the server. Requires a secure
@@ -1568,7 +1447,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /file_server/v1/delete_hpo_checkpoint:
+  /v1/file_server/delete_hpo_checkpoint:
     post:
       summary: Delete a HPO checkpoint file.
       description: 'Deletes a HPO checkpoint file from the server. Requires a secure
@@ -1594,6 +1473,277 @@ paths:
               required:
               - task_id
               - sub_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/file_server/upload_file_recovery_request:
+    post:
+      summary: Upload file recovery request
+      description: 'Upload request to recover lost files. Requires a secure connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                  description: JEDI task ID.
+                dry_run:
+                  type: boolean
+                  description: dry run flag.
+              required:
+              - task_id
+              - dry_run
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/file_server/upload_workflow_request:
+    post:
+      summary: Upload workflow request to the server.
+      description: 'Uploads a workflow request to the server. The request can be processed
+        synchronously or asynchronously. Requires a secure connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  description: workflow request data
+                dry_run:
+                  type: boolean
+                  description: requests the workflow to be executed synchronously
+                    in dry_run mode
+                sync:
+                  type: boolean
+                  description: requests the workflow to be processed synchronously
+              required:
+              - data
+              - dry_run
+              - sync
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/file_server/upload_event_picking_request:
+    post:
+      summary: Upload event picking request to the server.
+      description: 'Uploads an event picking request to the server. Requires a secure
+        connection.
+
+
+        '
+      tags:
+      - file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                run_event_list:
+                  type: string
+                  description: run and event list.
+                data_type:
+                  type: string
+                  description: data type.
+                stream_name:
+                  type: string
+                  description: stream name.
+                dataset_name:
+                  type: string
+                  description: dataset name.
+                ami_tag:
+                  type: string
+                  description: AMI tag.
+                user_dataset_name:
+                  type: string
+                  description: user dataset name.
+                locked_by:
+                  type: string
+                  description: locking agent.
+                parameters:
+                  type: string
+                  description: parameters.
+                input_file_list:
+                  type: string
+                  description: input file list.
+                n_sites:
+                  type: string
+                  description: number of sites.
+                user_task_name:
+                  type: string
+                  description: user task name.
+                ei_api:
+                  type: string
+                  description: event index API.
+                include_guids:
+                  type: boolean
+                  description: flag to indicate if GUIDs are included with the run-event
+                    list
+              required:
+              - run_event_list
+              - data_type
+              - stream_name
+              - dataset_name
+              - ami_tag
+              - user_dataset_name
+              - locked_by
+              - parameters
+              - input_file_list
+              - n_sites
+              - user_task_name
+              - ei_api
+              - include_guids
       responses:
         '200':
           description: Method called correctly
@@ -1930,10 +2080,10 @@ paths:
                   type: string
                   description: harvester id, e.g. `harvester_central_A`
                 data:
-                  type: array
-                  description: list of data to be updated in the PanDA database
-                  items:
-                    type: object
+                  type: string
+                  description: 'metadata dictionary to be updated in the PanDA database,
+                    e.g. `data = {"startTime": <start time>, "sw_version": <release
+                    version>, "commit_stamp": <commit timestamp>}`'
               required:
               - harvester_id
               - data
@@ -2194,8 +2344,8 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/harvester/get_commands:
-    get:
+  /v1/harvester/acquire_commands:
+    post:
       summary: Get harvester commands.
       description: 'Retrieves the commands for a specified harvester instance. Requires
         a secure connection and production role.
@@ -2204,25 +2354,25 @@ paths:
         '
       tags:
       - harvester
-      parameters:
-      - name: harvester_id
-        in: query
+      requestBody:
         required: true
-        schema:
-          type: string
-        description: harvester id, e.g. `harvester_central_A`
-      - name: n_commands
-        in: query
-        required: true
-        schema:
-          type: integer
-        description: The number of commands to retrieve, e.g. `10`.
-      - name: timeout
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: The timeout value. Defaults to `30`.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                harvester_id:
+                  type: string
+                  description: harvester id, e.g. `harvester_central_A`
+                n_commands:
+                  type: integer
+                  description: The number of commands to retrieve, e.g. `10`.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to `30`.
+              required:
+              - harvester_id
+              - n_commands
       responses:
         '200':
           description: Method called correctly
@@ -2525,7 +2675,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/get_status:
+  /v1/job/get_status:
     get:
       summary: Get status of a job.
       description: 'Gets the status for a job and command to the pilot if any. Requires
@@ -2596,7 +2746,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/get_description:
+  /v1/job/get_description:
     get:
       summary: Get description of a job.
       description: 'Gets the description of a job from the main/active schema. The
@@ -2668,7 +2818,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/get_description_incl_archive:
+  /v1/job/get_description_incl_archive:
     get:
       summary: Get description of a job.
       description: 'Gets the description of a job, also looking into the secondary/archive
@@ -2740,7 +2890,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/generate_offline_execution_script:
+  /v1/job/generate_offline_execution_script:
     get:
       summary: Get execution script for a job.
       description: 'Gets the execution script for a job, including Rucio download
@@ -2812,7 +2962,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/get_metadata_for_analysis_jobs:
+  /v1/job/get_metadata_for_analysis_jobs:
     get:
       summary: Get metadata for analysis jobs
       description: 'Gets the metadata from the metatable for analysis jobs in `finished`
@@ -2877,7 +3027,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/kill:
+  /v1/job/kill:
     post:
       summary: Kill the jobs
       description: 'Kills the jobs with the given PanDA IDs. Requires a secure connection.
@@ -2942,7 +3092,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/reassign:
+  /v1/job/reassign:
     post:
       summary: Reassign a list of jobs
       description: 'Reassigns a list of jobs. Requires a secure connection.
@@ -3011,7 +3161,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/set_command:
+  /v1/job/set_command:
     post:
       summary: Set a pilot command
       description: 'Sets a command to the pilot for a job. Requires a secure connection
@@ -3085,7 +3235,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/set_debug_mode:
+  /v1/job/set_debug_mode:
     post:
       summary: Set the debug mode
       description: 'Sets the debug mode for a job. Requires a secure connection and
@@ -3159,7 +3309,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /job/v1/submit:
+  /v1/job/submit:
     post:
       summary: Set the debug mode
       description: 'Sets the debug mode for a job. Requires a secure connection.
@@ -3228,7 +3378,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /metaconfig/v1/get_banned_users:
+  /v1/metaconfig/get_banned_users:
     get:
       summary: Get banned users
       description: 'Gets the list of banned users from the system (users with `status=disabled`
@@ -3287,7 +3437,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /metaconfig/v1/get_site_specs:
+  /v1/metaconfig/get_site_specs:
     get:
       summary: Get site specs
       description: 'Gets a dictionary of site specs. By default `analysis` sites are
@@ -3353,7 +3503,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /metaconfig/v1/get_resource_types:
+  /v1/metaconfig/get_resource_types:
     get:
       summary: Get resource types
       description: 'Gets the resource types (`SCORE`, `MCORE`, etc.) together with
@@ -3412,7 +3562,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /pilot/v1/acquire_jobs:
+  /v1/pilot/acquire_jobs:
     post:
       summary: Acquire jobs
       description: 'Acquire jobs for the pilot. The jobs are reserved, the job status
@@ -3499,6 +3649,9 @@ paths:
                   type: boolean
                   description: Topic for message broker. Optional and defaults to
                     `None`.
+                remaining_time:
+                  type: integer
+                  description: Remaining walltime. Optional and defaults to `None`.
               required:
               - site_name
       responses:
@@ -3618,7 +3771,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /pilot/v1/update_job:
+  /v1/pilot/update_job:
     post:
       summary: Update job
       description: 'Updates the details for a job, stores the metadata and excerpts
@@ -3847,7 +4000,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /pilot/v1/update_jobs_bulk:
+  /v1/pilot/update_jobs_bulk:
     post:
       summary: Update jobs in bulk
       description: 'Bulk method to update the details for jobs, store the metadata
@@ -3924,7 +4077,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /pilot/v1/update_worker_status:
+  /v1/pilot/update_worker_status:
     post:
       summary: Update worker status
       description: 'Updates the status of a worker with the information seen by the
@@ -4009,7 +4162,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /pilot/v1/update_worker_node:
+  /v1/pilot/update_worker_node:
     post:
       summary: Update worker node
       description: 'Updates a worker node in the worker node map. When already found,
@@ -4129,7 +4282,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /statistics/v1/job_stats_by_cloud:
+  /v1/statistics/job_stats_by_cloud:
     get:
       summary: Job statistics by cloud.
       description: 'Get the job statistics by cloud, which includes the active jobs
@@ -4197,7 +4350,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /statistics/v1/production_job_stats_by_cloud_and_processing_type:
+  /v1/statistics/production_job_stats_by_cloud_and_processing_type:
     get:
       summary: Production job statistics by cloud and processing type.
       description: 'Get the production job statistics by cloud and processing type,
@@ -4257,7 +4410,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /statistics/v1/active_job_stats_by_site:
+  /v1/statistics/active_job_stats_by_site:
     get:
       summary: Active job statistics by site
       description: 'Get the active (not in a final state) job statistics by site.
@@ -4316,7 +4469,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /statistics/v1/job_stats_by_site_and_resource_type:
+  /v1/statistics/job_stats_by_site_and_resource_type:
     get:
       summary: Job statistics by site and resource type
       description: 'Get the job statistics by computing site (PanDA queue) and resource
@@ -4384,7 +4537,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /statistics/v1/retry:
+  /v1/statistics/retry:
     get:
       summary: Job statistics by site, global share and resource type
       description: 'Get the job statistics by computing site (PanDA queue), global
@@ -4452,7 +4605,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /system/v1/get_attributes:
+  /v1/system/get_attributes:
     get:
       summary: Get attributes
       description: 'Gets all parameters and environment variables.
@@ -4516,7 +4669,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /system/v1/get_voms_attributes:
+  /v1/system/get_voms_attributes:
     get:
       summary: Get VOMS attributes
       description: 'Gets the VOMS attributes (i.e. the ones starting with GRST) in
@@ -4575,7 +4728,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /system/v1/get_user_attributes:
+  /v1/system/get_user_attributes:
     get:
       summary: Get user attributes
       description: 'Gets user attributes as seen by PanDA for debug purposes. Requires
@@ -4634,7 +4787,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /system/v1/get_https_endpoint:
+  /v1/system/get_https_endpoint:
     get:
       summary: Get the HTTPS endpoint
       description: 'Gets the server name (not the load balanced service name!) and
@@ -4693,7 +4846,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /system/v1/get_http_endpoint:
+  /v1/system/get_http_endpoint:
     get:
       summary: Get the HTTP endpoint
       description: 'Gets the server name (not the load balanced service name!) and
@@ -4752,7 +4905,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /system/v1/is_alive:
+  /v1/system/is_alive:
     get:
       summary: Is alive
       description: 'Check if the server is alive. Basic function for the health check
@@ -4811,7 +4964,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/retry:
+  /v1/task/retry:
     post:
       summary: Task retry
       description: 'Retry a given task e.g. in exhausted state. Requires a secure
@@ -4841,6 +4994,9 @@ paths:
                 no_child_retry:
                   type: boolean
                   description: if True, the child tasks are not retried
+                discard_events:
+                  type: boolean
+                  description: if True, events will be discarded
                 disable_staging_mode:
                   type: boolean
                   description: if True, the task skips staging state and directly
@@ -4848,6 +5004,10 @@ paths:
                 keep_gshare_priority:
                   type: boolean
                   description: if True, the task keeps current gshare and priority
+                ignore_hard_exhausted:
+                  type: boolean
+                  description: if True, the task ignores the limits for hard exhausted
+                    state and can be retried even if it is very faulty
               required:
               - task_id
       responses:
@@ -4898,7 +5058,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/resume:
+  /v1/task/resume:
     post:
       summary: Task resume
       description: 'Resume a given task. This transitions a paused or throttled task
@@ -4971,7 +5131,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/release:
+  /v1/task/release:
     post:
       summary: Task release
       description: 'Release a given task. This triggers the avalanche for tasks in
@@ -5044,7 +5204,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/reassign:
+  /v1/task/reassign:
     post:
       summary: Task reassign
       description: 'Reassign a given task to a site, nucleus or cloud - depending
@@ -5129,7 +5289,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/pause:
+  /v1/task/pause:
     post:
       summary: Task pause
       description: 'Pause a given task. Requires a secure connection and production
@@ -5199,7 +5359,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/kill:
+  /v1/task/kill:
     post:
       summary: Task kill
       description: 'Kill a given task. Requires a secure connection.
@@ -5271,7 +5431,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/kill_unfinished_jobs:
+  /v1/task/kill_unfinished_jobs:
     post:
       summary: Kill all unfinished jobs in a task
       description: 'Kills all unfinished jobs in a task. Requires a secure connection.
@@ -5336,7 +5496,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/finish:
+  /v1/task/finish:
     post:
       summary: Task finish
       description: 'Finish a given task. Requires a secure connection.
@@ -5411,7 +5571,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/reactivate:
+  /v1/task/reactivate:
     post:
       summary: Reactivate task
       description: 'Reactivate a given task, i.e. recycle a finished/done task. A
@@ -5489,7 +5649,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/avalanche:
+  /v1/task/avalanche:
     post:
       summary: Task avalanche
       description: 'Avalanche a given task. Requires a secure connection and production
@@ -5559,7 +5719,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/reload_input:
+  /v1/task/reload_input:
     post:
       summary: Reload input
       description: 'Request to reload the input for a given task. Requires a secure
@@ -5579,6 +5739,9 @@ paths:
                 task_id:
                   type: integer
                   description: JEDI Task ID
+                ignore_hard_exhausted:
+                  type: boolean
+                  description: ignore the limits for hard exhausted
               required:
               - task_id
       responses:
@@ -5629,7 +5792,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/reassign_global_share:
+  /v1/task/reassign_global_share:
     post:
       summary: Enable Jumbo jobs
       description: 'Enables the Jumbo jobs for a given task ID. Requires a secure
@@ -5707,7 +5870,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_jumbo_job_datasets:
+  /v1/task/get_jumbo_job_datasets:
     get:
       summary: Get jumbo job datasets
       description: 'Gets a map of the jumbo-job-enabled tasks to their datasets, filtering
@@ -5782,7 +5945,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/enable_job_cloning:
+  /v1/task/enable_job_cloning:
     post:
       summary: Enable job cloning
       description: 'Enable job cloning for a given task. Requires secure connection
@@ -5861,7 +6024,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/disable_job_cloning:
+  /v1/task/disable_job_cloning:
     post:
       summary: Disable job cloning
       description: 'Disable job cloning for a given task. Requires secure connection
@@ -5931,7 +6094,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/increase_attempts:
+  /v1/task/increase_attempts:
     post:
       summary: Increase possible task attempts
       description: 'Increase possible task attempts. Requires secure connection and
@@ -6005,7 +6168,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_status:
+  /v1/task/get_status:
     get:
       summary: Get task status
       description: 'Get the status of a given task. Requires secure connection.
@@ -6069,7 +6232,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_details:
+  /v1/task/get_details:
     get:
       summary: Get task details
       description: 'Get the details of a given task. Requires secure connection.
@@ -6145,7 +6308,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/change_attribute:
+  /v1/task/change_attribute:
     post:
       summary: Change a task attribute
       description: 'Change a task attribute within the list of valid attributes ("ramCount",
@@ -6225,7 +6388,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/change_modification_time:
+  /v1/task/change_modification_time:
     post:
       summary: Change task modification time
       description: 'Change the modification time for a task to `now() + positive_hour_offset`.
@@ -6299,7 +6462,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/change_priority:
+  /v1/task/change_priority:
     post:
       summary: Change priority
       description: 'Change the priority of a given task. Requires a secure connection
@@ -6373,7 +6536,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/change_split_rule:
+  /v1/task/change_split_rule:
     post:
       summary: Change the split rule
       description: 'Change the split rule for a task. Requires a secure connection
@@ -6451,7 +6614,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_tasks_modified_since:
+  /v1/task/get_tasks_modified_since:
     get:
       summary: Get tasks modified since
       description: 'Get the tasks with `modificationtime > since`. Requires a secure
@@ -6543,7 +6706,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_datasets_and_files:
+  /v1/task/get_datasets_and_files:
     get:
       summary: Get datasets and files
       description: "Get the files in the datasets associated to a given task. You\
@@ -6617,7 +6780,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_job_ids:
+  /v1/task/get_job_ids:
     get:
       summary: Get job IDs
       description: 'Get a list with the job IDs `[job_id, ...]` (in any status) associated
@@ -6682,7 +6845,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/submit:
+  /v1/task/submit:
     post:
       summary: Register task
       description: 'Insert the task parameters to register a task. Requires a secure
@@ -6756,7 +6919,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /task/v1/get_task_parameters:
+  /v1/task/get_task_parameters:
     get:
       summary: Get task parameters
       description: 'Get a dictionary with the task parameters used to create a task.
