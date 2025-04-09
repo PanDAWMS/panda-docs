@@ -49,8 +49,10 @@ paths:
               type: object
               properties:
                 keys:
-                  type: string
+                  type: array
                   description: List of keys to reference the secrets to retrieve
+                  items:
+                    type: object
               required:
               - keys
       responses:
@@ -2690,7 +2692,9 @@ paths:
         in: query
         required: true
         schema:
-          type: integer
+          type: array
+          items:
+            type: string
         description: list of PanDA job IDs.
       - name: timeout
         in: query
@@ -2762,7 +2766,9 @@ paths:
         in: query
         required: true
         schema:
-          type: integer
+          type: array
+          items:
+            type: string
         description: List of PanDA job IDs.
       - name: timeout
         in: query
@@ -2834,7 +2840,9 @@ paths:
         in: query
         required: true
         schema:
-          type: integer
+          type: array
+          items:
+            type: string
         description: List of PanDA job IDs.
       - name: timeout
         in: query
@@ -3716,8 +3724,10 @@ paths:
               type: object
               properties:
                 job_ids:
-                  type: integer
+                  type: array
                   description: list of job IDs.
+                  items:
+                    type: object
                 timeout:
                   type: integer
                   description: The timeout value. Defaults to 60.
@@ -4189,36 +4199,41 @@ paths:
                     the slot ID will be parsed out.
                 cpu_model:
                   type: string
-                  description: CPU model, e.g. `AMD EPYC 7351`
+                  description: CPU model, e.g. `AMD EPYC 7351`.
                 n_logical_cpus:
                   type: integer
                   description: 'Number of logical CPUs: n_sockets * cores_per_socket
                     * threads_per_core.
 
                     When SMT is enabled, this is the number of threads. Otherwise
-                    it is the number of cores.'
+                    it is the number of cores. Optional, defaults to `None`.'
                 n_sockets:
                   type: integer
-                  description: Number of sockets.
+                  description: Number of sockets. Optional, defaults to `None`.
                 cores_per_socket:
                   type: integer
-                  description: Number of cores per socket.
+                  description: Number of cores per socket. Optional, defaults to `None`.
                 threads_per_core:
                   type: integer
                   description: Number of threads per core. When SMT is disabled, this
-                    is 1. Otherwise a number > 1.
+                    is 1. Otherwise a number > 1. Optional, defaults to `None`.
                 cpu_architecture:
                   type: string
-                  description: CPU architecture, e.g. `x86_64`
+                  description: CPU architecture, e.g. `x86_64`. Optional, defaults
+                    to `None`.
                 cpu_architecture_level:
                   type: string
-                  description: CPU architecture level, e.g. `x86-64-v3`
+                  description: CPU architecture level, e.g. `x86-64-v3`. Optional,
+                    defaults to `None`.
                 clock_speed:
                   type: number
-                  description: Clock speed in GHz.
+                  description: Clock speed in MHz. Optional, defaults to `None`.
                 total_memory:
                   type: integer
-                  description: Total memory in MB.
+                  description: Total memory in MB. Optional, defaults to `None`.
+                total_local_disk:
+                  type: integer
+                  description: Total disk space in GB. Optional, defaults to `None`.
                 timeout:
                   type: integer
                   description: The timeout value. Defaults to 60.
@@ -4226,14 +4241,6 @@ paths:
               - site
               - host_name
               - cpu_model
-              - n_logical_cpus
-              - n_sockets
-              - cores_per_socket
-              - threads_per_core
-              - cpu_architecture
-              - cpu_architecture_level
-              - clock_speed
-              - total_memory
       responses:
         '200':
           description: Method called correctly
