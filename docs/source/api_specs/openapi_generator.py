@@ -61,8 +61,18 @@ def extract_parameters(parsed):
 
         # Map each parameter to OpenAPI format
         param_type = "string"  # Default type (fallback)
-        if "list" in param.type_name:
+        if "list[int]" in param.type_name or "list of int" in param.type_name:
             param_type = "array"
+            item_type = "integer"
+        elif "list[str]" in param.type_name or "list of str" in param.type_name:
+            param_type = "array"
+            item_type = "string"
+        elif "list[float]" in param.type_name or "list of float" in param.type_name:
+            param_type = "array"
+            item_type = "number"
+        elif "list" in param.type_name:
+            param_type = "array"
+            item_type = "object"
         elif "int" in param.type_name:
             param_type = "integer"
         elif "float" in param.type_name:
@@ -85,7 +95,7 @@ def extract_parameters(parsed):
 
         if param_type == "array":
             parameter_schema["schema"]["items"] = {
-                "type": "string"
+                "type": item_type
             }  # Default array item type
 
         parameters.append(parameter_schema)
@@ -108,20 +118,32 @@ def extract_parameters_as_json(parsed):
 
         # Map the type to OpenAPI type
         param_type = "string"  # Default type
-        if "list" in param.type_name:
+        if "list[int]" in param.type_name or "list of int" in param.type_name:
             param_type = "array"
+            item_type = "integer"
+        elif "list[str]" in param.type_name or "list of str" in param.type_name:
+            param_type = "array"
+            item_type = "string"
+        elif "list[float]" in param.type_name or "list of float" in param.type_name:
+            param_type = "array"
+            item_type = "number"
+        elif "list" in param.type_name:
+            param_type = "array"
+            item_type = "object"
         elif "int" in param.type_name:
             param_type = "integer"
         elif "float" in param.type_name:
             param_type = "number"
         elif "bool" in param.type_name:
             param_type = "boolean"
+        else:
+            param_type = "string"
 
         # Build schema for the parameter
         param_schema = {"type": param_type, "description": param.description}
 
         if param_type == "array":
-            param_schema["items"] = {"type": "object"}  # Default array item type
+            param_schema["items"] = {"type": item_type}  # Default array item type
 
         properties[param.arg_name] = param_schema
 
