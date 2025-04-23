@@ -239,6 +239,7 @@ if __name__ == "__main__":
     base_path = "panda-server/pandaserver/api/v1/"
     file_paths = [
         "credential_management_api.py",
+        "data_carousel_api.py",
         "event_api.py",
         "file_server_api.py",
         "harvester_api.py",
@@ -262,7 +263,7 @@ if __name__ == "__main__":
     }
 
     for file_path in file_paths:
-        tag = file_path.split("_")[0]
+        tag = file_path.removesuffix("_api.py")
         open_api["tags"].append(
             {"name": tag, "description": f"Operations related to {tag}"}
         )
