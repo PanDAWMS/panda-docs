@@ -8,8 +8,10 @@ Harvester
 
   installation
   harvester_configuration
+  queue_configuration
   service
   plugins/main
+  admin_tool
   fifo
   misc
 
