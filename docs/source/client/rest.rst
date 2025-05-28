@@ -9,7 +9,7 @@ Low-level system API are available via the pandaclient.Client module.
   from pandaclient import Client
   Client.function_xyz(...)
 
-For example, you can get a new ID token for a administrative purpose as follows.
+For example, you can get a new ID token for an administrative purpose as follows.
 
 .. code-block:: python
 
