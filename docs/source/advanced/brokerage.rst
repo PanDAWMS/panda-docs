@@ -86,18 +86,19 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 
    .. math::
 
-     weight =\frac {localInputSize \times tapeWeight \times (spaceFree + spaceExpired)} {max(rwOffset, RW) \times totalInputSize \times spaceTotal}
+     weight =\frac {localInputSize \times tapeWeight \times (spaceFree + spaceExpired) \times min(spaceFreeCutoff, spaceFree)} {max(rwOffset, RW) \times totalInputSize \times spaceTotal}
 
    Otherwise,
 
    .. math::
 
-     weight =\frac {tapeWeight \times (spaceFree + spaceExpired)} {max(rwOffset, RW) \times spaceTotal}
+     weight =\frac {tapeWeight \times (spaceFree + spaceExpired) \times min(spaceFreeCutoff, spaceFree)} {max(rwOffset, RW) \times spaceTotal}
 
 
    where *localInputSize* is the size of input data locally available, *totalInputSize* is the total size of
    input data, *tapeWeight* is 0.001 if input data is on the tape storage, or 1 otherwise, *rwOffset* is 50 to have
-   the minimum offset for *RW*, and *spaceTotal* is the total size of the storage.
+   the minimum offset for *RW*, *spaceFreeCutoff* is the maximum free disk space value that will be factored into
+   the calculation (``FREE_DISK_CUTOFF`` in :doc:`gdpconfig </advanced/gdpconfig>`), and *spaceTotal* is the total size of the storage.
 
 #. If all nuclei are skipped, the task is pending for 30 min and then gets retried.
 
