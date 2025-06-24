@@ -27,7 +27,7 @@ import sphinx_rtd_theme
 
 extensions = [
     "sphinx_rtd_theme",
-    'sphinx-prompt',
+    'sphinx_prompt',
     'nbsphinx',
     'sphinx.ext.autosectionlabel',
     'sphinx_tabs.tabs',
