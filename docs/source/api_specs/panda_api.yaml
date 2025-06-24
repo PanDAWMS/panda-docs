@@ -4698,11 +4698,6 @@ paths:
               - vendor
               - model
               - count
-              - vram
-              - architecture
-              - framework
-              - framework_version
-              - driver_version
       responses:
         '200':
           description: Method called correctly
