@@ -39,7 +39,7 @@ paths:
 
         '
       tags:
-      - credential
+      - credential_management
       requestBody:
         required: true
         content:
@@ -113,7 +113,7 @@ paths:
 
         '
       tags:
-      - credential
+      - credential_management
       requestBody:
         required: true
         content:
@@ -185,7 +185,7 @@ paths:
 
         '
       tags:
-      - credential
+      - credential_management
       parameters:
       - name: public_key_name
         in: query
@@ -256,7 +256,7 @@ paths:
 
         '
       tags:
-      - credential
+      - credential_management
       parameters:
       - name: role
         in: query
@@ -327,7 +327,7 @@ paths:
 
         '
       tags:
-      - credential
+      - credential_management
       parameters:
       - name: client_name
         in: query
@@ -399,7 +399,7 @@ paths:
 
         '
       tags:
-      - credential
+      - credential_management
       parameters:
       - name: client_name
         in: query
@@ -407,6 +407,270 @@ paths:
         schema:
           type: string
         description: The name of the client requesting the token key
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/change_staging_destination:
+    post:
+      summary: Change destination of staging
+      description: 'The current active staging request will be cancelled, and a new
+        request will be created with the newly selected destination RSE, excluding
+        the original destination.
+
+        The reqeusts can be specified by request_id or dataset (if both exist, request_id
+        is taken).
+
+        Requires a secure connection production role.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+              required:
+              - request_id
+              - dataset
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/change_staging_source:
+    post:
+      summary: Change source of staging
+      description: 'If the request is queued, its source_rse will be rechosen, excluding
+        the original source.
+
+        If the request is staging, the source_replica_expression of its DDM rule is
+        unset so new source can be tried.
+
+        Only effective on queued or staging requests.
+
+        The reqeusts can be specified by request_id or dataset (if both exist, request_id
+        is taken).
+
+        Requires a secure connection production role.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+                cancel_fts:
+                  type: boolean
+                  description: whether to cancel current FTS requests on DDM, False
+                    by default
+                change_src_expr:
+                  type: boolean
+                  description: whether to change source_replica_expression of the
+                    DDM rule by replacing old source with new one, instead of just
+                    dropping old source
+                source_rse:
+                  type: string
+                  description: if set, use this source RSE instead of choosing one
+                    randomly, also force change_src_expr to be True; default is None
+              required:
+              - request_id
+              - dataset
+              - cancel_fts
+              - change_src_expr
+              - source_rse
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/force_to_staging:
+    post:
+      summary: Force to staging
+      description: 'The request will skip the queue and go to staging immediately
+        (will submit DDM rules).
+
+        Only effective on queued requests.
+
+        The reqeusts can be specified by request_id or dataset (if both exist, request_id
+        is taken).
+
+        Requires a secure connection production role.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+              required:
+              - request_id
+              - dataset
       responses:
         '200':
           description: Method called correctly
@@ -876,7 +1140,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -946,7 +1210,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1015,7 +1279,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1094,7 +1358,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1164,7 +1428,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1234,7 +1498,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1305,7 +1569,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1387,7 +1651,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1461,7 +1725,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1531,7 +1795,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1604,7 +1868,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1678,7 +1942,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -1757,7 +2021,7 @@ paths:
 
         '
       tags:
-      - file
+      - file_server
       requestBody:
         required: true
         content:
@@ -3783,29 +4047,30 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  get_job_status:
-    post:
+  /v1/pilot/get_job_status:
+    get:
       summary: Get job status
-      description: Gets the status for a list of jobs. Requires a secure connection.
+      description: 'Gets the status for a list of jobs. Requires a secure connection.
+
+
+        '
       tags:
       - pilot
-      requestBody:
+      parameters:
+      - name: job_ids
+        in: query
         required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                job_ids:
-                  type: array
-                  description: list of job IDs.
-                  items:
-                    type: integer
-                timeout:
-                  type: integer
-                  description: The timeout value. Defaults to 60.
-              required:
-              - job_ids
+        schema:
+          type: array
+          items:
+            type: integer
+        description: list of job IDs.
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: The timeout value. Defaults to 60.
       responses:
         '200':
           description: Method called correctly
@@ -3912,7 +4177,7 @@ paths:
                   type: string
                   description: Transformation exit code. Optional, defaults to `None`
                 pilot_error_code:
-                  type: string
+                  type: integer
                   description: Pilot error code. Optional, defaults to `None`
                 pilot_error_diag:
                   type: string
@@ -4014,6 +4279,15 @@ paths:
                   type: integer
                   description: CPU architecture level (e.g. `x86_64-v3`). Optional,
                     defaults to `None`
+                grid:
+                  type: string
+                  description: Grid type. Optional, defaults to `None`
+                source_site:
+                  type: string
+                  description: Source site name. Optional, defaults to `None`
+                destination_site:
+                  type: string
+                  description: Destination site name. Optional, defaults to `None`
                 job_metrics:
                   type: string
                   description: Job metrics. Optional, defaults to `None`
@@ -4314,6 +4588,121 @@ paths:
               - site
               - host_name
               - cpu_model
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/pilot/update_worker_node_gpu:
+    post:
+      summary: Update GPUs for a worker node
+      description: 'Updates the GPUs associated to a worker node in the worker node
+        map. When already found, it updates the `last_seen` time. Requires a secure
+        connection and production role.
+
+
+        '
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site:
+                  type: string
+                  description: Site name (e.g. ATLAS site name, not PanDA queue).
+                host_name:
+                  type: string
+                  description: Host name. In the case of reporting in format `slot@worker_node.example.com`,
+                    the slot ID will be parsed out.
+                vendor:
+                  type: string
+                  description: GPU vendor, e.g. `NVIDIA`.
+                model:
+                  type: string
+                  description: GPU model, e.g. `A100 80GB`.
+                count:
+                  type: integer
+                  description: Number of GPUs of this type in the worker node.
+                vram:
+                  type: integer
+                  description: VRAM memory in MB. Defaults to `None`.
+                architecture:
+                  type: string
+                  description: GPU architecture, e.g. `Tesla`, `Ampere`... Defaults
+                    to `None`.
+                framework:
+                  type: string
+                  description: Driver framework available, e.g. `CUDA`. Defaults to
+                    `None`.
+                framework_version:
+                  type: string
+                  description: Version of the driver framework, e.g. `12.2`. Defaults
+                    to `None`.
+                driver_version:
+                  type: string
+                  description: Version of the driver, e.g. `575.51.03`. Defaults to
+                    `None`
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to `60`.
+              required:
+              - site
+              - host_name
+              - vendor
+              - model
+              - count
+              - vram
+              - architecture
+              - framework
+              - framework_version
+              - driver_version
       responses:
         '200':
           description: Method called correctly
@@ -7064,12 +7453,14 @@ paths:
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
 tags:
-- name: credential
-  description: Operations related to credential
+- name: credential_management
+  description: Operations related to credential_management
+- name: data_carousel
+  description: Operations related to data_carousel
 - name: event
   description: Operations related to event
-- name: file
-  description: Operations related to file
+- name: file_server
+  description: Operations related to file_server
 - name: harvester
   description: Operations related to harvester
 - name: idds
