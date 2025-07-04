@@ -3454,8 +3454,10 @@ paths:
               type: object
               properties:
                 job_ids:
-                  type: string
+                  type: array
                   description: List of PanDA job IDs
+                  items:
+                    type: object
               required:
               - job_ids
       responses:
