@@ -21,7 +21,7 @@ Here is a description of the currently available actions.
    * - increase memory
      - Submit next job retries with a higher memory requirement.
    * - increase CPU time
-     - Submit next job retries with a longer walltime requirement.
+     - If there are no successful jobs, the retry module will try set the task CPU time based on the #events of the currently failed job and the site parameters (maxtime, HS06). If there are successful jobs, the retry module will simply request the scouting mechanism to recalculate the CPU time based on all the jobs in the task.
 
 Retry actions are recorded in the database table ``RETRYACTIONS``. New actions need to be
 implemented and then registered in the table.
