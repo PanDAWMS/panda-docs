@@ -9,23 +9,20 @@ Actions
 --------
 Here is a description of the currently available actions.
 
-.. list-table::
-   :header-rows: 1
-
-   * - NAME
-     - DESCRIPTION
-   * - no_retry
-     - Do not retry the job again for certain hopeless errors.
-   * - limit_retry
-     - Limit the number of retries to a certain maximum.
-   * - increase memory
-     - Submit next job retries with a higher memory requirement.
-   * - increase CPU time
-     - If there are no successful jobs, the retry module will try set the task CPU time \
-       based on the #events of the currently failed job and the site parameters \
-       (maxtime, HS06) multiplied by 1.5. If there are successful jobs, the retry module will simply \
-       request the scouting mechanism to recalculate the CPU time based on all the \
-       jobs in the task.
++-------------------+-------------------------------------------------------------------------------------------------------------+
+| NAME              | DESCRIPTION                                                                                                 |
++===================+=============================================================================================================+
+| no_retry          | Do not retry the job again for certain hopeless errors.                                                     |
++-------------------+-------------------------------------------------------------------------------------------------------------+
+| limit_retry       | Limit the number of retries to a certain maximum.                                                           |
++-------------------+-------------------------------------------------------------------------------------------------------------+
+| increase memory   | Submit next job retries with a higher memory requirement.                                                   |
++-------------------+-------------------------------------------------------------------------------------------------------------+
+| increase CPU time | If there are no successful jobs, the retry module will try to set the task CPU time based on the number     |
+|                   | of events of the currently failed job and the site parameters (maxtime, HS06) x 1.5. If there               |
+|                   | are successful jobs, the retry module will simply request the scouting mechanism to recalculate the CPU     |
+|                   | time based on all the jobs in the task.                                                                     |
++-------------------+-------------------------------------------------------------------------------------------------------------+
 
 Retry actions are recorded in the database table ``RETRYACTIONS``. New actions need to be
 implemented and then registered in the table.
