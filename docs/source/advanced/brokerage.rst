@@ -346,7 +346,7 @@ Each queue publishes something like
 Checks for CPU and/or GPU Hardware
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The format of task ``architecture`` is ``sw_platform<@base_platform><#host_cpu_spec><&host_gpu_spec>`` where
+The old format of task ``architecture`` is ``sw_platform<@base_platform><#host_cpu_spec><&host_gpu_spec>`` where
 ``host_cpu_spec`` is ``architecture<-vendor<-instruction_set>>`` and
 ``host_gpu_spec`` is ``vendor<-model>``.
 It is possible to use regexp in the ``architecture`` field of ``host_cpu_spec`` like "(x86_64|aarch64)" to be matched
@@ -354,6 +354,12 @@ with x86_64 or aarch64 queues.
 If ``#host_cpu_spec`` is not specified in task's ``architecture``, the first part of ``sw_platform`` is used as
 CPU architecture.
 The regexp in ``sw_platform`` is resolved to a relevant string in the ``cmtconfigs`` list of the queue.
+
+The new format of task ``architecture`` is a JSON-serialized dictionary with the following keys: ``sw_platform``, ``base_platform``,
+``cpu_specs``, and ``gpu_spec``.
+The ``cpu_specs`` is a list of dictionaries with the following keys: ``arch``, ``instr``, ``type``, and ``vendor``.
+The ``gpu_spec`` is a dictionary with the keys ``vendor``, ``model``, and ``version``, where ``version`` is a string composed of
+``comparison_operator`` and ``version_value`` (e.g., ``>=11.0``).
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the ``architectures`` of the queue is checked.
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
@@ -363,6 +369,7 @@ accepts tasks with attribute='blah' or without specifying the attribute. If 'exc
 the queue accepts only tasks with attribute='blah'.
 For example, tasks with *#x86_64* are accepted by queues with "arch": ["x86_64"], "arch": [""],
 or "arch": ["x86_64", "excl"], but not by "arch": ["arm64"].
+
 
 Checks for Fat Containers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
