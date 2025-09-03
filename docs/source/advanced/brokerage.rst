@@ -320,7 +320,7 @@ Each queue publishes something like
         "type": "gpu",
         "vendor": ["nvidia","excl"],
         "model":["kt100"],
-        "version": ["11.0.3", "11.1.1"]
+        "version": "11.0.3",
       }
     ],
     "tags": [
@@ -360,7 +360,7 @@ The new format of task ``architecture`` is a JSON-serialized dictionary with the
 ``cpu_specs``, and ``gpu_spec``.
 The ``cpu_specs`` is a list of dictionaries with the following keys: ``arch``, ``instr``, ``type``, and ``vendor``.
 The ``gpu_spec`` is a dictionary with the keys ``vendor``, ``model``, and ``version``, where ``version`` is a optional string composed of
-``comparison_operator`` (==, =>, <=, >, <, !=) and ``version_value`` (e.g., ``>=11.0``).
+``comparison_operator`` (==, >=, <=, >, <, !=) and ``version_value`` (e.g., ``>=11.0``).
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the brokerage checks the ``architectures`` of the queue (shown in the above example).
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
@@ -371,7 +371,7 @@ the queue accepts only tasks with attribute='blah'.
 For example, tasks with *#x86_64* are accepted by queues with "arch": ["x86_64"], "arch": [""],
 or "arch": ["x86_64", "excl"], but not by "arch": ["arm64"].
 If the ``version`` of ``gpu_spec`` is specified, the queue's GPU hardware specification must have the ``version`` attribute and
-contain in the ``version`` list a string which is either ``any`` or a version string matching with the specified ``version`` and comparison operator.
+its value must be either ``any`` or a version string matching with the specified ``version`` and comparison operator.
 
 
 Checks for Fat Containers
