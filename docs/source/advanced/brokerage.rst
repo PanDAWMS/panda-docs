@@ -41,7 +41,7 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 
    * Nuclei must have associated storages.
 
-   * The storages associated to nuclei must have enough space
+   * The storages associated to nuclei must have enough space:
 
      .. math::
 
@@ -53,6 +53,9 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
      of exiting workload assigned to the nucleus. *diskThreshold* is the threshold defined per gshare
      as ``DISK_THRESHOLD_<gshare>`` in :doc:`gdpconfig </advanced/gdpconfig>`. If not specified per gshare,
      ``DISK_THRESHOLD`` defines it for all, with a default value of 100 TB.
+
+   * The storages associated to nuclei must be able to send input files to satellites and receive output files
+     from sattellites over WAN, i.e., their ``read_wan`` and ``write_wan`` must be ``ON``.
 
    * Nuclei must pass the data locality check with the following rules:
 
@@ -187,7 +190,21 @@ Here is the ATLAS production job brokerage flow:
 
    * DISK size check, free space in the local storage has to be over 200GB.
 
-   * Skip blacklisted storage endpoints.
+   * Skip queues if their storage endpoints are blacklisted:
+
+     * For all queues.
+
+       * Input endpoints must be locally readable over LAN (``read_lan`` = ``ON``).
+
+       * Output endpoints must be locally writable over LAN (``write_lan`` = ``ON``).
+
+     * For sattelite queues in addition:
+
+       * Input endpoints must be able to receive files over WAN (``write_wan`` = ``ON``).
+
+       * Output endpoints must be able to send files over WAN (``read_wan`` = ``ON``).
+
+       * The nucleus storage endpoints must allow receivng and sending files over WAN (``write_wan`` = ``ON`` and ``read_wan`` = ``ON``).
 
    * If scout or merge jobs, skip queues if their ``maxtime`` is less than 24 hours.
 
