@@ -126,8 +126,7 @@ paths:
                   description: List of keys to reference the secrets to retrieve
                   items:
                     type: string
-              required:
-              - keys
+              required: []
       responses:
         '200':
           description: Method called correctly
@@ -1663,7 +1662,7 @@ paths:
                   type: integer
                   description: file size
                 checksum:
-                  type: string
+                  type: integer
                   description: checksum
               required:
               - file_size
