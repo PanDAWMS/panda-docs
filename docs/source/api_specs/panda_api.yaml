@@ -6932,7 +6932,7 @@ paths:
   /v1/task/change_modification_time:
     post:
       summary: Change task modification time
-      description: 'Change the modification time for a task to `now() + positive_hour_offset`.
+      description: 'Change the modification time for a task to `now() + hour_offset`.
         Requires a secure connection and production role.
 
 
@@ -6949,12 +6949,13 @@ paths:
                 task_id:
                   type: integer
                   description: JEDI task ID
-                positive_hour_offset:
+                hour_offset:
                   type: integer
-                  description: number of hours to add to the current time
+                  description: number of hours to add to the current time. Use a negative
+                    value (e.g. -12) to trigger task brokerage.
               required:
               - task_id
-              - positive_hour_offset
+              - hour_offset
       responses:
         '200':
           description: Method called correctly
