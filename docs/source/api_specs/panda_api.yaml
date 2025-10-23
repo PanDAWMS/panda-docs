@@ -546,7 +546,7 @@ paths:
 
         Only effective on queued or staging requests.
 
-        The reqeusts can be specified by request_id or dataset (if both exist, request_id
+        The requests can be specified by request_id or dataset (if both exist, request_id
         is taken).
 
         Requires a secure connection production role.
@@ -5413,7 +5413,7 @@ paths:
                   description: JEDI Task ID
                 new_parameters:
                   type: string
-                  description: 'a json dictionary with the new parameters for rerunning
+                  description: 'a dictionary with the new parameters for rerunning
                     the task. The new parameters are merged with the existing ones.
 
                     The parameters are the attributes in the JediTaskSpec object (https://github.com/PanDAWMS/panda-jedi/blob/master/pandajedi/jedicore/JediTaskSpec.py).'
