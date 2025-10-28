@@ -3736,7 +3736,7 @@ paths:
                   error and was unable to complete your request.
   /v1/job/submit:
     post:
-      summary: Set the debug mode
+      summary: Submit jobs
       description: 'Sets the debug mode for a job. Requires a secure connection.
 
 
@@ -4143,7 +4143,7 @@ paths:
         schema:
           type: array
           items:
-            type: integer
+            type: object
         description: list of job IDs.
       - name: timeout
         in: query
@@ -5419,21 +5419,24 @@ paths:
                     The parameters are the attributes in the JediTaskSpec object (https://github.com/PanDAWMS/panda-jedi/blob/master/pandajedi/jedicore/JediTaskSpec.py).'
                 no_child_retry:
                   type: boolean
-                  description: if True, the child tasks are not retried
+                  description: if True, the child tasks are not retried. Defaults
+                    to False
                 discard_events:
                   type: boolean
-                  description: if True, events will be discarded
+                  description: if True, events will be discarded. Defaults to False
                 disable_staging_mode:
                   type: boolean
                   description: if True, the task skips staging state and directly
-                    goes to subsequent state
+                    goes to subsequent state. Defaults to False
                 keep_gshare_priority:
                   type: boolean
-                  description: if True, the task keeps current gshare and priority
+                  description: if True, the task keeps current gshare and priority.
+                    Defaults to False
                 ignore_hard_exhausted:
                   type: boolean
                   description: if True, the task ignores the limits for hard exhausted
-                    state and can be retried even if it is very faulty
+                    state and can be retried even if it is very faulty. Defaults to
+                    False
               required:
               - task_id
       responses:
