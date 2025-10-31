@@ -3875,11 +3875,11 @@ paths:
       parameters:
       - name: type
         in: query
-        required: true
+        required: false
         schema:
           type: string
         description: type of site as defined in CRIC (currently `unified`, `production`,
-          `analysis`, `all`)
+          `analysis`, `all`). Defaults to `analysis`.
       responses:
         '200':
           description: Method called correctly
@@ -5028,7 +5028,7 @@ paths:
       parameters:
       - name: time_window
         in: query
-        required: true
+        required: false
         schema:
           type: integer
         description: time window in minutes for the statistics (affects only archived
