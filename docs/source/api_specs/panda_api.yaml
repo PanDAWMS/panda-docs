@@ -4627,6 +4627,10 @@ paths:
                 cpu_model:
                   type: string
                   description: CPU model, e.g. `AMD EPYC 7351`.
+                panda_queue:
+                  type: string
+                  description: PanDA queue the worker node is associated to. Optional,
+                    defaults to `None`.
                 n_logical_cpus:
                   type: integer
                   description: 'Number of logical CPUs: n_sockets * cores_per_socket
