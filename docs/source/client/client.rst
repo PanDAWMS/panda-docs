@@ -37,6 +37,7 @@ Python API references
 .. toctree::
    :maxdepth: 1
 
+   REST API Reference <../_static/panda_api.html#http://>
    rest
    rest_idds
 
