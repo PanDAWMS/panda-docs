@@ -101,7 +101,7 @@ The file ``panda_mcp_endpoints.json`` contains the list of API endpoints to be e
     }
 
 
-All API endpoints are described `API documentation page <_static/panda_api.html>`_
+All API endpoints are described on the `API documentation page <_static/panda_api.html>`_.
 
 Make sure ``PANDA_SERVER_CONF_PORT_MCP`` is defined and ``HOME`` is defined without ~ in ``/etc/sysconfig/panda_server_env``, e.g.,
 
