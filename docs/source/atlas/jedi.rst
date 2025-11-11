@@ -41,7 +41,7 @@ The first time you install the code, you will want to bring in all `atlasprod` d
 
 .. prompt:: bash
 
- /opt/panda/bin/pip install panda-jedi[atlasprod]
+ /opt/panda/bin/pip install panda-server[atlasprod]
 
 In order to install just the latest JEDI code from github:
 

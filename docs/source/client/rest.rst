@@ -1,5 +1,5 @@
 ==================================
-PanDA system python API reference
+PanDA client python API reference
 ==================================
 
 Low-level system API are available via the pandaclient.Client module.
