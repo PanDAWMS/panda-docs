@@ -12,12 +12,42 @@ tasks, and system configurations.
 
 The architecture of PanDA MCP is shown in the figure above. The PanDA Server exposes its REST APIs through WSGI interface to ordinary clients
 such as end-users, Pilots, and Harvester. Requests from AI agents are forwarded to a MCP server, which translates them into REST API calls to
-PanDA Server and returns the results. The MCP server runs as an ASGI application through Uvicorn. This setup mainly comes from the fact that
+PanDA Server and returns the results. The MCP server is based on FastMCP and runs as an ASGI application through Uvicorn. This setup mainly comes
+from the fact that
 most of MCP servers are implemented as ASGI applications, while the PanDA Server is a WSGI application.
 
-------
+|br|
+
+Authentication and Authorization in PanDA MCP
+------------------------------------------------
+
+FastMCP offers bearer token authentication and supports server compositions, consolidating multiple FastMCP servers into a unified main server.
+However, only the main server can define an authentication provider,  which means that this setup supports only one authentication provider.
+To accommodate multiple authentication providers, PanDA MCP delegates authentication and authorization to the PanDA Server.
+
+.. figure:: images/panda_mcp_auth.png
+  :align: center
+
+
+The figure above shows how authentication and authorization work in PanDA MCP.
+When an AI agent sends a request to the MCP server through the PanDA Server, the HTTP header should contains ``Authorization`` and ``Origin`` fields.
+
+.. code-block:: http
+
+    GET /mcp/blah HTTP/1.1
+    ...
+    Authorization: Bearer <ID token>
+    Origin: <VO>
+
+where ``<ID token>`` is an ID token issued by an identity provider trusted by the PanDA Server, and ``<VO>`` is the virtual organization name,
+which is typically the same value set via PANDA_AUTH_VO when using panda-client.
+When the request comes in, the PanDA Server forwards it to the MCP server without modification.
+The MCP server then extracts these fields from the HTTP header and includes them in the REST API call back to the PanDA Server.
+The PanDA Server finally validates the ID token and checks whether the user is authorized to access the requested resource.
 
 |br|
+
+-----------
 
 Enabling PanDA MCP in PanDA Server
 ------------------------------------
@@ -122,6 +152,7 @@ Then copy ``panda_mcp.service`` to ``/etc/systemd/system/``, enable the service,
 
 Testing PanDA MCP
 ------------------------------------
+
 A simple way to test PanDA MCP is to use ``mcp_test_client.py`` in the PanDA Server package.
 
 .. prompt:: bash
