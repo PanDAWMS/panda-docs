@@ -243,7 +243,7 @@ There are three parameters in ``panda_server.cfg``.
 ``token_authType`` needs to be *oidc* to enable the OIDC/OAuth2.0 based Auth.
 The OIDC authentication configuration file are placed under the directory specified by the ``auth_config``
 parameter. The filename should be :blue:`\<name of virtual organization(.role)\>_auth_config.json`.
-The configuration file contains
+The configuration file contains a JSON dump of a dictionary with the following mandatory attributes:
 
  * "audience"
  * "client_id"
@@ -251,7 +251,10 @@ The configuration file contains
  * "oidc_config_url"
  * "vo"
 
-The first three are attributes of the OIDC client defined in PanDA IAM, "oidc_config_url" is
+The first three are attributes of the OIDC client defined in PanDA IAM. "client_secret" is set to `null`
+(representing no value in JSON) for public clients. Note that client secrets for confidential clients
+are visible to anyone with access to this file.
+"oidc_config_url" is
 the well-known openid-configuration URL of PanDA IAM, and "vo" is the VO name.
 The file may include the following optional attributes:
 
