@@ -2,7 +2,7 @@
 Enabling PanDA MCP
 ======================
 
-PanDA MCP (Media Context Protocol) turns PanDA Server's REST APIs into self-describing MCP tools that AI agents can query to access and manage jobs,
+PanDA MCP turns PanDA Server's REST APIs into self-describing MCP (Media Context Protocol) tools that AI agents can query to access and manage jobs,
 tasks, and system configurations.
 
 .. figure:: images/panda_mcp.png
@@ -30,7 +30,7 @@ To accommodate multiple authentication providers, PanDA MCP delegates authentica
 
 
 The figure above shows how authentication and authorization work in PanDA MCP.
-When an AI agent sends a request to the MCP server through the PanDA Server, the HTTP header should contains ``Authorization`` and ``Origin`` fields.
+When an AI agent sends a request to the MCP server through the PanDA Server, the HTTP header should contain ``Authorization`` and ``Origin`` fields. E.g.,
 
 .. code-block:: http
 
@@ -140,7 +140,7 @@ in the HTTP ``VirtualHost`` section or
 
 in the HTTPS ``VirtualHost`` section if the MCP server enables SSL.
 
-Then copy ``panda_mcp.service`` to ``/etc/systemd/system/``, enable the service, and start it.
+Then copy the ``panda_mcp.service`` systemd unit file to ``/etc/systemd/system/``, enable the service, and start it.
 
 .. prompt:: bash
 
