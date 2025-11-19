@@ -4254,7 +4254,7 @@ paths:
                   type: string
                   description: Batch ID. Optional, defaults to `None`
                 trans_exit_code:
-                  type: string
+                  type: integer
                   description: Transformation exit code. Optional, defaults to `None`
                 pilot_error_code:
                   type: integer
@@ -4356,7 +4356,7 @@ paths:
                   description: List of corrupted files in comma separated format.
                     Optional, defaults to `None`
                 cpu_architecture_level:
-                  type: integer
+                  type: string
                   description: CPU architecture level (e.g. `x86_64-v3`). Optional,
                     defaults to `None`
                 grid:
@@ -4460,10 +4460,13 @@ paths:
                 job_list:
                   type: array
                   description: list of job dictionaries to update. The mandatory and
-                    optional keys for each job dictionary is the same as the arguments
+                    optional keys for each job dictionary are the same as the arguments
                     for `update_job`.
                   items:
                     type: object
+                harvester_id:
+                  type: string
+                  description: Harvester ID. Optional, defaults to `None`.
               required:
               - job_list
       responses:
@@ -7112,9 +7115,8 @@ paths:
                   description: JEDI task ID
                 attribute_name:
                   type: string
-                  description: 'split rule attribute to change. The allowed attributes
-                    are one of: `"AI", "TW", "EC", "ES", "MF", "NG", "NI", "NF", "NJ",
-                    "AV", "IL", "LI", "LC", "CC", "OT", "UZ"`'
+                  description: split rule attribute to change. The allowed attributes
+                    are defined in `task_split_rules.changeable_split_rule_tags`
                 value:
                   type: string
                   description: value to set to the attribute
