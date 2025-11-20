@@ -153,7 +153,7 @@ Then copy the ``panda_mcp.service`` systemd unit file to ``/etc/systemd/system/`
 Running PandaMCP independently of the PanDA Server
 ------------------------------------------------------
 
-PandaMCP can also be deployed and operated independently of the PanDA Server. In this case, the MCP server may directly communicate
+PandaMCP can also be deployed and operated independently of the PanDA Server. In this setup, the MCP server may directly communicate
 with AI agents without going through the HTTP forwarding in the PanDA Server.
 The easiest way for this setup is to use the Docker image.
 
@@ -169,8 +169,9 @@ The easiest way for this setup is to use the Docker image.
     docker start panda-mcp
 
 where ``<panda_server_hostname:http_port>`` and ``<panda_server_hostname:https_post>`` should be replaced with
-the hostname and port numbers of the PanDA Server. Note that PandaMCP receives requests from AI
-agents through port 25888 in this case. ``panda_server_config.json`` is a JSON file to overwrite
+the hostname and port numbers of the PanDA Server. In this configuration, PandaMCP receives requests from AI agents through port 25888.
+``panda_mcp_endpoints.json`` contains the list of API endpoints to be exposed via MCP, as described in the previous section. 
+`panda_server_config.json`` is a JSON file to overwrite
 default values in ``panda_server.cfg``, e.g.,
 
 .. code-block:: json
