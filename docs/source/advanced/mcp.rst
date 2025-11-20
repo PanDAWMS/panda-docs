@@ -153,9 +153,9 @@ Then copy the ``panda_mcp.service`` systemd unit file to ``/etc/systemd/system/`
 Running PandaMCP independently of the PanDA Server
 ------------------------------------------------------
 
-PandaMCP can also run independently of the PanDA Server. In this case, the MCP server may directly communicate
+PandaMCP can also be deployed and operated independently of the PanDA Server. In this case, the MCP server may directly communicate
 with AI agents without going through the HTTP forwarding in the PanDA Server.
-The easiest way for this setup is to use the docker image.
+The easiest way for this setup is to use the Docker image.
 
 .. prompt:: bash
 
