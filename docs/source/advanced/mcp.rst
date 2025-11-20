@@ -1,8 +1,8 @@
 ======================
-Enabling PanDA MCP
+Enabling PandaMCP
 ======================
 
-PanDA MCP turns PanDA Server's REST APIs into self-describing MCP (Media Context Protocol) tools that AI agents can query to access and manage jobs,
+PandaMCP turns PanDA Server's REST APIs into self-describing MCP (Media Context Protocol) tools that AI agents can query to access and manage jobs,
 tasks, and system configurations.
 
 .. figure:: images/panda_mcp.png
@@ -10,7 +10,7 @@ tasks, and system configurations.
 
 |br|
 
-The architecture of PanDA MCP is shown in the figure above. The PanDA Server exposes its REST APIs through WSGI interface to ordinary clients
+The architecture of PandaMCP is shown in the figure above. The PanDA Server exposes its REST APIs through WSGI interface to ordinary clients
 such as end-users, Pilots, and Harvester. Requests from AI agents are forwarded to a MCP server, which translates them into REST API calls to
 PanDA Server and returns the results. The MCP server is based on FastMCP and runs as an ASGI application through Uvicorn. This setup mainly comes
 from the fact that
@@ -18,18 +18,18 @@ most of MCP servers are implemented as ASGI applications, while the PanDA Server
 
 |br|
 
-Authentication and Authorization in PanDA MCP
+Authentication and Authorization in PandaMCP
 ------------------------------------------------
 
 FastMCP offers bearer token authentication and supports server compositions, consolidating multiple FastMCP servers into a unified main server.
 However, only the main server can define an authentication provider,  which means that this setup supports only one authentication provider.
-To accommodate multiple authentication providers, PanDA MCP delegates authentication and authorization to the PanDA Server.
+To accommodate multiple authentication providers, PandaMCP delegates authentication and authorization to the PanDA Server.
 
 .. figure:: images/panda_mcp_auth.png
   :align: center
 
 
-The figure above shows how authentication and authorization work in PanDA MCP.
+The figure above shows how authentication and authorization work in PandaMCP.
 When an AI agent sends a request to the MCP server through the PanDA Server, the HTTP header should contain ``Authorization`` and ``Origin`` fields. E.g.,
 
 .. code-block:: http
@@ -49,10 +49,10 @@ The PanDA Server finally validates the ID token and checks whether the user is a
 
 -----------
 
-Enabling PanDA MCP in PanDA Server
+Enabling PandaMCP in PanDA Server
 ------------------------------------
 
-To enable PanDA MCP in PanDA Server, you need to install ``uvicorn`` and ``fastmcp`` packages.
+To enable PandaMCP in PanDA Server, you need to install ``uvicorn`` and ``fastmcp`` packages.
 
 .. prompt:: bash
 
@@ -70,8 +70,8 @@ Then, you need to add the following section in ``panda_server.cfg``:
 .. code-block:: text
 
     [mcp]
-    # transport protocol for MCP server, should be 'streamable-http' or 'sse'
-    transport = streamable-http
+    # transport protocol for MCP server, should be streamable-http (http) or sse
+    transport = http
 
     # the list of API endpoints to expose via MCP
     endpoint_list_file = /opt/panda/etc/panda/panda_mcp_endpoints.json
@@ -150,10 +150,41 @@ Then copy the ``panda_mcp.service`` systemd unit file to ``/etc/systemd/system/`
 
 |br|
 
-Testing PanDA MCP
+Running PandaMCP independently of the PanDA Server
+------------------------------------------------------
+
+PandaMCP can also run independently of the PanDA Server. In this case, the MCP server may directly communicate
+with AI agents without going through the HTTP forwarding in the PanDA Server.
+The easiest way for this setup is to use the docker image.
+
+.. prompt:: bash
+
+    docker create --name panda-mcp -dt --user atlpan -p 25888:25888 \
+       -e PANDA_API_URL=http://<panda_server_hostname:http_port>/api/v1 \
+       -e PANDA_API_URL_SSL=https://<panda_server_hostname:https_post>/api/v1  \
+       ghcr.io/pandawms/panda-server:latest \
+       sh -c "/etc/rc.d/init.d/panda-mcp start && tail -f /dev/null"
+    docker cp panda_mcp_endpoints.json panda-mcp:/opt/panda/etc/panda/
+    docker cp panda_server_config.json panda-mcp:/opt/panda/etc/panda/config_json/
+    docker start panda-mcp
+
+where ``<panda_server_hostname:http_port>`` and ``<panda_server_hostname:https_post>`` should be replaced with
+the hostname and port numbers of the PanDA Server. Note that PandaMCP receives requests from AI
+agents through port 25888 in this case. ``panda_server_config.json`` is a JSON file to overwrite
+default values in ``panda_server.cfg`, e.g.,
+
+.. code-block:: json
+
+    {"mcp": {"transport": "http",
+             "endpoint_list_file": "/opt/panda/etc/panda/panda_mcp_endpoints.json"
+             }
+    }
+
+
+Testing PandaMCP
 ------------------------------------
 
-A simple way to test PanDA MCP is to use ``mcp_test_client.py`` in the PanDA Server package.
+A simple way to test PandaMCP is to use ``mcp_test_client.py`` in the PanDA Server package.
 
 .. prompt:: bash
 
@@ -166,5 +197,8 @@ The script shows the list of available MCP tools, and tests a specific tool. E.g
 
     python /opt/panda/lib/python3.11/site-packages/pandaserver/pandamcp/mcp_test_client.py --tool is_alive --use_http --port 25080
 
+
+If PandaMCP is running independently of the PanDA Server, the ``--port`` option should be set to the port number
+where PandaMCP is listening, e.g., 25888.
 
 |br|
