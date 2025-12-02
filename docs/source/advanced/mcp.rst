@@ -50,8 +50,8 @@ The PanDA Server finally validates the ID token and checks whether the user is a
 
 -----------
 
-Enabling PandaMCP in PanDA Server
-------------------------------------
+Enabling PandaMCP in Existing PanDA Server
+-------------------------------------------------
 
 To enable PandaMCP in PanDA Server, you need to install ``uvicorn`` and ``fastmcp`` packages.
 
@@ -172,7 +172,7 @@ The easiest way for this setup is to use the Docker image.
 where ``<panda_server_hostname:http_port>`` and ``<panda_server_hostname:https_post>`` should be replaced with
 the hostname and port numbers of the PanDA Server. In this configuration, PandaMCP receives requests from AI agents through port 25888.
 ``panda_mcp_endpoints.json`` contains the list of API endpoints to be exposed via MCP, as described in the previous section. 
-`panda_server_config.json`` is a JSON file to overwrite
+``panda_server_config.json`` is a JSON file to overwrite
 default values in ``panda_server.cfg``, e.g.,
 
 .. code-block:: json
@@ -182,6 +182,7 @@ default values in ``panda_server.cfg``, e.g.,
              }
     }
 
+|br|
 
 Testing PandaMCP
 ------------------------------------
@@ -202,5 +203,58 @@ The script shows the list of available MCP tools, and tests a specific tool. E.g
 
 If PandaMCP is running independently of the PanDA Server, the ``--port`` option should be set to the port number
 where PandaMCP is listening, e.g., 25888.
+
+|br|
+
+Integration with AI Agents
+------------------------------------
+
+Integration of PandaMCP with AI agents is rather straightforward as most AI agents support MCP out of the box.
+Below is a procedure on MacOS to integrate PandaMCP with `Claude Desktop <https://claude.ai>`_ by Anthropic as an example.
+One caveat is that free version of Claude Desktop currently supports only local MCP servers, so you need to use
+the `mcp-remote <https://www.npmjs.com/package/mcp-remote>`_ local proxy to connect it to your PandaMCP.
+
+#. First install `Node.js <https://nodejs.org/en/download/>`_ and `mcp-remote <https://www.npmjs.com/package/mcp-remote>`_.
+
+#. Next open Claude Desktop and navigate to Settings -> Developer -> Edit Config. This opens the configuration file that controls which MCP servers Claude can access.
+
+#. Then add a configuration like this:
+
+.. code-block:: json
+
+    {
+        "mcpServers": {
+            "remote-example": {
+                "command": "npx",
+                "args": [
+                    "mcp-remote",
+                    "http://<panda_mcp_hostname>:25080/mcp/",
+                    "--allow-http"
+                ]
+            }
+        }
+    }
+
+Note that this configuration uses plain HTTP to connect to PandaMCP. If your PandaMCP is configured with SSL,
+replace ``http://`` with ``https://`` and remove the ``--allow-http`` argument. You also need to specify
+``Authorization`` and ``Origin`` in the HTTP header using the ``--header`` argument in ``args`` for authentication
+and authorization.
+
+4. Save the file and restart Claude Desktop. You should be able to see PandaMCP in the list of local MCP servers in Settings -> Developer -> Local MCP Servers.
+
+.. figure:: images/claude_settings.png
+  :align: center
+
+5. In the chat window, you can enable the PandaMCP tools by clicking the "Search and Tools" button in the bottom left corner.
+
+.. figure:: images/claude_chat.png
+  :align: center
+
+6. Now you can use PandaMCP tools in the chat window. For example, you can type: "Is the panda server OK?"
+   to check if the PanDA Server is alive. Claude Desktop will use the ``is_alive`` tool in PandaMCP behind the scene
+   to get the answer.
+
+.. figure:: images/claude_example.png
+  :align: center
 
 |br|

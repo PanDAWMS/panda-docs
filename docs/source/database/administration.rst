@@ -1,8 +1,8 @@
-==================
+=========================
 Database Administration
-==================
+=========================
 Oracle and PostgreSQL DB schema
-==============
+=================================
 You can find the database schema within the "schema" folder in the panda-database github module at `<https://github.com/PanDAWMS/panda-database/>`_. For a new database installation, you can execute the sql statements found in the schema folder for either Oracle or PostgreSQL. 
 
 Whenever there is a new version of the PanDA DB schema, the version number needs to increase in order to reflect the change. For PostgreSQL you can find the version number in schema/postgres/version and for Oracle inside the schema/oracle/ATLAS_PANDA.sql file (at the top).

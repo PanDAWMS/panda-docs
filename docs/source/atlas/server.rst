@@ -24,7 +24,7 @@ Installation
 Full installation guide can be found under: https://panda-wms.readthedocs.io/en/latest/installation/server.html. The objective of this wiki is just to give an overview of the ATLAS production instances.
 
 Python virtual environment
--------------------------
+----------------------------
 
 System env variable: `VIRTUAL_ENV`
 
