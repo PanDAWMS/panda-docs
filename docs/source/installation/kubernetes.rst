@@ -30,7 +30,7 @@ Main Components
   * database (mariadb)
 
 Setting up a k8s cluster at CERN
----------------
+-------------------------------------
 You can create a k8s cluster at CERN by following the CERN Kubernetes instructions here: https://kubernetes.docs.cern.ch/docs/getting-started/#create-a-cluster
 It is fine to use your personal OpenStack project if this cluster is to be used solely for testing. If you plan to use it for production, you should request a new OpenStack project from the CERN IT department.
 To create a new OpenStack project, you can follow the instructions here: https://clouddocs.web.cern.ch/projects/creating_projects.html
@@ -106,7 +106,7 @@ Then you can deploy PanDA as instructed in the guide below. We use `CERN Root CA
 Make sure you copy the certificate in the `secrets/files` directory for `bigmon_certs`, `harvester_certs` and `panda_certs` (you will need the `hostkey.pem`, `hostcert.pem` and `chain.pem` files).
 
 Github module for k8s deployment
----------------
+---------------------------------------
 You can find the kubernetes module with all the deployment helm charts at https://github.com/PanDAWMS/panda-k8s
 
 Please checkout the module first:

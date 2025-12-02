@@ -251,7 +251,7 @@ like renaming and stage-out.
 
 
 Running on GPU
------------
+--------------------
 
 GPUs (Graphics Processing Unit) have numerous advantages in data-intensive tasks, 
 physics analysis, machine learning, and other fields, making them powerful tools for 
