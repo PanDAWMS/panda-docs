@@ -13,7 +13,7 @@ Beyond basic diagnostics and troubleshooting, it provides machine-interpretable 
 
 The architecture of PandaMCP is shown in the figure above. The PanDA Server exposes its REST APIs through WSGI interface to ordinary clients
 such as end-users, Pilots, and Harvester. Requests from AI agents are forwarded to a MCP server, which translates them into REST API calls to
-PanDA Server and returns the results. The MCP server is based on FastMCP and runs as an ASGI application through Uvicorn. This setup mainly comes
+the PanDA Server and returns the results. The MCP server is based on FastMCP and runs as an ASGI application through Uvicorn. This setup mainly comes
 from the fact that
 most of MCP servers are implemented as ASGI applications, while the PanDA Server is a WSGI application.
 
@@ -250,11 +250,9 @@ and authorization.
 .. figure:: images/claude_chat.png
   :align: center
 
-6. Now you can use PandaMCP tools in the chat window. For example, you can type: "Is the panda server OK?"
-   to check if the PanDA Server is alive. Claude Desktop will use the ``is_alive`` tool in PandaMCP behind the scene
-   to get the answer.
+6. Claude Desktop can now use PandaMCP tools ithin the chat window. For example, if you type “Is the PanDA server OK?”, Claude Desktop will use the ``is_alive`` tool provided by PandaMCP behind the scenes to check the server’s status and get the answer.
 
 .. figure:: images/claude_example.png
   :align: center
 
-|br|
+----
