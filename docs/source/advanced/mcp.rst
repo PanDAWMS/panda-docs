@@ -216,7 +216,7 @@ the `mcp-remote <https://www.npmjs.com/package/mcp-remote>`_ local proxy to conn
 
 #. First install `Node.js <https://nodejs.org/en/download/>`_ and `mcp-remote <https://www.npmjs.com/package/mcp-remote>`_.
 
-#. Next open Claude Desktop and navigate to Settings -> Developer -> Edit Config. This opens the configuration file that controls which MCP servers Claude can access.
+#. Next open Claude Desktop and navigate to Settings :raw-html:`&rarr;` Developer :raw-html:`&rarr;` Edit Config. This opens the configuration file that controls which MCP servers Claude can access.
 
 #. Then add a configuration like this:
 
@@ -240,7 +240,7 @@ replace ``http://`` with ``https://`` and remove the ``--allow-http`` argument. 
 ``Authorization`` and ``Origin`` in the HTTP header using the ``--header`` argument in ``args`` for authentication
 and authorization.
 
-4. Save the file and restart Claude Desktop. You should be able to see PandaMCP in the list of local MCP servers in Settings -> Developer -> Local MCP Servers.
+4. Save the file and restart Claude Desktop. You should be able to see PandaMCP in the list of local MCP servers in Settings :raw-html:`&rarr;` Developer :raw-html:`&rarr;` Local MCP Servers.
 
 .. figure:: images/claude_settings.png
   :align: center
@@ -250,7 +250,7 @@ and authorization.
 .. figure:: images/claude_chat.png
   :align: center
 
-6. Claude Desktop can now use PandaMCP tools ithin the chat window. For example, if you type “Is the PanDA server OK?”, Claude Desktop will use the ``is_alive`` tool provided by PandaMCP behind the scenes to check the server’s status and get the answer.
+6. Claude Desktop can now use PandaMCP tools in the chat window. For example, if you type “Is the PanDA server OK?”, Claude Desktop will use the ``is_alive`` tool provided by PandaMCP behind the scenes to check the server’s status and get the answer.
 
 .. figure:: images/claude_example.png
   :align: center
