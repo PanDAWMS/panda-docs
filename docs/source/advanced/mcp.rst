@@ -254,5 +254,3 @@ and authorization.
 
 .. figure:: images/claude_example.png
   :align: center
-
-----
