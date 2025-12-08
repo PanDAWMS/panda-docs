@@ -3,7 +3,7 @@ schemes:
 - http
 - https
 host: pandaserver.cern.ch
-basePath: /
+basePath: /api
 info:
   title: PanDA API
   version: 1.0.0

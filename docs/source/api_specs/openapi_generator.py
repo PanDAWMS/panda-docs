@@ -256,7 +256,7 @@ if __name__ == "__main__":
         "swagger": "2.0",
         "schemes": ["http", "https"],
         "host": "pandaserver.cern.ch",
-        "basePath": "/",
+        "basePath": "/api",
         "info": {"title": "PanDA API", "version": "1.0.0", "description": DESCRIPTION},
         "paths": {},
         "tags": [],
