@@ -5088,7 +5088,7 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  /v1/statistics/retry:
+  /v1/statistics/job_stats_by_site_share_and_resource_type:
     get:
       summary: Job statistics by site, global share and resource type
       description: 'Get the job statistics by computing site (PanDA queue), global
