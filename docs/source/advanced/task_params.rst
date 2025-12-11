@@ -29,9 +29,9 @@ where applicable, corresponding two-letter codes.
      - AT
      - If set to "on", jobs in the task will use the alternative stage-out mechanism for PQs if the mechanism is available there. If set to "force", jobs will be assigned to PQs where the alternative stage-out mechanism is available and use it.
 
-   * - allowVP
+   * - avoidVP
      - AV
-     - The task will allow PQs which use Virtual Placement.
+     - The task will avoid PQs which use Virtual Placement.
 
    * - maxCoreCount
      - CC
