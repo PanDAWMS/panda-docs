@@ -20,7 +20,7 @@ To be able to do it outside the CERN network we use SSH tunneling through lxplus
 
     ssh -N -p 22 -D 1234 <username>@lxplus.cern.ch -L localhost:13322:aipanda033.cern.ch:22 -L localhost:1330X:aipanda033.cern.ch:800X  -L localhost:1330X:aipanda033.cern.ch:800X
 
-where ``X`` is any of ``1...9`` (1, 2, 3, 7 are taken), you may need 2 of them, one for backend and another for frontend.
+where ``X`` is any of ``1...9`` (0, 1, 2, 3, 7 are taken), you may need 2 of them, one for backend and another for frontend.
 
 There is `SSH Tunnel Manager app <https://www.tynsoe.org/stm/>`_ for MacOS, we are using it to create and use tunnels.
 
@@ -209,20 +209,20 @@ Go to **Run** > **Edit Configurations** > **Add New Configuration** > **npm**. I
  * Package.json: path to package.json on local machine
  * Command: run
  * Script: start
+ * Arguments: ``-- --configuration development --host aipanda033.cern.ch --port 800Y`` - this is where the frontend will be accessed
  * Node interpreter: Choose remote Node interpreter we just created
  * Package manager: should be path to npm on the remote machine
  * Mapping: check it is correct, local path to project root should be mapped to remote path to project root
  * Apply & Save
 
-Put your port for running frontend in ``frontend/angular.json`` file to ``projects.frontend.architect.serve.options.port``.
-
-Put the port you set for running backend to ``frontend/src/environments/environment.ts`` file, ``apiUrl`` varuable.
+Put the API URL of your Django backend you set for running backend to ``frontend/src/environments/environment.development.ts`` file,
+``apiUrl`` varuable, it must end with ``/api``, e.g. ``http://aipanda033.cern.ch:800X\api``
 
 4. Run & enjoy:
 _________________________
 
 Now you should be able to run the Angular frontend on the remote dev node by clicking the Run button on the top right of PyCharm.
-Depending on port you set for frontend, you can access it in the browser at ``http://aipanda033.cern.ch:800X``,
+Depending on port you set for frontend, you can access it in the browser at ``http://aipanda033.cern.ch:800Y``,
 and make sure the ssh tunnel is running and proxy is set up in the browser.
 
 
