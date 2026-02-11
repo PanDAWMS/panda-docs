@@ -2,7 +2,7 @@
 Enabling PandaMCP
 ======================
 
-PandaMCP turns PanDA Server's REST APIs into self-describing MCP (Media Context Protocol) tools.
+PandaMCP turns PanDA Server's REST APIs into self-describing MCP (Model Context Protocol) tools.
 This allows AI agents to directly query and interact with PanDA, enabling controlled access to jobs, tasks, and system configurations.
 Beyond basic diagnostics and troubleshooting, it provides machine-interpretable interfaces essential for advanced automation, intelligent workflow orchestration, and proactive system optimization driven by AI decisions.
 
