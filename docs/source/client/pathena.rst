@@ -314,12 +314,12 @@ What are buildJob and runJob?
 
 Once PanDA chooses sites to run jobs the relocatable sandbox file is sent to the sites. One buildJob is created
 at each site to upload the sandbox file to the local storage at the site.
-The completion of buidJob triggers a bunch of runJobs. Each runJob retrieves the sandbox file to run Athena.
+The completion of buildJob triggers a bunch of runJobs. Each runJob retrieves the sandbox file to run Athena.
 
 .. figure:: images/pathena_build2run.png
 
-It is possible to skip buildJob using ``--noBuild``. In this case runJobs retrive the sandbox file from
-a web service but the size of the sandbox file is limted to 50MB.
+It is possible to skip buildJob using ``--noBuild``. In this case runJobs retrieve the sandbox file from
+a web service but the size of the sandbox file is limited to 50MB.
 
 How job priorities are calculated?
 -------------------------------------
@@ -494,7 +494,7 @@ If you submit tasks with the ``--voms`` option, jobs are counted in the group's 
 How do I blacklist sites when submitting tasks?
 ------------------------------------------------
 
-Use ``--excludedSite``. However, this option is not recommend since that would skew workload distrubution in the
+Use ``--excludedSite``. However, this option is not recommended since that would skew workload distribution in the
 whole system and decrease the system throughput.
 
 
