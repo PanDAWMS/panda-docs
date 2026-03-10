@@ -224,7 +224,7 @@ It is possible run standalone containers by using ``--containerImage`` option.
  prun --containerImage docker://alpine --exec "echo Hello World" --outDS user.hoge.`uuidgen`
 
 Your job will download the docker image and execute echo in the container.
-``--containerImage`` can also take the CVMFS path if the the image is unpacked in CVMFS.
+``--containerImage`` can also take the CVMFS path if the image is unpacked in CVMFS.
 This has the advantage for each job to avoid downloading the image.
 
 .. prompt:: bash

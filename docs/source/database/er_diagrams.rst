@@ -21,11 +21,11 @@ Jobs for each task are generated and move (for historical reasons) across the
 tables as they progress in their state. Note that the details for the jobs tables have been
 hidden in the overview diagram for visibility reasons, but the ``JOBSACTIVE4`` table is
 displayed separately. The 4 job tables are mostly similar, the only differences should
-be in some indexes in ``JOBSACTIVE4`` and ``JOBSARCHIVED4``, since these are the larges
+be in some indexes in ``JOBSACTIVE4`` and ``JOBSARCHIVED4``, since these are the largest
 and most commonly queried tables. Each job has a unique ``PANDAID`` primary key, which
 is used for referencing.
 
-Jobs have auxiliary metadata and job parameters stored in teh METATABLE and JOBPARAMSTABLE. ]
+Jobs have auxiliary metadata and job parameters stored in the METATABLE and JOBPARAMSTABLE. ]
 These entries travel together with the jobs during the archival process.
 
 Each job has associated files in ``FILESTABLE4``. ``FILESTABLE4`` and ``JEDI_DATASET_CONTENTS``
