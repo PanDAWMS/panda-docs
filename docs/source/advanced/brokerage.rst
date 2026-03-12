@@ -378,6 +378,8 @@ The new format of task ``architecture`` is a JSON-serialized dictionary with the
 The ``cpu_specs`` is a list of dictionaries with the following keys: ``arch``, ``instr``, ``type``, and ``vendor``.
 The ``gpu_spec`` is a dictionary with the keys ``vendor``, ``model``, and ``version``, where ``version`` is a optional string composed of
 ``comparison_operator`` (==, >=, <=, >, <, !=) and ``version_value`` (e.g., ``>=11.0``).
+The ``model`` field also supports the ``!=`` prefix to exclude a specific GPU model (e.g., ``"model": "!=Tesla P100-SXM2-16GB"``
+to avoid queues with that GPU model).
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the brokerage checks the ``architectures`` of the queue (shown in the above example).
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
