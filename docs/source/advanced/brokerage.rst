@@ -376,10 +376,11 @@ The regexp in ``sw_platform`` is resolved to a relevant string in the ``cmtconfi
 The new format of task ``architecture`` is a JSON-serialized dictionary with the following keys: ``sw_platform``, ``base_platform``,
 ``cpu_specs``, and ``gpu_spec``.
 The ``cpu_specs`` is a list of dictionaries with the following keys: ``arch``, ``instr``, ``type``, and ``vendor``.
-The ``gpu_spec`` is a dictionary with the keys ``vendor``, ``model``, and ``version``, where ``version`` is a optional string composed of
+The ``gpu_spec`` is a dictionary with the keys ``vendor``, ``model``, ``excl``, and ``version``, where ``version`` is a optional string composed of
 ``comparison_operator`` (==, >=, <=, >, <, !=) and ``version_value`` (e.g., ``>=11.0``).
-The ``model`` field accepts a regular expression for flexible matching or exclusion
-(e.g., ``"model": "Tesla P100-SXM2-16GB"`` for exact match, or ``"model": "^(?!.*P100).*$"`` to exclude any queue with a P100 GPU).
+The ``model`` field accepts a regular expression, and the optional boolean ``excl`` field controls whether the pattern is used
+for inclusion (default, ``excl: false``) or exclusion (``excl: true``).
+For example, ``{"model": ".*A100.*"}`` requires an A100 GPU, while ``{"model": ".*P100.*", "excl": true}`` excludes any queue with a P100 GPU.
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the brokerage checks the ``architectures`` of the queue (shown in the above example).
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
