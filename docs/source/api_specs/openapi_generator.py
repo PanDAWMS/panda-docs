@@ -89,14 +89,13 @@ def extract_parameters(parsed):
             "name": param.arg_name,
             "in": "query",
             "required": is_required,
-            "schema": {"type": param_type},
+            "type": param_type,
             "description": param.description,
         }
 
         if param_type == "array":
-            parameter_schema["schema"]["items"] = {
-                "type": item_type
-            }  # Default array item type
+            parameter_schema["items"] = {"type": item_type}
+            parameter_schema["collectionFormat"] = "multi"
 
         parameters.append(parameter_schema)
 

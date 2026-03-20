@@ -189,14 +189,12 @@ paths:
       - name: public_key_name
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: The name of the public key.
       - name: private_key_name
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: The name of the private key.
       responses:
         '200':
@@ -260,14 +258,12 @@ paths:
       - name: role
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: The role of the user. Defaults to None.
       - name: dn
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: The distinguished name of the user. Defaults to None.
       responses:
         '200':
@@ -331,14 +327,12 @@ paths:
       - name: client_name
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: client_name for the token as defined in token_cache_config
       - name: token_key
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: key to get the token from the token cache. Defaults to None.
       responses:
         '200':
@@ -403,8 +397,7 @@ paths:
       - name: client_name
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: The name of the client requesting the token key
       responses:
         '200':
@@ -733,26 +726,22 @@ paths:
       - name: job_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: PanDA job ID
       - name: jobset_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: Jobset ID
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI task ID
       - name: timeout
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: The timeout value. Defaults to 60.
       responses:
         '200':
@@ -816,8 +805,7 @@ paths:
       - name: job_task_ids
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: 'json encoded string with JEDI task ID + PanDA job ID pairs,
           in the format `[{"task_id": <task>, "job_id": <job>}, ...]`'
       responses:
@@ -2515,8 +2503,7 @@ paths:
       - name: harvester_id
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: harvester id, e.g. `harvester_central_A`
       responses:
         '200':
@@ -3056,16 +3043,15 @@ paths:
       - name: job_ids
         in: query
         required: true
-        schema:
-          type: array
-          items:
-            type: integer
+        type: array
         description: list of PanDA job IDs.
+        items:
+          type: integer
+        collectionFormat: multi
       - name: timeout
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: The timeout value. Defaults to 60.
       responses:
         '200':
@@ -3130,16 +3116,15 @@ paths:
       - name: job_ids
         in: query
         required: true
-        schema:
-          type: array
-          items:
-            type: integer
+        type: array
         description: List of PanDA job IDs.
+        items:
+          type: integer
+        collectionFormat: multi
       - name: timeout
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: The timeout value. Defaults to 60.
       responses:
         '200':
@@ -3204,16 +3189,15 @@ paths:
       - name: job_ids
         in: query
         required: true
-        schema:
-          type: array
-          items:
-            type: integer
+        type: array
         description: List of PanDA job IDs.
+        items:
+          type: integer
+        collectionFormat: multi
       - name: timeout
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: The timeout value. Defaults to 60.
       responses:
         '200':
@@ -3278,14 +3262,12 @@ paths:
       - name: job_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: PanDA job ID
       - name: timeout
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: The timeout value. Defaults to 60.
       responses:
         '200':
@@ -3349,8 +3331,7 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI task ID
       responses:
         '200':
@@ -3876,8 +3857,7 @@ paths:
       - name: type
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: type of site as defined in CRIC (currently `unified`, `production`,
           `analysis`, `all`). Defaults to `analysis`.
       responses:
@@ -4140,16 +4120,15 @@ paths:
       - name: job_ids
         in: query
         required: true
-        schema:
-          type: array
-          items:
-            type: object
+        type: array
         description: list of job IDs.
+        items:
+          type: object
+        collectionFormat: multi
       - name: timeout
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: The timeout value. Defaults to 60.
       responses:
         '200':
@@ -4849,8 +4828,7 @@ paths:
       - name: type
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: can be "analysis" or "production". Defaults to "production" when
           not provided.
       responses:
@@ -5095,8 +5073,7 @@ paths:
       - name: time_window
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: time window in minutes for the statistics (affects only archived
           jobs)
       responses:
@@ -5163,8 +5140,7 @@ paths:
       - name: time_window
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: time window in minutes for the statistics (affects only archived
           jobs)
       responses:
@@ -5228,8 +5204,7 @@ paths:
       - name: '**kwargs'
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: arbitrary keyword parameters that will be printed out
       responses:
         '200':
@@ -6501,15 +6476,13 @@ paths:
       - name: from_offset
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: '`now - from_offset` in days will serve as the floor for modification
           time (Previously called n_days)'
       - name: to_offset
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: '`now - to_offset` in days will serve as the ceiling for modification
           time. Defaults to 0. (Previously called grace_period)'
       responses:
@@ -6796,8 +6769,7 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI Task ID
       responses:
         '200':
@@ -6860,20 +6832,17 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI Task ID
       - name: include_parameters
         in: query
         required: false
-        schema:
-          type: boolean
+        type: boolean
         description: flag to include task parameter information (Previously fullFlag)
       - name: include_status
         in: query
         required: false
-        schema:
-          type: boolean
+        type: boolean
         description: flag to include status information (Previously withTaskInfo)
       responses:
         '200':
@@ -7245,35 +7214,30 @@ paths:
       - name: since
         in: query
         required: true
-        schema:
-          type: string
+        type: string
         description: time in the format `%Y-%m-%d %H:%M:%S`, e.g. `2024-12-18 14:30:45`.
           The tasks with `modificationtime > since` will be returned
       - name: dn
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: user DN
       - name: full
         in: query
         required: false
-        schema:
-          type: boolean
+        type: boolean
         description: flag to include full task information. If `full=False` the basic
           fields are `jediTaskID, modificationTime, status, processingType, transUses,
           transHome, architecture, reqID, creationDate, site, cloud, taskName`
       - name: min_task_id
         in: query
         required: false
-        schema:
-          type: integer
+        type: integer
         description: minimum task ID
       - name: prod_source_label
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: task type (e.g. `user`, `managed`, `test`, etc.)
       responses:
         '200':
@@ -7340,14 +7304,12 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI task ID
       - name: dataset_types
         in: query
         required: false
-        schema:
-          type: string
+        type: string
         description: list of dataset types, defaults to `["input", "pseudo_input"]`
       responses:
         '200':
@@ -7411,8 +7373,7 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI task ID
       responses:
         '200':
@@ -7549,8 +7510,7 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI task ID
       responses:
         '200':
@@ -7616,8 +7576,7 @@ paths:
       - name: task_id
         in: query
         required: true
-        schema:
-          type: integer
+        type: integer
         description: JEDI task ID
       responses:
         '200':
