@@ -542,4 +542,4 @@ personal namespace:
         - ServerSideApply=true
 
 Every push to your feature branch will trigger an automatic re-deploy of your personal instance.
-Once you are satisfied, open pull requests to both the upstream code repository and ``panda-k8s``.
+Once you are satisfied, open pull requests to the upstream code repository ``panda-k8s``.
