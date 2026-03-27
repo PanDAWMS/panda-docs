@@ -321,3 +321,225 @@ The table below shows the list of json files. Files with \* are mandatory.
      - Blacklist of storages
    * - cm.json
      - Cost metrix of data transfer among storages
+
+
+GitOps deployment with ArgoCD
+------------------------------
+
+`ArgoCD <https://argo-cd.readthedocs.io/>`_ is a declarative GitOps continuous delivery tool for Kubernetes.
+Instead of running ``helm install`` / ``./bin/install`` manually, you register each PanDA component as an
+ArgoCD *Application* that tracks a path in the ``panda-k8s`` Git repository.
+ArgoCD then automatically syncs the cluster state whenever changes are merged to the target branch.
+
+Prerequisites
+^^^^^^^^^^^^^
+
+* A running ArgoCD instance in the cluster (see the `ArgoCD getting started guide <https://argo-cd.readthedocs.io/en/stable/getting_started/>`_).
+* The ``panda-k8s`` repository accessible to ArgoCD (add it under *Settings → Repositories*).
+* Secrets deployed separately via Helm (ArgoCD does not manage the secrets release — see below).
+
+Deploying secrets
+^^^^^^^^^^^^^^^^^
+
+The secrets Helm chart contains sensitive values and is **not** tracked by ArgoCD.
+Deploy and upgrade it manually as usual:
+
+.. prompt:: bash
+
+  helm install panda-secrets secrets/ -f secrets/values-secret.yaml
+  # or to upgrade:
+  helm upgrade panda-secrets secrets/ -f secrets/values-secret.yaml
+
+Registering ArgoCD Applications
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create one ArgoCD ``Application`` resource per PanDA component. The example below deploys ``panda-server``;
+repeat the pattern for ``panda-jedi``, ``panda-idds``, ``panda-bigmon``, ``panda-harvester``, etc.,
+adjusting ``path`` and ``releaseName`` accordingly.
+
+.. code-block:: yaml
+
+  apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    name: panda-server
+    namespace: argocd
+  spec:
+    project: default
+    source:
+      repoURL: https://github.com/PanDAWMS/panda-k8s.git
+      targetRevision: main
+      path: helm/panda
+      helm:
+        releaseName: panda-server
+        valueFiles:
+          - values/values-<your_experiment>.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - ServerSideApply=true
+
+Apply each Application manifest:
+
+.. prompt:: bash
+
+  kubectl apply -f argocd-apps/panda-server.yaml
+
+.. note::
+
+   Ready-to-use example Application manifests for the ATLAS Testbed (covering panda-server/JEDI,
+   harvester, bigmon, and idds) are available at
+   `argocd-apps/testbed <https://github.com/PanDAWMS/panda-k8s/tree/main/argocd-apps/testbed>`_
+   in the ``panda-k8s`` repository.
+
+Once registered, ArgoCD will perform an initial sync. Subsequent merges to ``main`` are picked up
+automatically within the configured polling interval (default: 3 minutes), or immediately if a
+webhook is configured.
+
+Upgrade workflow
+^^^^^^^^^^^^^^^^
+
+The typical workflow for any configuration change is:
+
+1. Edit the relevant Helm chart or values file in ``panda-k8s``.
+2. Open a pull request and merge to ``main``.
+3. ArgoCD detects the change and syncs the affected Application(s) automatically.
+4. If the change also requires updated secrets (e.g. new environment variables), run
+   ``helm upgrade panda-secrets secrets/ -f secrets/values-secret.yaml`` **before** or
+   **after** the ArgoCD sync, then delete the affected pod(s) to pick up the new secret values.
+
+You can also trigger a manual sync from the ArgoCD web UI (*App → Sync → Synchronize*) or by
+restarting the ``argocd-repo-server`` pod if the UI reports a repository lock error:
+
+.. prompt:: bash
+
+  kubectl rollout restart deployment argocd-repo-server -n argocd
+
+Using published Helm charts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``panda-k8s`` repository includes a GitHub Actions workflow
+(``.github/workflows/helm-release.yml``) that automatically lints, packages, and publishes
+the PanDA Helm charts as OCI artifacts to the GitHub Container Registry whenever changes
+are merged to ``main``.
+
+The charts are published to::
+
+  oci://ghcr.io/pandawms/panda-k8s-charts
+
+Instead of pointing ArgoCD at a Git repository path (as shown above), you can use the
+pre-packaged OCI chart directly as the source:
+
+.. code-block:: yaml
+
+  source:
+    repoURL: oci://ghcr.io/pandawms/panda-k8s-charts
+    chart: panda
+    targetRevision: "0.1.0"   # chart version
+    helm:
+      releaseName: panda-server
+      valueFiles:
+        - values/values-<your_experiment>.yaml
+
+This is cleaner for stable deployments as it decouples the deployed version from the
+live state of the Git repository.
+
+The workflow can also be triggered manually on any branch (with the *Publish* option enabled),
+which is useful for developers who want to publish a chart from their own fork for testing
+without waiting for a merge to ``main``.
+
+Developer workflow
+^^^^^^^^^^^^^^^^^^
+
+Individual developers can use the same ArgoCD pattern to deploy and test their changes in a
+personal namespace **before** opening a pull request to the upstream project.
+Each developer gets a fully isolated environment — secrets, application components, and
+ArgoCD Applications all live in a personal namespace (e.g. ``dev-eddie``).
+The ``default`` namespace is reserved for the ATLAS Testbed and must not be used for personal development deployments.
+
+**Step 1 — Create a personal namespace**
+
+.. prompt:: bash
+
+  kubectl create namespace dev-eddie
+
+**Step 2 — Fork the repositories**
+
+Fork `panda-k8s <https://github.com/PanDAWMS/panda-k8s>`_ and the component(s) you are working on
+(e.g. `panda-server <https://github.com/PanDAWMS/panda-server>`_) into your own GitHub account.
+
+**Step 3 — Build and push a custom image**
+
+After making code changes in your fork, build and push a Docker image to a registry you control
+(e.g. GitHub Container Registry):
+
+.. prompt:: bash
+
+  docker build -t ghcr.io/<your-username>/panda-server:my-feature .
+  docker push ghcr.io/<your-username>/panda-server:my-feature
+
+You can automate this with a GitHub Actions workflow on push to your feature branch.
+
+**Step 4 — Deploy personal secrets**
+
+Each developer maintains their own ``values-secret.yaml`` with their own database credentials,
+OIDC keys, etc., and deploys the secrets chart into their personal namespace:
+
+.. prompt:: bash
+
+  helm install panda-secrets secrets/ -f secrets/values-secret.yaml -n dev-eddie
+
+This is completely isolated from production — Kubernetes secrets are namespace-scoped, so
+``panda-secrets`` in ``dev-eddie`` is invisible to any other namespace.
+
+**Step 5 — Override the image in your panda-k8s fork**
+
+In your ``panda-k8s`` fork, create a personal values file (e.g. ``values/values-dev-eddie.yaml``)
+that points to your custom image:
+
+.. code-block:: yaml
+
+  image:
+    repository: ghcr.io/<your-username>/panda-server
+    tag: my-feature
+
+**Step 6 — Create an ArgoCD Application pointing to your fork**
+
+Register an ArgoCD Application that tracks your fork and feature branch, deploying into your
+personal namespace:
+
+.. code-block:: yaml
+
+  apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    name: dev-eddie-panda-server
+    namespace: argocd
+  spec:
+    project: default
+    source:
+      repoURL: https://github.com/<your-username>/panda-k8s.git
+      targetRevision: my-feature-branch
+      path: helm/panda
+      helm:
+        releaseName: dev-eddie-panda-server
+        valueFiles:
+          - values/values-<your_experiment>.yaml
+          - values/values-dev-eddie.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: dev-eddie
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - ServerSideApply=true
+
+Every push to your feature branch will trigger an automatic re-deploy of your personal instance.
+Once you are satisfied, open pull requests to both the upstream code repository and ``panda-k8s``.
