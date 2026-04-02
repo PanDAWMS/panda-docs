@@ -91,6 +91,17 @@ controller by running:
 
 and setting ``"allow-snippet-annotations"`` from ``"false"`` to ``"true"`` (caveat: it *must* be a string).
 
+Regarding SSL passthrough: CERN Magnum clusters already have ``--enable-ssl-passthrough=true`` set in the ingress controller by default, so no controller-level action is required. SSL passthrough is needed for x509/GRID proxy certificate authentication, as GRID proxy certificates use a non-standard X.509 chain (the user certificate has ``CA:FALSE``) that nginx cannot verify with standard SSL termination. With SSL passthrough enabled at the controller, you only need to set the annotation in your helm values for the panda-server ingress:
+
+.. code-block:: yaml
+
+   server:
+     ingress:
+       annotations:
+         nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+
+This makes nginx forward raw TCP directly to Apache, which handles the full SSL handshake including GRID proxy certificate verification via ``mod_gridsite``.
+
 We now need to set up the LanDB aliases, if we assume that the cluster name is ``panda-doma-k8s`` and the node names are ``panda-doma-k8s-xyz-node`` and we have 4 nodes, we can run the following command to set the aliases for each node. The aliases are comma separated and are in the form of ``<cluster_name>-<component>--load-N-``. For example, the first node (node-0) will have the alias ``panda-doma-k8s-xyz-node-load-1-``. The command to set the aliases is as follows:
 
 .. prompt:: bash
