@@ -120,8 +120,8 @@ if the task sets the target size of the output size, ``tgtMaxOutputForNG``.
 
 |br|
 
-taskStatus=exhausted
------------------------
+Special task status: exhausted
+--------------------------------
 The task status is set to **exhausted** when scouts detect
 
 * huge memory leaks (the threshold is defined as ``SCOUT_MEM_LEAK_PER_CORE_<activity>`` in :doc:`gdpconfig </advanced/gdpconfig>`),
