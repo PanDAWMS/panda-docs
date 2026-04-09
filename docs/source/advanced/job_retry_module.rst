@@ -9,20 +9,25 @@ Actions
 --------
 Here is a description of the currently available actions.
 
-+-------------------+-------------------------------------------------------------------------------------------------------------+
-| NAME              | DESCRIPTION                                                                                                 |
-+===================+=============================================================================================================+
-| no_retry          | Do not retry the job again for certain hopeless errors.                                                     |
-+-------------------+-------------------------------------------------------------------------------------------------------------+
-| limit_retry       | Limit the number of retries to a certain maximum.                                                           |
-+-------------------+-------------------------------------------------------------------------------------------------------------+
-| increase memory   | Submit next job retries with a higher memory requirement.                                                   |
-+-------------------+-------------------------------------------------------------------------------------------------------------+
-| increase CPU time | If there are no successful jobs, the retry module will try to set the task CPU time based on the number     |
-|                   | of events of the currently failed job and the site parameters (maxtime, HS06) x 1.5. If there               |
-|                   | are successful jobs, the retry module will simply request the scouting mechanism to recalculate the CPU     |
-|                   | time based on all the jobs in the task.                                                                     |
-+-------------------+-------------------------------------------------------------------------------------------------------------+
++----------------------+----------------------------------------------------------------------------------------------------------+
+| NAME                 | DESCRIPTION                                                                                              |
++======================+==========================================================================================================+
+| no_retry             | Do not retry the job again for certain hopeless errors.                                                  |
++----------------------+----------------------------------------------------------------------------------------------------------+
+| limit_retry          | Limit the number of retries to a certain maximum.                                                        |
++----------------------+----------------------------------------------------------------------------------------------------------+
+| increase memory      | Submit next job retries with a higher memory requirement.                                                 |
++----------------------+----------------------------------------------------------------------------------------------------------+
+| increase CPU time    | If there are no successful jobs, the retry module will try to set the task CPU time based on the number  |
+|                      | of events of the currently failed job and the site parameters (maxtime, HS06) x 1.5. If there           |
+|                      | are successful jobs, the retry module will simply request the scouting mechanism to recalculate the CPU  |
+|                      | time based on all the jobs in the task.                                                                  |
++----------------------+----------------------------------------------------------------------------------------------------------+
+| reduce_input_per_job | Reduces the amount of input data processed per job on each retry, progressively cutting nGBPerJob and    |
+|                      | nMaxFilesPerJob to half, a quarter, and finally 1 at successive attempt thresholds.                      |
+|                      | The task already uses nEventsPerJob or nFilesPerJob split rules (configurable via excluded_rules)        |
+|                      | - those rules take precedence                                                                            |
++----------------------+----------------------------------------------------------------------------------------------------------+
 
 Retry actions are recorded in the database table ``RETRYACTIONS``. New actions need to be
 implemented and then registered in the table.
