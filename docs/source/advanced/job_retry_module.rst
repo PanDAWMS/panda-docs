@@ -16,10 +16,10 @@ Here is a description of the currently available actions.
 +----------------------+----------------------------------------------------------------------------------------------------------+
 | limit_retry          | Limit the number of retries to a certain maximum.                                                        |
 +----------------------+----------------------------------------------------------------------------------------------------------+
-| increase memory      | Submit next job retries with a higher memory requirement.                                                 |
+| increase memory      | Submit next job retries with a higher memory requirement.                                                |
 +----------------------+----------------------------------------------------------------------------------------------------------+
 | increase CPU time    | If there are no successful jobs, the retry module will try to set the task CPU time based on the number  |
-|                      | of events of the currently failed job and the site parameters (maxtime, HS06) x 1.5. If there           |
+|                      | of events of the currently failed job and the site parameters (maxtime, HS06) x 1.5. If there            |
 |                      | are successful jobs, the retry module will simply request the scouting mechanism to recalculate the CPU  |
 |                      | time based on all the jobs in the task.                                                                  |
 +----------------------+----------------------------------------------------------------------------------------------------------+
