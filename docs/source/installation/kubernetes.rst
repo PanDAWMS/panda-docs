@@ -543,3 +543,78 @@ personal namespace:
 
 Every push to your feature branch will trigger an automatic re-deploy of your personal instance.
 Once you are satisfied, open pull requests to the upstream code repository ``panda-k8s``.
+
+
+Node failure recovery
+---------------------
+
+When a Kubernetes node goes ``NotReady``, StatefulSet pods on that node get stuck in ``Terminating``
+indefinitely. Unlike Deployments, Kubernetes does not automatically reschedule StatefulSet pods from
+failed nodes to protect stateful data. This affects ``panda-server``, ``panda-jedi``,
+``panda-bigmon``, ``panda-harvester``, and any other StatefulSet-based component.
+
+The ``panda-k8s`` chart provides two complementary mechanisms to automate recovery.
+
+Automatic eviction via tolerations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add the following tolerations to your component values to instruct Kubernetes to evict a pod
+after 30 seconds on a ``NotReady`` node:
+
+.. code-block:: yaml
+
+  tolerations:
+    - key: "node.kubernetes.io/not-ready"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 30
+    - key: "node.kubernetes.io/unreachable"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 30
+
+After ``tolerationSeconds`` elapses, the pod transitions to ``Terminating``. However, because the
+kubelet on the failed node cannot acknowledge the deletion, the pod remains stuck in ``Terminating``
+and the StatefulSet controller will not schedule a replacement until it is fully gone.
+
+.. note::
+
+   Tolerations are already enabled for all components in the ATLAS testbed deployment.
+   See `values-atlas_testbed.yaml <https://github.com/PanDAWMS/panda-k8s/blob/main/helm/panda/values/values-atlas_testbed.yaml>`_
+   for a working example.
+
+Node recovery CronJob
+^^^^^^^^^^^^^^^^^^^^^
+
+Enable the built-in node recovery CronJob in your experiment values file to automatically
+force-delete pods stuck in ``Terminating`` on ``NotReady`` nodes:
+
+.. code-block:: yaml
+
+  # values/values-<your_experiment>.yaml
+  nodeRecovery:
+    enabled: true
+
+The CronJob runs every 60 seconds, scans all namespaces, and force-deletes any pod that has a
+``deletionTimestamp`` set (i.e. is ``Terminating``) on a ``NotReady`` node. It uses a dedicated
+``ServiceAccount`` with a minimal ``ClusterRole`` (``list`` nodes, ``list``/``delete`` pods).
+
+Combined effect
+^^^^^^^^^^^^^^^
+
+With both mechanisms enabled, full automated recovery from a node failure takes approximately
+60–90 seconds with no manual intervention:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Time
+     - Event
+   * - T+0
+     - Node goes ``NotReady``
+   * - T+30s
+     - Toleration expires — pod transitions to ``Terminating`` automatically
+   * - T+~60s
+     - Node recovery CronJob runs — detects stuck pod — force-deletes it
+   * - T+~90s
+     - StatefulSet schedules replacement pod on a healthy node
