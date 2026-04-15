@@ -43,7 +43,7 @@ and then
 
      .. prompt:: bash
 
-        cd packages/full
+        cp packages/full/pyproject.toml .
         export PANDA_INSTALL_TARGET=<where to be installed>
         pip install . --target ${PANDA_INSTALL_TARGET}
 
