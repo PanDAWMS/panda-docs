@@ -33,7 +33,7 @@ https://github.com/PanDAWMS/panda-client/releases
     wget https://github.com/PanDAWMS/panda-client/archive/refs/tags/x.y.z.tar.gz
     tar xvfz *.tar.gz
     rm *.tar.gz
-    cd panda_client*
+    cd panda-client*
 
 and then
 
