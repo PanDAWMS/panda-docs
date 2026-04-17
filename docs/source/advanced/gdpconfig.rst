@@ -43,6 +43,8 @@ The method returns None if the parameter is undefined.
 Parameter List
 --------------
 
+The following is the list of parameters defined in the ``PANDA.CONFIG`` table. The list is not exhaustive and may be updated frequently, so please check the table for the latest information.
+
 .. list-table::
    :header-rows: 1
    :widths: 45 55
