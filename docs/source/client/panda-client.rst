@@ -45,7 +45,7 @@ and then
 
         cp packages/full/pyproject.toml .
         export PANDA_INSTALL_TARGET=<where to be installed>
-        pip install . --target ${PANDA_INSTALL_TARGET}
+        pip install . --prefix ${PANDA_INSTALL_TARGET}
 
    .. tab:: legacy Python or pip
 
