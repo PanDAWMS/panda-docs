@@ -122,7 +122,15 @@ if the task sets the target size of the output size, ``tgtMaxOutputForNG``.
 
 Special task status: exhausted
 --------------------------------
-The task status is set to **exhausted** when scouts detect
+The task status is set to **exhausted** when the task has been pending for a long time since
+
+* the job brokerage continuously fails to identify suitable sites for job generation,
+
+* job generation is throttled due to the user already having too many queued jobs (larger than 2 :raw-html:`&times;` ``CAP_RUNNING_USER_JOBS``, or
+
+* job generation repeatedly fails due to external factors, such as data access issues.
+
+Alternatively, when scouts detect
 
 * huge memory leaks (the threshold is defined as ``SCOUT_MEM_LEAK_PER_CORE_<activity>`` in :doc:`gdpconfig </advanced/gdpconfig>`),
 
