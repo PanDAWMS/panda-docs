@@ -350,6 +350,12 @@ The ``panda-k8s`` repository ships ready-to-apply installation manifests under
 Apply them once when bootstrapping ArgoCD on a new cluster — they cannot be managed by ArgoCD
 itself (bootstrap chicken-and-egg).
 
+.. note::
+
+   The DNS alias for the ArgoCD hostname must be registered in LanDB **before** starting,
+   otherwise the ingress will not resolve. At CERN this is done via the OpenStack server
+   property ``landb-alias`` — see your cluster's setup notes for the exact command.
+
 **Step 1 — Install ArgoCD**
 
 .. prompt:: bash
@@ -357,30 +363,41 @@ itself (bootstrap chicken-and-egg).
   kubectl create namespace argocd
   kubectl apply -n argocd \
     -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.13.6/manifests/install.yaml
+  kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=120s
 
-**Step 2 — Disable built-in TLS (nginx ingress handles it)**
+**Step 2 — Prepare the TLS certificate**
+
+Request a host certificate for ``argocd-<cluster>.cern.ch`` from the CERN CA. The certificate
+is downloaded as a ``.p12`` file. Convert it to PEM format and store it alongside the other
+cluster secrets:
 
 .. prompt:: bash
 
-  kubectl apply -f argocd-install/<cluster>/argocd-cmd-params-cm.yaml
-  kubectl rollout restart deployment argocd-server -n argocd
+  mkdir -p $HOME/cernbox/<cluster>/secrets/files/argocd_certs
+  openssl pkcs12 -in argocd-<cluster>.p12 -clcerts -nokeys -passin pass: \
+    -out $HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostcert.pem
+  openssl pkcs12 -in argocd-<cluster>.p12 -nocerts -nodes -passin pass: \
+    -out $HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostkey.pem
+  chmod 600 $HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostkey.pem
 
 **Step 3 — Create the TLS secret**
-
-Obtain a host certificate for your ArgoCD hostname (e.g. ``argocd-doma.cern.ch``) and create
-the Kubernetes secret:
 
 .. prompt:: bash
 
   kubectl create secret tls argocd-tls -n argocd \
-    --cert=argocd-<cluster>.cern.ch.crt \
-    --key=argocd-<cluster>.cern.ch.key
+    --cert=$HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostcert.pem \
+    --key=$HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostkey.pem
 
-**Step 4 — Apply the ingress**
+**Step 4 — Disable built-in TLS and apply the ingress**
+
+The nginx ingress controller handles TLS termination, so ArgoCD's own TLS must be disabled.
+Run the following from the ``panda-k8s`` repository root:
 
 .. prompt:: bash
 
+  kubectl apply -f argocd-install/<cluster>/argocd-cmd-params-cm.yaml
   kubectl apply -f argocd-install/<cluster>/ingress.yaml
+  kubectl rollout restart deployment argocd-server -n argocd
 
 **Step 5 — Retrieve the initial admin password**
 
@@ -392,12 +409,6 @@ the Kubernetes secret:
 The ArgoCD UI will be available at ``https://argocd-<cluster>.cern.ch``.
 Log in as ``admin`` with the password from the command above, then change it under
 *User Info → Update Password*.
-
-.. note::
-
-   The DNS alias for the ArgoCD hostname must be registered in LanDB before the ingress will
-   resolve.  At CERN this is done via the OpenStack server property ``landb-alias`` — see your
-   cluster's setup notes for the exact command.
 
 Deploying secrets
 ^^^^^^^^^^^^^^^^^
