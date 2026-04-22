@@ -342,12 +342,73 @@ Instead of running ``helm install`` / ``./bin/install`` manually, you register e
 ArgoCD *Application* that tracks a path in the ``panda-k8s`` Git repository.
 ArgoCD then automatically syncs the cluster state whenever changes are merged to the target branch.
 
-Prerequisites
-^^^^^^^^^^^^^
+Installing ArgoCD
+^^^^^^^^^^^^^^^^^
 
-* A running ArgoCD instance in the cluster (see the `ArgoCD getting started guide <https://argo-cd.readthedocs.io/en/stable/getting_started/>`_).
-* The ``panda-k8s`` repository accessible to ArgoCD (add it under *Settings → Repositories*).
-* Secrets deployed separately via Helm (ArgoCD does not manage the secrets release — see below).
+The ``panda-k8s`` repository ships ready-to-apply installation manifests under
+``argocd-install/<cluster>/`` (e.g. ``argocd-install/doma/``, ``argocd-install/testbed/``).
+Apply them once when bootstrapping ArgoCD on a new cluster — they cannot be managed by ArgoCD
+itself (bootstrap chicken-and-egg).
+
+.. note::
+
+   The DNS alias for the ArgoCD hostname must be registered in LanDB **before** starting,
+   otherwise the ingress will not resolve. At CERN this is done via the OpenStack server
+   property ``landb-alias`` — see your cluster's setup notes for the exact command.
+
+**Step 1 — Install ArgoCD**
+
+.. prompt:: bash
+
+  kubectl create namespace argocd
+  kubectl apply -n argocd \
+    -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.13.6/manifests/install.yaml
+  kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=120s
+
+**Step 2 — Prepare the TLS certificate**
+
+Request a host certificate for ``argocd-<cluster>.cern.ch`` from the CERN CA. The certificate
+is downloaded as a ``.p12`` file. Convert it to PEM format and store it alongside the other
+cluster secrets:
+
+.. prompt:: bash
+
+  mkdir -p $HOME/cernbox/<cluster>/secrets/files/argocd_certs
+  openssl pkcs12 -in argocd-<cluster>.p12 -clcerts -nokeys -passin pass: \
+    -out $HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostcert.pem
+  openssl pkcs12 -in argocd-<cluster>.p12 -nocerts -nodes -passin pass: \
+    -out $HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostkey.pem
+  chmod 600 $HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostkey.pem
+
+**Step 3 — Create the TLS secret**
+
+.. prompt:: bash
+
+  kubectl create secret tls argocd-tls -n argocd \
+    --cert=$HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostcert.pem \
+    --key=$HOME/cernbox/<cluster>/secrets/files/argocd_certs/hostkey.pem
+
+**Step 4 — Disable built-in TLS and apply the ingress**
+
+The nginx ingress controller handles TLS termination, so ArgoCD's own TLS must be disabled.
+Run the following from the ``panda-k8s`` repository root:
+
+.. prompt:: bash
+
+  kubectl apply -f argocd-install/<cluster>/argocd-cmd-params-cm.yaml
+  kubectl apply -f argocd-install/<cluster>/ingress.yaml
+  kubectl rollout restart deployment argocd-server -n argocd
+
+**Step 5 — Retrieve the initial admin password**
+
+.. prompt:: bash
+
+  kubectl get secret argocd-initial-admin-secret -n argocd \
+    -o jsonpath='{.data.password}' | base64 -d && echo
+
+The ArgoCD UI will be available at ``https://argocd-<cluster>.cern.ch``.
+Log in as ``admin`` with the password from the command above, then change it under
+*User Info → Update Password*.
 
 Deploying secrets
 ^^^^^^^^^^^^^^^^^
@@ -403,10 +464,10 @@ Apply each Application manifest:
 
 .. note::
 
-   Ready-to-use example Application manifests for the ATLAS Testbed (covering panda-server/JEDI,
-   harvester, bigmon, and idds) are available at
-   `argocd-apps/testbed <https://github.com/PanDAWMS/panda-k8s/tree/main/argocd-apps/testbed>`_
-   in the ``panda-k8s`` repository.
+   Ready-to-use Application manifests are available in the ``panda-k8s`` repository for:
+
+   * `argocd-apps/testbed <https://github.com/PanDAWMS/panda-k8s/tree/main/argocd-apps/testbed>`_ — ATLAS Testbed (panda-server/JEDI, harvester, bigmon, idds)
+   * `argocd-apps/doma <https://github.com/PanDAWMS/panda-k8s/tree/main/argocd-apps/doma>`_ — DOMA cluster (panda-server/JEDI, harvester, bigmon, idds, msgsvc)
 
 Once registered, ArgoCD will perform an initial sync. Subsequent merges to ``main`` are picked up
 automatically within the configured polling interval (default: 3 minutes), or immediately if a
