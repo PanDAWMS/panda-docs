@@ -690,3 +690,78 @@ With both mechanisms enabled, full automated recovery from a node failure takes 
      - Node recovery CronJob runs — detects stuck pod — force-deletes it
    * - T+~90s
      - StatefulSet schedules replacement pod on a healthy node
+
+CVMFS mounts
+------------
+
+`CernVM-FS (CVMFS) <https://cernvm.cern.ch/fs/>`_ is a read-only distributed filesystem used by
+ATLAS and other experiments to distribute software and conditions data. The ``panda-k8s`` Helm charts
+support mounting CVMFS repositories into all PanDA components (server, jedi, harvester, idds, bigmon)
+via the `CVMFS CSI driver <https://github.com/cernops/cvmfs-csi>`_.
+
+Prerequisites
+^^^^^^^^^^^^^
+
+The ``cvmfs.csi.cern.ch`` CSI driver must be installed in the cluster. On CERN OpenStack clusters
+managed by Magnum, it is pre-installed. For other clusters, deploy it separately before enabling
+CVMFS mounts.
+
+.. note::
+
+   The CERN CVMFS CSI driver supports only **Persistent** volume mode. Ephemeral inline CSI volumes
+   (``csi:`` directly in the pod spec) are not supported and will fail with a
+   ``volume mode "Ephemeral" not supported`` error. The Helm charts use static PersistentVolumes +
+   PersistentVolumeClaims automatically.
+
+Enabling CVMFS for a component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add the ``cvmfs`` block to any component section in your experiment-specific values file. The feature
+is disabled by default (``enabled: false``) and has no effect unless explicitly turned on.
+
+.. code-block:: yaml
+
+   # values/values-<your_experiment>.yaml
+   server:
+     cvmfs:
+       enabled: true
+       repositories:
+         - name: atlas
+           repository: atlas.cern.ch
+         - name: atlas-condb
+           repository: atlas-condb.cern.ch
+
+   jedi:
+     cvmfs:
+       enabled: true
+       repositories:
+         - name: atlas
+           repository: atlas.cern.ch
+         - name: atlas-condb
+           repository: atlas-condb.cern.ch
+
+The same ``cvmfs`` block is available under ``harvester``, ``rest`` (idds), and ``main`` (bigmon).
+Each enabled repository is mounted at ``/cvmfs/<repository>`` inside the container.
+
+What gets created
+^^^^^^^^^^^^^^^^^^
+
+For each repository in the list, the chart creates:
+
+- A ``PersistentVolume`` (cluster-scoped, ``ReadOnlyMany``, ``storageClassName: cvmfs``)
+- A ``PersistentVolumeClaim`` bound to that PV
+
+These are named ``<release>-<component>-cvmfs-<name>``, e.g.
+``panda-server-cvmfs-atlas`` and ``panda-server-cvmfs-atlas-condb``.
+
+All PVs use ``persistentVolumeReclaimPolicy: Retain``, so disabling CVMFS later will remove the
+Kubernetes objects but not affect the underlying CVMFS data (which is served remotely).
+
+Verification
+^^^^^^^^^^^^
+
+After deploying, confirm the mount is working inside a pod:
+
+.. prompt:: bash
+
+   kubectl exec panda-server-0 -- ls /cvmfs/atlas.cern.ch
