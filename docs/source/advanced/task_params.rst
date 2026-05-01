@@ -199,7 +199,7 @@ where applicable, corresponding two-letter codes.
 
    * - maxWalltime
      - MW
-     - The maximum walltime for a single job in the task.
+     - The maximum walltime for a single job in the task in hours.
 
    * - maxEventsPerJob
      - MX
