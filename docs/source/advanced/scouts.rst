@@ -130,7 +130,9 @@ The task status is set to **exhausted** when the task has been pending for a lon
 
 * job generation repeatedly fails due to external factors, such as data access issues.
 
-Alternatively, when scouts detect
+or when the task is very faulty (high failure to total HEP score rate) and retried many times. 
+
+Alternatively, when scout jobs detect
 
 * huge memory leaks (the threshold is defined as ``SCOUT_MEM_LEAK_PER_CORE_<activity>`` in :doc:`gdpconfig </advanced/gdpconfig>`),
 
