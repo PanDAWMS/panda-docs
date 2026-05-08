@@ -376,13 +376,18 @@ The regexp in ``sw_platform`` is resolved to a relevant string in the ``cmtconfi
 The new format of task ``architecture`` is a JSON-serialized dictionary with the following keys: ``sw_platform``, ``base_platform``,
 ``cpu_specs``, and ``gpu_spec``.
 The ``cpu_specs`` is a list of dictionaries with the following keys: ``arch``, ``instr``, ``type``, and ``vendor``.
-The ``gpu_spec`` is a dictionary with the keys ``vendor``, ``model``, and ``version``, where ``version`` is a optional string composed of
-``comparison_operator`` (==, >=, <=, >, <, !=) and ``version_value`` (e.g., ``>=11.0``).
-The ``model`` field accepts either a plain regular expression string for inclusion, or a dictionary with ``pattern`` and ``excl`` keys for exclusion.
-Matching is case-insensitive, so ``.*A100.*`` and ``.*a100.*`` are equivalent.
-For example, ``{"model": ".*A100.*"}`` requires an A100 GPU, while ``{"model": {"pattern": ".*P100.*", "excl": true}}`` excludes any queue with a P100 GPU.
+The ``gpu_spec`` is a dictionary with the following keys:
 
-The brokerage uses GPU model information declared in CRIC for each queue. Queues that do not publish model information in CRIC are skipped whenever a model constraint is specified, regardless of whether it is an inclusion or exclusion request, since the actual GPU model cannot be determined.
+* ``vendor``: GPU vendor regexp (e.g. ``NVIDIA``). Use ``*`` for any vendor.
+* ``model``: either a plain regular expression string for inclusion, or a dictionary with ``pattern`` and ``excl`` keys for exclusion. Matching is case-insensitive, so ``.*A100.*`` and ``.*a100.*`` are equivalent. For example, ``{"model": ".*A100.*"}`` requires an A100 GPU, while ``{"model": {"pattern": ".*P100.*", "excl": true}}`` excludes any queue with a P100 GPU.
+* ``version``: optional minimum CUDA version string composed of a ``comparison_operator`` (==, >=, <=, >, <, !=) and a ``version_value`` (e.g. ``>=12.0``).
+* ``vram``: optional minimum GPU memory in MB (e.g. ``40960`` for 40 GB).
+* ``architecture``: optional GPU microarchitecture generation or list of generations (e.g. ``"Ampere"`` or ``["Ampere", "Hopper", "Ada Lovelace"]``).
+
+The brokerage uses a two-stage approach for GPU queue selection:
+
+1. **Capability gate** — CRIC is used to determine whether a queue is GPU-capable. A queue is considered GPU-capable if it has a ``gpu`` entry in its architecture specification. Queues without a GPU entry in CRIC are skipped immediately, regardless of what worker node monitoring reports.
+2. **Attribute matching** — for GPU-capable queues, all attribute checks (``vendor``, ``model``, ``vram``, ``architecture``, ``version``) are performed against the worker node GPU monitoring data (``MV_WORKER_NODE_GPU_SUMMARY``), which aggregates GPU hardware information reported directly by pilots. This data is richer and more up to date than CRIC, and includes fields such as VRAM, GPU microarchitecture generation, and CUDA/driver version. If a queue is GPU-capable per CRIC but has no entry in the monitoring data, it is accepted for wildcard requests (no specific attribute required) and rejected when specific attributes are requested.
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the brokerage checks the ``architectures`` of the queue (shown in the above example).
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
@@ -392,8 +397,6 @@ accepts tasks with attribute='blah' or without specifying the attribute. If 'exc
 the queue accepts only tasks with attribute='blah'.
 For example, tasks with *#x86_64* are accepted by queues with "arch": ["x86_64"], "arch": [""],
 or "arch": ["x86_64", "excl"], but not by "arch": ["arm64"].
-If the ``version`` of ``gpu_spec`` is specified, the queue's GPU hardware specification must have the ``version`` attribute and
-its value must be either ``any`` or a version string matching with the specified ``version`` and comparison operator.
 
 
 Checks for Fat Containers
