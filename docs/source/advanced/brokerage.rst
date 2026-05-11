@@ -381,7 +381,7 @@ The ``gpu_spec`` is a dictionary with the following keys:
 * ``vendor``: GPU vendor regexp (e.g. ``NVIDIA``). Use ``*`` for any vendor.
 * ``model``: either a plain regular expression string for inclusion, or a dictionary with ``pattern`` and ``excl`` keys for exclusion. Matching is case-insensitive, so ``.*A100.*`` and ``.*a100.*`` are equivalent. For example, ``{"model": ".*A100.*"}`` requires an A100 GPU, while ``{"model": {"pattern": ".*P100.*", "excl": true}}`` excludes any queue with a P100 GPU.
 * ``version``: optional minimum CUDA toolkit version string composed of a ``comparison_operator`` (==, >=, <=, >, <, !=) and a ``version_value`` (e.g. ``>=12.0``).
-* ``vram``: optional minimum GPU memory in MB (e.g. ``40960`` for 40 GB).
+* ``vram``: optional GPU memory constraint in MB, as an operator-prefixed string (e.g. ``">=40960"`` for at least 40 GB, ``"==40960"`` for exactly 40 GB). Supports ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``.
 * ``microarchitecture``: optional GPU microarchitecture generation or list of generations (e.g. ``"Ampere"`` or ``["Ampere", "Hopper", "Ada Lovelace"]``).
 * ``driver_version``: optional minimum GPU kernel driver version string (e.g. ``>=575.0``). This refers to the NVIDIA kernel driver (e.g. ``575.57.08``, ``580.82.07``), distinct from the CUDA toolkit version.
 
@@ -389,6 +389,67 @@ The brokerage uses a two-stage approach for GPU queue selection:
 
 1. **Capability gate** — CRIC is used to determine whether a queue is GPU-capable. A queue is considered GPU-capable if it has a ``gpu`` entry in its architecture specification. Queues without a GPU entry in CRIC are skipped immediately, regardless of what worker node monitoring reports.
 2. **Attribute matching** — for GPU-capable queues, all attribute checks (``vendor``, ``model``, ``vram``, ``microarchitecture``, ``version``, ``driver_version``) are performed against the worker node GPU monitoring data (``MV_WORKER_NODE_GPU_SUMMARY``), which aggregates GPU hardware information reported directly by pilots. This data is richer and more up to date than CRIC, and includes fields such as VRAM, GPU microarchitecture generation, CUDA toolkit version, and kernel driver version. If a queue is GPU-capable per CRIC but has no entry in the monitoring data, it is accepted for wildcard requests (no specific attribute required) and rejected when specific attributes are requested.
+
+GPU requirements can be expressed either as a compact shorthand string or as a full JSON dictionary.
+
+**Shorthand format** (used in ART test headers and on the prun/pathena command line):
+
+The ``&vendor`` part of the architecture string identifies GPU requirements. Additional attributes are appended as colon-separated ``key<op>value`` pairs, where ``<op>`` is one of ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 15 60
+
+   * - Attribute
+     - Shorthand key
+     - Example value
+   * - Vendor
+     - positional (after ``&``)
+     - ``&nvidia``
+   * - Model (regexp)
+     - ``model=``
+     - ``&nvidia:model=.*A100.*``
+   * - VRAM (MB)
+     - ``vram``
+     - ``&nvidia:vram>=40960`` (at least 40 GB), ``&nvidia:vram==40960`` (exactly 40 GB)
+   * - CUDA toolkit version
+     - ``cuda``
+     - ``&nvidia:cuda>=12.0``
+   * - GPU microarchitecture
+     - ``uarch=``
+     - ``&nvidia:uarch=Ampere``
+   * - Kernel driver version
+     - ``driver``
+     - ``&nvidia:driver>=575.0``
+
+Examples in ART test headers:
+
+.. code-block:: bash
+
+   # any NVIDIA GPU
+   # art-architecture: '#&nvidia'
+
+   # NVIDIA A100 with at least 40 GB VRAM
+   # art-architecture: '#&nvidia:model=.*A100.*:vram>=40960'
+
+   # NVIDIA GPU with CUDA >= 12.0 on Ampere microarchitecture
+   # art-architecture: '#&nvidia:cuda>=12.0:uarch=Ampere'
+
+   # NVIDIA A100, exactly 80 GB VRAM, CUDA >= 12.0, kernel driver >= 575.0
+   # art-architecture: '#&nvidia:model=.*A100.*:vram==81920:cuda>=12.0:driver>=575.0'
+
+**JSON format** (for programmatic task submission or when model exclusion patterns are needed):
+
+.. code-block:: bash
+
+   # any NVIDIA GPU with at least 40 GB VRAM and CUDA >= 12.0
+   prun --architecture '{"gpu_spec": {"vendor": "nvidia", "vram": ">=40960", "version": ">=12.0"}}'
+
+   # NVIDIA A100, Ampere microarchitecture, kernel driver >= 575.0
+   prun --architecture '{"gpu_spec": {"vendor": "nvidia", "model": ".*A100.*", "microarchitecture": "Ampere", "driver_version": ">=575.0"}}'
+
+   # any NVIDIA GPU excluding P100, at least 40 GB VRAM
+   prun --architecture '{"gpu_spec": {"vendor": "nvidia", "model": {"pattern": ".*P100.*", "excl": true}, "vram": ">=40960"}}'
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the brokerage checks the ``architectures`` of the queue (shown in the above example).
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
