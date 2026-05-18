@@ -394,7 +394,7 @@ GPU requirements can be expressed either as a compact shorthand string or as a f
 
 **Shorthand format** (used in ART test headers and on the prun/pathena command line):
 
-The ``&vendor`` part of the architecture string identifies GPU requirements. Additional attributes are appended as colon-separated ``key<op>value`` pairs, where ``<op>`` is one of ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``.
+The ``&vendor`` part of the architecture string identifies GPU requirements. Additional attributes are appended as colon-separated ``key<op>value`` pairs, where ``<op>`` is one of ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``. Single ``=`` is also accepted and treated as ``==`` (exact match).
 
 .. list-table::
    :header-rows: 1
@@ -420,7 +420,7 @@ The ``&vendor`` part of the architecture string identifies GPU requirements. Add
      - ``&nvidia:uarch=Ampere``
    * - Kernel driver version
      - ``driver``
-     - ``&nvidia:driver>=575.0``
+     - ``&nvidia:driver>=575.0``, ``&nvidia:driver=575.51.03`` (exactly)
 
 Examples in ART test headers:
 
