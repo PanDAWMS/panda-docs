@@ -380,10 +380,10 @@ The ``gpu_spec`` is a dictionary with the following keys:
 
 * ``vendor``: GPU vendor regexp (e.g. ``NVIDIA``). Use ``*`` for any vendor.
 * ``model``: either a plain regular expression string for inclusion, or a dictionary with ``pattern`` and ``excl`` keys for exclusion. Matching is case-insensitive, so ``.*A100.*`` and ``.*a100.*`` are equivalent. For example, ``{"model": ".*A100.*"}`` requires an A100 GPU, while ``{"model": {"pattern": ".*P100.*", "excl": true}}`` excludes any queue with a P100 GPU.
-* ``version``: optional minimum CUDA toolkit version string composed of a ``comparison_operator`` (==, >=, <=, >, <, !=) and a ``version_value`` (e.g. ``>=12.0``).
-* ``vram``: optional GPU memory constraint in MB, as an operator-prefixed string (e.g. ``">=40960"`` for at least 40 GB, ``"==40960"`` for exactly 40 GB). Supports ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``.
+* ``version``: optional CUDA toolkit version constraint as an operator-prefixed string (e.g. ``">=12.0"``). Supports ``==``, ``=``, ``>=``, ``<=``, ``>``, ``<``, ``!=`` (``=`` is treated as ``==``).
+* ``vram``: optional GPU memory constraint in MB, as an operator-prefixed string (e.g. ``">=40960"`` for at least 40 GB, ``"==15360"`` or ``"=15360"`` for exactly 15 GB). Supports ``==``, ``=``, ``>=``, ``<=``, ``>``, ``<``, ``!=`` (``=`` is treated as ``==``).
 * ``microarchitecture``: optional GPU microarchitecture generation or list of generations (e.g. ``"Ampere"`` or ``["Ampere", "Hopper", "Ada Lovelace"]``).
-* ``driver_version``: optional minimum GPU kernel driver version string (e.g. ``>=575.0``). This refers to the NVIDIA kernel driver (e.g. ``575.57.08``, ``580.82.07``), distinct from the CUDA toolkit version.
+* ``driver_version``: optional GPU kernel driver version constraint as an operator-prefixed string (e.g. ``">=575.0"``). This refers to the NVIDIA kernel driver (e.g. ``575.57.08``, ``580.82.07``), distinct from the CUDA toolkit version. Supports the same operators as ``vram``.
 
 The brokerage uses a two-stage approach for GPU queue selection:
 
