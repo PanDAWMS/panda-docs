@@ -396,6 +396,9 @@ GPU requirements can be expressed either as a compact shorthand string or as a f
 
 The ``&vendor`` part of the architecture string identifies GPU requirements. Additional attributes are appended as colon-separated ``key<op>value`` pairs, where ``<op>`` is one of ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``. Single ``=`` is also accepted and treated as ``==`` (exact match).
 
+.. note::
+   The shorthand format only supports **inclusion** filters. Model exclusion (e.g. excluding P100 or V100 GPUs) requires the JSON format — see below.
+
 .. list-table::
    :header-rows: 1
    :widths: 25 15 60
@@ -457,7 +460,7 @@ Examples in ART test headers:
    # NVIDIA A100, exactly 80 GB VRAM, CUDA >= 12.0, kernel driver >= 575.0
    # art-architecture: '#&nvidia:model=.*A100.*:vram==81920:cuda>=12.0:driver>=575.0'
 
-**JSON format** (for programmatic task submission or when model exclusion patterns are needed):
+**JSON format** (required for model exclusion; also usable for all other filters):
 
 .. code-block:: bash
 
@@ -469,6 +472,12 @@ Examples in ART test headers:
 
    # any NVIDIA GPU excluding P100, at least 40 GB VRAM
    prun --architecture '{"gpu_spec": {"vendor": "nvidia", "model": {"pattern": ".*P100.*", "excl": true}, "vram": ">=40960"}}'
+
+   # any NVIDIA GPU excluding P100 and V100
+   prun --architecture '{"gpu_spec": {"vendor": "nvidia", "model": {"pattern": ".*(P100|V100).*", "excl": true}}}'
+
+.. note::
+   For model exclusion, ``pattern`` and ``excl`` must be nested inside ``model`` as a dictionary. Placing them at the top level of ``gpu_spec`` will silently have no effect. The regex follows Python ``re.match`` semantics and is case-insensitive, so ``.*(P100|V100).*`` correctly matches both ``Tesla V100S-PCIE-32GB`` and ``Tesla P100-PCIE-16GB``.
 
 If ``host_cpu_spec`` or ``host_gpu_spec`` is specified, the brokerage checks the ``architectures`` of the queue (shown in the above example).
 The ``architectures`` can contain two dictionaries to describe CPU and GPU hardware specifications at the queue.
