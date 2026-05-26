@@ -476,6 +476,22 @@ Examples in ART test headers:
    # any NVIDIA GPU excluding P100 and V100
    prun --architecture '{"gpu_spec": {"vendor": "nvidia", "model": {"pattern": ".*(P100|V100).*", "excl": true}}}'
 
+Examples in ART test headers (JSON format):
+
+.. code-block:: bash
+
+   # any NVIDIA GPU with at least 40 GB VRAM and CUDA >= 12.0
+   # art-architecture: {"gpu_spec": {"vendor": "nvidia", "vram": ">=40960", "version": ">=12.0"}}
+
+   # any NVIDIA GPU excluding P100 and V100
+   # art-architecture: {"gpu_spec": {"vendor": "nvidia", "model": {"pattern": ".*(P100|V100).*", "excl": true}}}
+
+.. warning::
+   ART passes the ``art-architecture`` header value **literally** to prun — unlike the shell command line where
+   surrounding quotes are stripped. Do **not** wrap the JSON in single quotes in the header. Using
+   ``# art-architecture: '{"gpu_spec": ...}'`` will cause prun to receive a string starting with ``'``,
+   which silently fails JSON parsing and results in the test appearing as *missing* rather than *failed*.
+
 .. note::
    For model exclusion, ``pattern`` and ``excl`` must be nested inside ``model`` as a dictionary. Placing them at the top level of ``gpu_spec`` will silently have no effect. The regex follows Python ``re.match`` semantics and is case-insensitive, so ``.*(P100|V100).*`` correctly matches both ``Tesla V100S-PCIE-32GB`` and ``Tesla P100-PCIE-16GB``.
 
