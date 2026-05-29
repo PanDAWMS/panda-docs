@@ -259,42 +259,12 @@ high-performance and efficient calculations and processing.
 
 GPU resources are available exclusively at designated sites, necessitating explicit job assignment.
 Users need to specify the GPU requirements in the ``--architecture`` option when executing ``prun``.
-Full documentation of the option is available in `this section <../advanced/brokerage.html#checks-for-cpu-and-or-gpu-hardware>`__.
-
-**Shorthand format**
-
-The shorthand format covers the most common cases: vendor selection and simple attribute filters
-such as minimum VRAM, CUDA version, microarchitecture, and GPU model inclusion.
+Full documentation of the option, including all supported formats and filter attributes, is available in
+`this section <../advanced/brokerage.html#checks-for-cpu-and-or-gpu-hardware>`__.
 
 .. prompt:: bash
 
- # Any NVIDIA GPU
- prun ... --architecture '#&nvidia'
-
- # NVIDIA GPU with at least 40 GB VRAM
- prun ... --architecture '#&nvidia:vram>=40960'
-
- # NVIDIA A100 on Ampere microarchitecture with CUDA >= 12.0
- prun ... --architecture '#&nvidia:model=.*A100.*:uarch=Ampere:cuda>=12.0'
-
-**JSON format**
-
-The JSON format supports all shorthand filters and additionally allows **model exclusion**
-(e.g. excluding specific GPU generations). It is required when you need to exclude certain models.
-
-.. prompt:: bash
-
- # Any NVIDIA GPU with at least 40 GB VRAM and CUDA >= 12.0
- prun ... --architecture '{"gpu_spec": {"vendor": "nvidia", "vram": ">=40960", "version": ">=12.0"}}'
-
- # Any NVIDIA GPU excluding P100 and V100
- prun ... --architecture '{"gpu_spec": {"vendor": "nvidia", "model": {"pattern": ".*(P100|V100).*", "excl": true}}}'
-
-A full example using a container image:
-
-.. prompt:: bash
-
- # Shorthand format
+ # Shorthand format — any NVIDIA GPU
  prun --containerImage docker://gitlab-registry.cern.ch/hepimages/public/gpu-basic-test \
       --exec "python /test-gpu.py" \
       --outDS user.$USER.`uuidgen` \
