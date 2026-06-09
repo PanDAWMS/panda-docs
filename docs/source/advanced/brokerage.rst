@@ -423,7 +423,7 @@ The ``&vendor`` part of the architecture string identifies GPU requirements. Add
      - ``&nvidia:uarch=Ampere``
    * - Kernel driver version
      - ``driver``
-     - ``&nvidia:driver>=575.0``, ``&nvidia:driver=575.51.03`` (exactly)
+     - ``&nvidia:driver>=575.0``, ``&nvidia:driver==575.51.03`` (exactly)
 
 Examples with ``prun`` / ``pathena``:
 
@@ -436,7 +436,7 @@ Examples with ``prun`` / ``pathena``:
    prun --architecture '#&nvidia:vram>=40960' ...
 
    # NVIDIA GPU with exactly 15 GB VRAM
-   prun --architecture '#&nvidia:vram=15360' ...
+   prun --architecture '#&nvidia:vram==15360' ...
 
    # NVIDIA GPU on Ampere microarchitecture with CUDA >= 12.0
    prun --architecture '#&nvidia:uarch=Ampere:cuda>=12.0' ...
