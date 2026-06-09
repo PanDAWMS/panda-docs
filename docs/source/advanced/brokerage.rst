@@ -394,10 +394,7 @@ GPU requirements can be expressed either as a compact shorthand string or as a f
 
 **Shorthand format** (used in ART test headers and on the prun/pathena command line):
 
-The ``&vendor`` part of the architecture string identifies GPU requirements. Additional attributes are appended as colon-separated ``key<op>value`` pairs, where ``<op>`` is one of ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``. Single ``=`` is also accepted and treated as ``==`` (exact match).
-
-.. note::
-   The shorthand format only supports **inclusion** filters. Model exclusion (e.g. excluding P100 or V100 GPUs) requires the JSON format — see below.
+The ``&vendor`` part of the architecture string identifies GPU requirements. Additional attributes are appended as colon-separated ``key<op>value`` pairs, where ``<op>`` is one of ``==``, ``>=``, ``<=``, ``>``, ``<``, ``!=``. Single ``=`` is also accepted and treated as ``==`` (exact match). For the ``model`` key, ``!=`` expresses exclusion (e.g. ``model!=.*P100.*`` excludes queues with P100 GPUs).
 
 .. list-table::
    :header-rows: 1
@@ -409,9 +406,12 @@ The ``&vendor`` part of the architecture string identifies GPU requirements. Add
    * - Vendor
      - positional (after ``&``)
      - ``&nvidia``
-   * - Model (regexp)
+   * - Model inclusion (regexp)
      - ``model=``
      - ``&nvidia:model=.*A100.*``
+   * - Model exclusion (regexp)
+     - ``model!=``
+     - ``&nvidia:model!=.*P100.*``
    * - VRAM (MB)
      - ``vram``
      - ``&nvidia:vram>=40960`` (at least 40 GB), ``&nvidia:vram==40960`` (exactly 40 GB)
@@ -444,6 +444,12 @@ Examples with ``prun`` / ``pathena``:
    # NVIDIA A100 with at least 40 GB VRAM and kernel driver >= 575.0
    prun --architecture '#&nvidia:model=.*A100.*:vram>=40960:driver>=575.0' ...
 
+   # any NVIDIA GPU excluding P100
+   prun --architecture '#&nvidia:model!=.*P100.*' ...
+
+   # any NVIDIA GPU excluding P100 or V100
+   prun --architecture '#&nvidia:model!=.*(P100|V100).*' ...
+
 Examples in ART test headers:
 
 .. code-block:: bash
@@ -460,7 +466,10 @@ Examples in ART test headers:
    # NVIDIA A100, exactly 80 GB VRAM, CUDA >= 12.0, kernel driver >= 575.0
    # art-architecture: '#&nvidia:model=.*A100.*:vram==81920:cuda>=12.0:driver>=575.0'
 
-**JSON format** (required for model exclusion; also usable for all other filters):
+   # any NVIDIA GPU excluding P100 or V100
+   # art-architecture: '#&nvidia:model!=.*(P100|V100).*'
+
+**JSON format** (usable for all filters, including model exclusion):
 
 .. code-block:: bash
 
