@@ -164,6 +164,49 @@ just the same.
 
 |br|
 
+Running transformations with --argJSON
+---------------------------------------------
+
+Transformations support the ``--argJSON`` option, which accepts a JSON file containing transformation parameters.
+This can be useful for specifying arguments with complex syntax that would otherwise require extensive escaping on
+the command line, such as quotes, brackets, or nested structures.
+You can use this option within the ``--trf`` argument to execute a transformation using parameters defined in a JSON file.
+However, there is a caveat: parameters specified with the placeholders, such as ``%IN`` and ``%OUT`` (see the placeholders listed above),
+cannot be specified in the JSON file.
+These placeholders must be provided directly on the ``--trf`` argument so that they can be expanded correctly during execution.
+Here is an example of how to use the ``--argJSON`` option:
+
+.. prompt:: bash
+
+ pathena --trf "Reco_tf.py --inputHITSFile=%IN --inputRDO_BKGFile=%MININ --skipEvents=%SKIPEVENTS --outputAODFile=%OUT.AOD.pool.root --argJSON=arg.json" --inDS ... --minDS ...
+
+where arg.json contains
+
+.. code-block:: json
+
+  {
+      "asetup": "RDOtoRDOTrigger:Athena,22.0.41.21 Overlay:Athena,22.0.41.21",
+      "deleteIntermediateOutputfiles": true,
+      "multithreaded": true,
+      "preExec": "Overlay:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ...",
+      "preInclude": "default:Campaigns/MC20a.py Overlay:Campaigns.MC20.MC20a",
+      "autoConfiguration": "everything",
+      "conditionsTag": "default:OFLCOND-MC16-SDR-RUN2-13 RDOtoRDOTrigger:OFLCOND-MC16-SDR-RUN2-08-02a",
+      "geometryVersion": "default:ATLAS-R2-2016-01-00-01",
+      "AMITag": "r17686",
+      "steering": ["doOverlay", "doRDO_TRIG"],
+      "skipSecondaryEvents": 0,
+      "triggerConfig": "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2283,35,327",
+      "ignoreErrors": true,
+      "ignorePatterns": "ERROR Data for sim. particle with pdgcode 1000015 does not have 10 digits and could not be retrieved from PartPropSvc. Assuming mass and charge as pion."
+  }
+
+Note that the example above is for illustration purposes only. The actual content of the JSON file will depend on the specific transformation and its requirements.
+
+-----------------
+
+|br|
+
 Running multiple transformations
 ---------------------------------
 
