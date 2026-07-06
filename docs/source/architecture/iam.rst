@@ -15,7 +15,7 @@ PanDA IAM is consist of
 * `Identity providers <https://cilogon.org/idplist/>`_
 
 Indigo IAM is an account and group membership management service to define virtual organizations (VOs) and groups,
-to add/remove users to/from VOs and groups, and issue ID tokens once users are authenticated.
+to add/remove users to/from VOs and groups, and issue ID tokens (or access tokens including identity claims) once users are authenticated.
 CILogon is a federated ID broker to delegate authentication to ID providers such as CERN, BNL IT/SDCC, KIT,
 Google, ...
 
@@ -23,7 +23,7 @@ Google, ...
 
 The figure above shows the procedure of end-user authentication and authorization, where the device code flow is used
 to allow users to run command-line tools.
-First, the user invokes a command-line tool which checks if a valid ID token is locally available.
+First, the user invokes a command-line tool which checks if a valid token is locally available.
 If not, the command-line tool sends an authentication request to Indigo IAM on behalf of the user and retrieves
 a verification URL. Then the user opens a web browser to go to the verification URL, and is eventually
 redirected to his/her own ID provider through CILogon. Once the user successfully logs on, a couple
@@ -51,8 +51,8 @@ End-users are authorized using the Device Code Flow.
 When users run panda-client tools like ``pathena`` and ``prun`` in console terminals, the tools prompt
 users to authenticate themselves by visiting links in their web browsers.
 Users are redirected to their own ID providers, and after successful authentication,
-those tools obtain ID tokens from Indigo IAM to access the PanDA server.
-Typically, these ID tokens have a lifetime of 24 hours, reducing the need for frequent browser sessions.
+those tools obtain tokens from Indigo IAM to access the PanDA server.
+Typically, these tokens have a lifetime of 24 hours, reducing the need for frequent browser sessions.
 The PanDA server authenticates end-users using the ``sub``, ``aud``, and ``name`` claims in the ID token,
 and authorizes them based on the ``groups`` claim.
 
@@ -67,10 +67,10 @@ Web applications like BigMon use the Authorization Code Flow to access the PanDA
 on behalf of end-users.
 When users click links in web applications that require PanDA server access,
 they redirect users to their own ID providers through Indigo IAM.
-Once users are successfully authenticated, the web applications obtain ID tokens from Indigo IAM
+Once users are successfully authenticated, the web applications obtain tokens from Indigo IAM
 for accessing the PanDA server.
-Typically, these ID tokens have a lifetime of 24 hours.
-The PanDA server authenticates users (delegators) using the ``sub``, ``aud``, and ``name`` claim in the ID token,
+Typically, these tokens have a lifetime of 24 hours.
+The PanDA server authenticates users (delegators) using the ``sub``, ``aud``, ``name``, ``prefered_name``, and ``client_id`` claims in the token,
 and authorizes them based on the ``groups`` claim.
 
 |br|
