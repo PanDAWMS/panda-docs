@@ -8,8 +8,7 @@ and limited. System administrators or developers should refer to :doc:`API refer
 
 Installation
 ==============
-panda-client works either python 2 and 3, and is self-contained so that you don't have to install an external
-package or software. The installation step can be skipped if panda-client has been centrally installed like ATLAS.
+panda-client works with Python 3. The installation step can be skipped if panda-client has been centrally installed like ATLAS.
 Otherwise, simply run the following pip command in a virtual environment to install all python modules,
 command-line tools and configuration files:
 
@@ -34,25 +33,8 @@ https://github.com/PanDAWMS/panda-client/releases
     tar xvfz *.tar.gz
     rm *.tar.gz
     cd panda-client*
-
-and then
-
-.. tabs::
-
-   .. tab:: Python 3.7 or higher with new pip supporting PEP517
-
-     .. prompt:: bash
-
-        cp packages/full/pyproject.toml .
-        export PANDA_INSTALL_TARGET=<where to be installed>
-        pip install . --prefix ${PANDA_INSTALL_TARGET}
-
-   .. tab:: legacy Python or pip
-
-     .. prompt:: bash
-
-        python setup.py install --prefix=<where to be installed>
-
+    export PANDA_INSTALL_TARGET=<where to be installed>
+    pip install . --prefix ${PANDA_INSTALL_TARGET}
 
 Setup
 ==============
