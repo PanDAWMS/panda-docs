@@ -473,6 +473,85 @@ Once registered, ArgoCD will perform an initial sync. Subsequent merges to ``mai
 automatically within the configured polling interval (default: 3 minutes), or immediately if a
 webhook is configured.
 
+Automatic image updates with argocd-image-updater
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Components whose images are tagged ``latest`` (rather than a fixed version) do not get new
+images automatically just because CI pushed one. Kubernetes only re-pulls an image when the
+image reference in the pod spec changes, and a plain ``latest`` tag never changes as a string
+— so a running pod happily keeps serving whatever it originally pulled, indefinitely, even
+after a newer ``latest`` is published.
+
+`argocd-image-updater <https://argocd-image-updater.readthedocs.io/>`_ solves this by
+periodically checking the registry for the digest that a tag currently resolves to, and, when
+it changes, pinning the image to that exact digest (e.g. ``latest@sha256:...``) as a Helm
+parameter override on the Application. Because that string is different every time the
+underlying image changes, Kubernetes treats it as a new image reference and pulls it — and
+because ArgoCD's normal sync then applies the resulting spec change, the component actually
+gets redeployed, not just re-pulled on some unrelated future restart.
+
+.. important::
+
+   The image-updater controller in this deployment runs in **operator/CRD mode**. It only
+   acts on Applications that are explicitly enrolled via an ``ImageUpdater`` custom resource's
+   ``applicationRefs`` — annotations on the Application alone do **nothing** without a matching
+   ``ImageUpdater`` object. This is easy to miss: an Application can look fully configured
+   (correct ``argocd-image-updater.argoproj.io/*`` annotations) and still never actually update,
+   because no ``ImageUpdater`` resource references it.
+
+Enrolling a component takes two pieces. First, annotate the Application:
+
+.. code-block:: yaml
+
+  metadata:
+    annotations:
+      argocd-image-updater.argoproj.io/image-list: bigmon=ghcr.io/pandawms/panda-bigmon-core:latest
+      argocd-image-updater.argoproj.io/bigmon.update-strategy: digest
+      argocd-image-updater.argoproj.io/bigmon.helm.image-name: main.image.repository
+      argocd-image-updater.argoproj.io/bigmon.helm.image-tag: main.image.tag
+
+Then create the ``ImageUpdater`` resource that actually enables it:
+
+.. code-block:: yaml
+
+  apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+  kind: ImageUpdater
+  metadata:
+    name: bigmon-image-updater
+    namespace: argocd
+  spec:
+    applicationRefs:
+      - namePattern: panda-bigmon
+        useAnnotations: true
+
+.. note::
+
+   Working examples for bigmon, panda-server/JEDI, and panda-ui are in the
+   `testbed Application manifests directory
+   <https://github.com/PanDAWMS/panda-k8s/tree/main/argocd-apps/testbed>`_
+   (``*-image-updater.yaml``, alongside the corresponding ``Application`` manifest's
+   annotations).
+
+.. warning::
+
+   To stop tracking ``latest`` and pin a component to an explicit version instead, deleting
+   the ``ImageUpdater`` resource is **not enough on its own**. The controller writes its pinned
+   digest directly into the Application's ``spec.source.helm.parameters``, and that override is
+   not automatically cleaned up when the ``ImageUpdater`` is removed — it will keep silently
+   overriding whatever tag your values files specify. Remove it explicitly:
+
+   .. prompt:: bash
+
+     kubectl patch application <app-name> -n argocd --type=json \
+       -p='[{"op": "remove", "path": "/spec/source/helm/parameters"}]'
+
+   Only after that will ArgoCD fall back to the tag pinned in your Helm values.
+
+Whether a component should track ``latest`` via image-updater or pin an explicit version is a
+per-cluster choice. The ATLAS Testbed tracks ``latest`` for faster iteration during development;
+DOMA pins explicit versions for every component instead, since it is treated as more
+stability-sensitive.
+
 Upgrade workflow
 ^^^^^^^^^^^^^^^^
 
