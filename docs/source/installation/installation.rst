@@ -17,4 +17,5 @@ Here are installation manuals of PanDA components.
    harvester_docs/main
    PanDA monitor <https://some.webpage/>
    kubernetes
+   kubernetes_gitops
 
