@@ -45,10 +45,12 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 
      .. math::
 
-        spaceFree + spaceExpired - normalizedExpOutSize \times RW > diskThreshold
+        spaceUsable - normalizedExpOutSize \times RW > diskThreshold
 
-     where *spaceFree* is the free space size in the associated storage, *spaceExpired* is the size of the space
-     that expired secondary data occupies, *normalizedExpOutSize* is the expected size of the output file normalized
+     where *spaceUsable* is the amount of storage available for new data on the associated storage endpoint.
+     It is computed from the currently free space, reclaimable space occupied by expired secondary data,
+     the minimum free space that must be preserved, and the space reserved for scheduled data transfers.
+     *normalizedExpOutSize* is the expected size of the output file normalized
      by cpuTime :raw-html:`&times;` corePower :raw-html:`&times;` day (0.25), *RW* is the total amount
      of exiting workload assigned to the nucleus. *diskThreshold* is the threshold defined per gshare
      as ``DISK_THRESHOLD_<gshare>`` in :doc:`gdpconfig </advanced/gdpconfig>`. If not specified per gshare,
@@ -73,7 +75,7 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
       * The fraction of the number of files locally available divide by the total number of input files must be larger
         than ``INPUT_NUM_FRACTION`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`) if the total input size is
         larger than ``INPUT_NUM_THRESHOLD`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
-　　　　
+        
       * The entire data locality check is disabled if no nuclei pass and
 
          * ``ioIntencity`` of the task is less than or equal to ``MIN_IO_INTENSITY_WITH_LOCAL_DATA`` and
@@ -188,7 +190,7 @@ Here is the ATLAS production job brokerage flow:
      if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
      *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
 
-   * DISK size check, free space in the local storage has to be over 200GB.
+   * DISK size check, usable space in the local storage has to be over ``STORAGE_MIN_FREE_SIZE``.
 
    * Skip queues if their storage endpoints are blacklisted:
 
@@ -814,7 +816,7 @@ This is the ATLAS analysis job brokerage flow:
          if the queues are configured to read input files directly from the local storage. ``maxwdir`` is divided by
          *coreCount* at each queue and the resultant value must be larger than the expected disk usage.
 
-       * DISK size check, free space in the local storage has to be over 200GB.
+       * DISK size check, usable space in the local storage has to be over ``STORAGE_MIN_FREE_SIZE`` for input and ``STORAGE_MIN_FREE_SIZE_OUTPUT`` for output.
 
        * Skip blacklisted storage endpoints.
 
