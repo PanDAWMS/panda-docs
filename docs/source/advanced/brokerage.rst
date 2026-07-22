@@ -18,6 +18,10 @@ The brokerage has a plugin structure so that organizations can provide their alg
 their needs and use-cases.
 
 This page explains the algorithms of some advanced plugins.
+Note that system configuration parameters referenced as :gdp:`SOME_PARAM` in the following
+sections are stored in the database table described in
+:doc:`gdpconfig </advanced/gdpconfig>`.
+
 
 |br|
 
