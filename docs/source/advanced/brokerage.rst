@@ -18,9 +18,11 @@ The brokerage has a plugin structure so that organizations can provide their alg
 their needs and use-cases.
 
 This page explains the algorithms of some advanced plugins.
-Note that system configuration parameters referenced as :gdp:`SOME_PARAM` in the following
-sections are stored in the database table described in
-:doc:`gdpconfig </advanced/gdpconfig>`.
+
+.. note::
+   System configuration parameters referenced as :gdp:`SOME_PARAM` in the following
+   sections are stored in the database table described in
+   :doc:`gdpconfig </advanced/gdpconfig>`.
 
 
 |br|
@@ -645,7 +647,7 @@ Timeout Rules
      when nRun is small
 
 Zero Share (or FairSharePolicy in CRIC)
-==============
+=========================================
 The Zero Share filter looks for reasons to exclude jobs from a site ("site X has zero share for this activity"). Despite having shares in the name, the
 current implementation simply accepts or rejects jobs based on the site's policy.
 
