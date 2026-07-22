@@ -14,7 +14,23 @@ import os
 import sys
 import subprocess
 
+from docutils import nodes
+from sphinx import addnodes
+
 sys.path.insert(0, os.path.abspath('.'))
+
+
+# a role that renders a gdpconfig parameter name as inline code linking to the gdpconfig page.
+# The literal wraps the xref (not vice versa) so the monospace node survives xref resolution,
+# which otherwise rebuilds the inner node of an explicit doc reference.
+def gdp_param_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    xref = addnodes.pending_xref(
+        rawtext, nodes.Text(text),
+        refdomain='std', reftype='doc',
+        reftarget='/advanced/gdpconfig', refexplicit=True,
+    )
+    node = nodes.literal(rawtext, '', xref, classes=['gdp-param'])
+    return [node], []
 
 
 # -- Project information -----------------------------------------------------
@@ -94,6 +110,7 @@ rst_prolog = """
 
 
 def setup (app):
+    app.add_role('gdp', gdp_param_role)
     app.add_css_file('custom.css')
     # adjust location of action file depending on build mechanism
     action_file = 'extra_actions.sh'

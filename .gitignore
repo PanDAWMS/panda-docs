@@ -1,3 +1,8 @@
 docs/build/
 
 .idea/
+
+# generated at build time by docs/source/extra_actions.sh
+pilot2/
+docs/source/pilot/
+docs/source/architecture/pilot_docs/
