@@ -41,20 +41,35 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
 
    * Nuclei must have associated storages.
 
-   * The storages associated to nuclei must have enough space:
+   * The storages associated with nuclei must have enough space:
 
      .. math::
 
         spaceUsable - normalizedExpOutSize \times RW > diskThreshold
 
-     where *spaceUsable* is the amount of storage available for new data on the associated storage endpoint.
-     It is computed from the currently free space, reclaimable space occupied by expired secondary data,
-     the minimum free space that must be preserved, and the space reserved for scheduled data transfers.
-     *normalizedExpOutSize* is the expected size of the output file normalized
-     by cpuTime :raw-html:`&times;` corePower :raw-html:`&times;` day (0.25), *RW* is the total amount
-     of exiting workload assigned to the nucleus. *diskThreshold* is the threshold defined per gshare
-     as ``DISK_THRESHOLD_<gshare>`` in :doc:`gdpconfig </advanced/gdpconfig>`. If not specified per gshare,
-     ``DISK_THRESHOLD`` defines it for all, with a default value of 100 TB.
+     where:
+
+     * *spaceUsable* is the amount of storage available for new data on the associated storage endpoint.
+       It is computed as:
+
+       .. math::
+
+          spaceUsable = spaceFree + spaceExpired - minFreeSpace - spaceUnavailable
+
+       where *spaceFree* is the currently free space, *spaceExpired* is the reclaimable space occupied
+       by expired secondary data, *minFreeSpace* is the minimum free space that must be preserved,
+       and *spaceUnavailable* is the space reserved for scheduled data transfers.
+
+     * *normalizedExpOutSize* is the expected output size normalized by
+       cpuTime :raw-html:`&times;` corePower :raw-html:`&times;` day (0.25), and *RW* is the total amount
+       of existing workload assigned to the nucleus. Their product,
+       *normalizedExpOutSize* :raw-html:`&times;` *RW*, is the projected storage demand of the assigned
+       workload.
+
+     * *diskThreshold* is the minimum storage that must remain available after accounting for the
+       projected storage demand. It is configured per gshare using ``DISK_THRESHOLD_<gshare>`` in
+       :doc:`gdpconfig </advanced/gdpconfig>`. If no gshare-specific value is defined,
+       ``DISK_THRESHOLD`` is used instead, with a default value of 100 TB.
 
    * The storages associated to nuclei must be able to send input files to satellites and receive output files
      from sattellites over WAN, i.e., their ``read_wan`` and ``write_wan`` must be ``ON``.
