@@ -67,9 +67,9 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
        workload.
 
      * *diskThreshold* is the minimum storage that must remain available after accounting for the
-       projected storage demand. It is configured per gshare using ``DISK_THRESHOLD_<gshare>`` in
-       :doc:`gdpconfig </advanced/gdpconfig>`. If no gshare-specific value is defined,
-       ``DISK_THRESHOLD`` is used instead, with a default value of 100 TB.
+       projected storage demand. It is configured per gshare using :gdp:`DISK_THRESHOLD_<gshare>`.
+       If no gshare-specific value is defined, :gdp:`DISK_THRESHOLD` is used instead, with a default
+       value of 100 TB.
 
    * The storages associated to nuclei must be able to send input files to satellites and receive output files
      from sattellites over WAN, i.e., their ``read_wan`` and ``write_wan`` must be ``ON``.
@@ -84,25 +84,21 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
         Those nuclei ignore the next two rules with the input data size and the number of input files.
 
       * The fraction of the data size locally available divide by the total input size must be larger than
-        ``INPUT_SIZE_FRACTION`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`) if the total input size is
-        larger than ``INPUT_SIZE_THRESHOLD`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+        :gdp:`INPUT_SIZE_FRACTION` if the total input size is larger than :gdp:`INPUT_SIZE_THRESHOLD`.
 
       * The fraction of the number of files locally available divide by the total number of input files must be larger
-        than ``INPUT_NUM_FRACTION`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`) if the total input size is
-        larger than ``INPUT_NUM_THRESHOLD`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
-        
+        than :gdp:`INPUT_NUM_FRACTION` if the total input size is larger than :gdp:`INPUT_NUM_THRESHOLD`.
+
       * The entire data locality check is disabled if no nuclei pass and
 
-         * ``ioIntencity`` of the task is less than or equal to ``MIN_IO_INTENSITY_WITH_LOCAL_DATA`` and
-           the total input size is less than or equal to ``MIN_INPUT_SIZE_WITH_LOCAL_DATA``, or
+         * ``ioIntencity`` of the task is less than or equal to :gdp:`MIN_IO_INTENSITY_WITH_LOCAL_DATA` and
+           the total input size is less than or equal to :gdp:`MIN_INPUT_SIZE_WITH_LOCAL_DATA`, or
 
-         * ``taskPriority`` of the task is larger than or equal to ``MAX_TASK_PRIO_WITH_LOCAL_DATA``.
-
-        ``MIN_blah`` and ``MAX_blah`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+         * ``taskPriority`` of the task is larger than or equal to :gdp:`MAX_TASK_PRIO_WITH_LOCAL_DATA`.
 
 #. Calculate brokerage weight for remaining nuclei using the following formula to choose a nuclei based on that:
 
-   When ``ioIntencity`` of the task is greater than ``MIN_IO_INTENSITY_WITH_LOCAL_DATA``
+   When ``ioIntencity`` of the task is greater than :gdp:`MIN_IO_INTENSITY_WITH_LOCAL_DATA`
 
    .. math::
 
@@ -118,7 +114,7 @@ The ATLAS production task brokerage assigns each task to a nucleus as follows:
    where *localInputSize* is the size of input data locally available, *totalInputSize* is the total size of
    input data, *tapeWeight* is 0.001 if input data is on the tape storage, or 1 otherwise, *rwOffset* is 50 to have
    the minimum offset for *RW*, *spaceFreeCutoff* is the maximum free disk space value that will be factored into
-   the calculation (``FREE_DISK_CUTOFF`` in :doc:`gdpconfig </advanced/gdpconfig>`), and *spaceTotal* is the total size of the storage.
+   the calculation (:gdp:`FREE_DISK_CUTOFF`), and *spaceTotal* is the total size of the storage.
 
 #. If all nuclei are skipped, the task is pending for 30 min and then gets retried.
 
@@ -146,11 +142,11 @@ Here is the ATLAS production job brokerage flow:
 
    * Skip queues if their links to the nucleus are blocked.
 
-   * Skip queues if over the ``NQUEUED_SAT_CAP`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`) files queued
+   * Skip queues if over the :gdp:`NQUEUED_SAT_CAP` files queued
      on their links to the nucleus.
 
-   * Skip all queues if the number of files to be aggregated to the nucleus is larger than ``NQUEUED_NUC_CAP_FOR_JOBS``
-     (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+   * Skip all queues if the number of files to be aggregated to the nucleus is larger than
+     :gdp:`NQUEUED_NUC_CAP_FOR_JOBS`.
 
    * If priority :raw-html:`&GreaterEqual;` 800 or scout jobs or merging jobs or pre-merged jobs, skip inactive queues
      (where no jobs got started in the last 2 hours although activated jobs had been there).
@@ -161,12 +157,12 @@ Here is the ATLAS production job brokerage flow:
    * Zero Share, which is defined in the ``fairsharepolicy`` field in CRIC. For example *type=evgen:100%,type=simul:100%,type=any:0%*,
      in this case, only evgen or simul jobs can be assigned as others have zero shares. See a more detailed description further below in this page.
 
-   * If the task ``ioIntensity`` is larger than ``IO_INTENSITY_CUTOFF`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`),
-     the total size of missing files must be less than ``SIZE_CUTOFF_TO_MOVE_INPUT`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`)
-     and the number of missing files must be less than ``NUM_CUTOFF_TO_MOVE_INPUT`` (defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+   * If the task ``ioIntensity`` is larger than :gdp:`IO_INTENSITY_CUTOFF`,
+     the total size of missing files must be less than :gdp:`SIZE_CUTOFF_TO_MOVE_INPUT`
+     and the number of missing files must be less than :gdp:`NUM_CUTOFF_TO_MOVE_INPUT`.
      I.e., if a queue needs to transfer more input files, the queue is skipped.
 
-   * There is a general ``MAX_DISKIO_DEFAULT`` limit in :doc:`gdpconfig </advanced/gdpconfig>`.
+   * There is a general :gdp:`MAX_DISKIO_DEFAULT` limit.
      It is possible to overwrite the limit for a particular queue through the ``maxDiskIO`` (in kB/sec per core)
      field in CRIC. The limit is applied in job brokerage: when the average diskIO per core for running jobs in
      a queue exceeds the limit, the next cycles of job brokerage will exclude tasks with ``diskIO`` higher than
@@ -260,10 +256,9 @@ Here is the ATLAS production job brokerage flow:
    * Skip queues without pilots for the last 3 hours.
 
    * If processingType=*urgent* or priority :raw-html:`&GreaterEqual;` 1000, the :ref:`Network weight <ref_network_weight>`
-     must be larger than or equal to ``NW_THRESHOLD`` :raw-html:`&times;` ``NW_WEIGHT_MULTIPLIER``
-     (both defined in :doc:`gdpconfig </advanced/gdpconfig>`).
+     must be larger than or equal to :gdp:`NW_THRESHOLD` :raw-html:`&times;` :gdp:`NW_WEIGHT_MULTIPLIER`.
 
-   * When ``WORK_SHORTAGE`` in :doc:`gdpconfig </advanced/gdpconfig>` is set to True, the following queues are skipped:
+   * When :gdp:`WORK_SHORTAGE` is set to True, the following queues are skipped:
 
       * Opportunistic queues defined with ``pledgedcpu=-1``.
 
@@ -628,8 +623,8 @@ Timeout Rules
 * 30 min for sent jobs
 * 21 days for running jobs
 * 2 hours for heartbeats from running or starting jobs. Each ``workflow`` can define own timeout value using
-  :hblue:`HEARTBEAT_TIMEOUT_<workflow>` in :doc:`gdpconfig </advanced/gdpconfig>`
-* the above :hblue:`HEARTBEAT_TIMEOUT_<workflow>` for transferring jobs with the ``workflow`` and own stage-out
+  :gdp:`HEARTBEAT_TIMEOUT_<workflow>`
+* the above :gdp:`HEARTBEAT_TIMEOUT_<workflow>` for transferring jobs with the ``workflow`` and own stage-out
   mechanism that sets not-null job.jobSubStatus
 * 3 hours for holding jobs with job.currentPriority>=800, while days for holding jobs with job.currentPriority<800
 * ``transtimehi`` days for transferring jobs with job.currentPriority>=800, while
@@ -638,11 +633,10 @@ Timeout Rules
   in ``catchall``
 * fast rebrokerage for defined, assigned, activated, or starting jobs at the queues
   where
-   * nQueue_queue(gshare)/nRun_queue(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQNR_RATIO`
-   * nQueue_queue(gshare)/nQueue_total(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQUEUE_FRAC`
-   * nQueue_queue(gshare) is larger than :hblue:`FAST_REBRO_THRESHOLD_NQUEUE_<gshare>`. Unless the gshare
+   * nQueue_queue(gshare)/nRun_queue(gshare) is larger than :gdp:`FAST_REBRO_THRESHOLD_NQNR_RATIO`
+   * nQueue_queue(gshare)/nQueue_total(gshare) is larger than :gdp:`FAST_REBRO_THRESHOLD_NQUEUE_FRAC`
+   * nQueue_queue(gshare) is larger than :gdp:`FAST_REBRO_THRESHOLD_NQUEUE_<gshare>`. Unless the gshare
      defines the parameter it doesn't trigger the fast rebrokerage
-   * :hblue:`FAST_REBRO_THRESHOLD_blah` is defined in :doc:`gdpconfig </advanced/gdpconfig>`
    * nSlots is not defined in the ``Harvester_Slots`` table since it intentionally cause large nQueue
      when nRun is small
 
@@ -736,16 +730,15 @@ This is the ATLAS analysis job brokerage flow:
 
     **Number of User Jobs Exceeds Caps**
 
-      * the number of running jobs is larger than ``CAP_RUNNING_USER_JOBS``
-      * the number of queued jobs is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_JOBS``
-      * the number of running cores is larger than ``CAP_RUNNING_USER_CORES``
-      * the number of queued cores is larger than 2  :raw-html:`&times;` ``CAP_RUNNING_USER_CORES``
+      * the number of running jobs is larger than :gdp:`CAP_RUNNING_USER_JOBS`
+      * the number of queued jobs is larger than 2  :raw-html:`&times;` :gdp:`CAP_RUNNING_USER_JOBS`
+      * the number of running cores is larger than :gdp:`CAP_RUNNING_USER_CORES`
+      * the number of queued cores is larger than 2  :raw-html:`&times;` :gdp:`CAP_RUNNING_USER_CORES`
 
       |br|
 
       .. line-block::
-        For the working group it uses ``CAP_RUNNING_GROUP_JOBS`` and ``CAP_RUNNING_GROUP_CORES`` instead.
-        All ``CAP_blah`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+        For the working group it uses :gdp:`CAP_RUNNING_GROUP_JOBS` and :gdp:`CAP_RUNNING_GROUP_CORES` instead.
 
 
     **User's Usage Exceeds Quota**
@@ -783,11 +776,10 @@ This is the ATLAS analysis job brokerage flow:
 
        * Input data locality check to skip queues if they don't have input data locally. This check is suppressed
          if ``taskPriority`` :raw-html:`&GreaterEqual;` 2000,
-         ``ioIntensity`` :raw-html:`&le;` ``IO_INTENSITY_CUTOFF_USER``, or the last successful brokerage cycle
-         happened more than ``DATA_CHECK_TIMEOUT_USER`` hours ago, where ``IO_INTENSITY_CUTOFF_USER`` and
-         ``DATA_CHECK_TIMEOUT_USER`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+         ``ioIntensity`` :raw-html:`&le;` :gdp:`IO_INTENSITY_CUTOFF_USER`, or the last successful brokerage cycle
+         happened more than :gdp:`DATA_CHECK_TIMEOUT_USER` hours ago.
 
-       * Check with ``MAX_DISKIO_DEFAULT`` limit defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+       * Check with :gdp:`MAX_DISKIO_DEFAULT` limit.
          It is possible to overwrite the limit for a particular queue through the ``maxDiskIO`` (in kB/sec per core)
          field in CRIC. The limit is applied in job brokerage: when the average diskIO per core for running jobs in
          a queue exceeds the limit, the next cycles of job brokerage will exclude tasks with ``diskIO`` higher than
@@ -843,9 +835,8 @@ This is the ATLAS analysis job brokerage flow:
        * Skip queues without pilots for the last 3 hours.
 
    * Filters for temporary issues
-       * Skip queues if there are many jobs from the task closed or failed for the last ``TW_DONE_JOB_STAT`` hours.
-         (nFailed + nClosed) must be less than max(2 :raw-html:`&times;` nFinished, ``MIN_BAD_JOBS_TO_SKIP_PQ``).
-         ``TW_DONE_JOB_STAT`` and ``MIN_BAD_JOBS_TO_SKIP_PQ`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`.
+       * Skip queues if there are many jobs from the task closed or failed for the last :gdp:`TW_DONE_JOB_STAT` hours.
+         (nFailed + nClosed) must be less than max(2 :raw-html:`&times;` nFinished, :gdp:`MIN_BAD_JOBS_TO_SKIP_PQ`).
 
        * Skip queues if defined+activated+assigned+starting > 2 :raw-html:`&times;` max(20, running).
 
@@ -855,19 +846,19 @@ This is the ATLAS analysis job brokerage flow:
        * First, decide whether the PQ can be throttled.
          The PQ will NOT be throttled if it does not have enough queuing jobs; that is, when any condition of the following is satisfied:
 
-          * nQ(PQ) < ``BASE_QUEUE_LENGTH_PER_PQ``
+          * nQ(PQ) < :gdp:`BASE_QUEUE_LENGTH_PER_PQ`
 
-          * nQ(PQ) < ``BASE_EXPECTED_WAIT_HOUR_ON_PQ`` * trr(PQ)
+          * nQ(PQ) < :gdp:`BASE_EXPECTED_WAIT_HOUR_ON_PQ` * trr(PQ)
          where trr stands for to-running-rate = number of jobs getting from queuing to running per hour in the PQ; it is evaluated according to jobs with starttime within last 6 hours
 
        * If the PQ does not meet any condition above, it can be throttled.
          Then compute nQ_max(PQ) (i.e. the affordable max queue length of each PQ), which is the max among the following values:
 
-          * ``BASE_QUEUE_LENGTH_PER_PQ``
+          * :gdp:`BASE_QUEUE_LENGTH_PER_PQ`
 
-          * ``STATIC_MAX_QUEUE_RUNNING_RATIO`` * nR(PQ)
+          * :gdp:`STATIC_MAX_QUEUE_RUNNING_RATIO` * nR(PQ)
 
-          * ``MAX_EXPECTED_WAIT_HOUR`` * trr(PQ)
+          * :gdp:`MAX_EXPECTED_WAIT_HOUR` * trr(PQ)
 
        * Next, compute what percentage of nQ_max(PQ) is for the user:
 
@@ -875,15 +866,13 @@ This is the ATLAS analysis job brokerage flow:
 
        * Finally, the max value among the following, called *max_q_len* , will be used to throttle nQ(PQ, user)
 
-          * ``BASE_DEFAULT_QUEUE_LENGTH_PER_PQ_USER``
+          * :gdp:`BASE_DEFAULT_QUEUE_LENGTH_PER_PQ_USER`
 
-          * ``BASE_QUEUE_RATIO_ON_PQ`` * nR(PQ)
+          * :gdp:`BASE_QUEUE_RATIO_ON_PQ` * nR(PQ)
 
           * nQ_max(PQ) * percentage(PQ, user)
 
        * Thus, if nQ(PQ, user) > *max_q_len* , the brokerage will temporarily exclude the PQs in which the user of the task already has enough queuing jobs
-
-       * Parameters mentioned above: ``BASE_DEFAULT_QUEUE_LENGTH_PER_PQ_USER``, ``BASE_EXPECTED_WAIT_HOUR_ON_PQ``, ``BASE_QUEUE_LENGTH_PER_PQ``, ``BASE_QUEUE_RATIO_ON_PQ``, ``MAX_EXPECTED_WAIT_HOUR``, ``STATIC_MAX_QUEUE_RUNNING_RATIO`` are defined in :doc:`gdpconfig </advanced/gdpconfig>`
 
 #. Finally, it calculates the brokerage weight for remaining candidates using the following formula.
 
