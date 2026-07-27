@@ -30,13 +30,14 @@ fi
     wfd/simple_chain.yaml \
     wfd/multistep_merge_wfd.yaml \
     wfd/signal_background_combine_wfd.yaml \
-    wfd/scatter_sig_bg_comb_wfd.yaml \
     "${common[@]}"
 
-# the nested figure is about the nesting, not about what the sub-workflow does:
-# its steps are already spelled out under "More complicated chain". Only the
-# reference-based variant gets a figure, the inline one has the same DAG.
+# These two are about nesting and scatter, not about what the sub-workflow does: its
+# steps are already spelled out under "More complicated chain", so the boxes show only
+# structure. Of the two nested variants only the reference-based one gets a figure, the
+# inline one has the same DAG.
 "${python}" wfd2dot.py \
     wfd/nested_workflow_sig_bg_comb_wfd.yaml \
+    wfd/scatter_sig_bg_comb_wfd.yaml \
     --abstract-subworkflows \
     "${common[@]}"

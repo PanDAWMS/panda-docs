@@ -208,6 +208,9 @@ The workflow pictures on this page all use the same conventions.
      - The output type the child selects, i.e. its ``inDsType`` or ``secondaryDsTypes`` entry
    * - Enclosing box
      - A sub-workflow, labelled with the name of the step that runs it
+   * - Enclosing boxes marked :brown:`s1`, :brown:`s2`, ...
+     - The iterations a scattered sub-workflow expands into, one per element of the
+       scattered input lists
 
 Where a sub-workflow has its own picture elsewhere, the enclosing box shows only the shape of it,
 with the text of its steps and inputs left out.
@@ -394,8 +397,9 @@ Scatter workflow
 
 A popular use-case is to perform the same analysis chain on many samples in a single workflow.
 This is expressed by scattering a sub-workflow over lists of inputs: the sub-workflow is
-instantiated once per element, and all the instances run in parallel. The picture shows the
-sub-workflow once, as it is described; at runtime the whole box is instantiated twice.
+instantiated once per element, and all the instances run in parallel. The description below holds
+a single sub-workflow, but the two-element input lists make it run twice, so the picture shows
+both instances, :blue:`s1` and :blue:`s2`, each taking one element of each list.
 
 .. figure:: native_workflow/images/pchain_native_dag_scatter_sig_bg_comb_wfd.png
 
