@@ -1,7 +1,7 @@
 digraph "multistep_merge_chain" {
   compound=true;
   rankdir=TB;
-  graph [fontname="Helvetica", bgcolor="transparent", nodesep=0.35, ranksep=0.55];
+  graph [fontname="Helvetica", bgcolor="transparent", nodesep=0.35, ranksep=0.55, pad="0.12,0.18"];
   node [fontname="Helvetica", fontsize=11, margin="0.16,0.09"];
   edge [fontname="Helvetica", fontsize=9, color="#555555", arrowsize=0.8];
 

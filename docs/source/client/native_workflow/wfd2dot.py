@@ -405,7 +405,9 @@ def build_dot(path):
     writer.open(f"digraph {quote(name)}")
     writer.line("compound=true;")
     writer.line("rankdir=TB;")
-    writer.line('graph [fontname="Helvetica", bgcolor="transparent", nodesep=0.35, ranksep=0.55];')
+    # pad: the folder shape draws its tab above the node box, which the drawing's bounding
+    # box does not account for, so without extra room the top row is clipped
+    writer.line('graph [fontname="Helvetica", bgcolor="transparent", nodesep=0.35, ranksep=0.55, pad="0.12,0.18"];')
     writer.line('node [fontname="Helvetica", fontsize=11, margin="0.16,0.09"];')
     writer.line('edge [fontname="Helvetica", fontsize=9, color="#555555", arrowsize=0.8];')
     writer.line()
