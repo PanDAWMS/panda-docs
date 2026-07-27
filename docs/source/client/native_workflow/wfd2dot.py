@@ -18,10 +18,11 @@ Writes ``<OUTDIR>/<stem>.dot`` for each input file. With ``-T`` it also renders 
 that format, which requires the Graphviz ``dot`` executable on PATH. To regenerate
 everything this page uses, from this directory:
 
-    wfd2dot.py wfd/*.yaml -o images --dotdir dag -T png --prefix pchain_native_dag_
+    ./regen_dags.sh
 
-That overwrites the DOT sources from the yaml. To re-render after editing a .dot file
-by hand, run ./render_dags.sh instead.
+which runs this script over every example with the per-figure options it needs, then
+renders. That overwrites the DOT sources from the yaml. To re-render after editing a
+.dot file by hand, run ./render_dags.sh instead.
 
 Sub-workflows pulled in with ``workflow_ref`` are looked up next to the referring
 file, matching how the sandbox is laid out at submission time.
@@ -48,7 +49,12 @@ STYLE = {
     "opaque": 'shape=box3d, style=filled, fillcolor="#f0f0f0", color="#888888", fontcolor="#333333"',
 }
 CLUSTER_STYLE = 'graph [style="rounded,filled", fillcolor="#fafafa", color="#9aa5b1", fontcolor="#48525c", fontsize=11];'
+# a step drawn without its text, used when only the shape of a sub-workflow matters
+COMPACT_NODE = 'label="", fixedsize=true, width=0.42, height=0.28'
 EDGE_SECONDARY = 'style=dashed, color="#7a7a7a"'
+
+# set from --abstract-subworkflows: draw sub-workflow internals as shape only
+ABSTRACT_SUBS = False
 
 
 class DotWriter:
@@ -129,18 +135,23 @@ class Scope:
         self.exits = []  # nodes feeding the level's outputs
         self.external_names = set()  # input names supplied by the parent scope
         self.deferred_edges = []  # edges from the parent scope, emitted once the cluster closes
+        self.output_types = []  # output_types this level declares, shown on the edge leaving it
 
     def node_id(self, name):
         return f"{self.prefix}__{name}" if self.prefix else str(name)
 
 
-def emit_workflow(writer, wfd, base_dir, prefix="", external_inputs=None):
+def emit_workflow(writer, wfd, base_dir, prefix="", external_inputs=None, detail=True):
     """
     Emit the nodes and edges of one workflow level and return its Scope.
 
     external_inputs maps an input name of this level onto an (node id, edge label)
     pair in the parent scope. A scattered sub-workflow uses it to bind its own inputs
     to the parent lists it is scattered over, so no node is drawn for them here.
+
+    With detail=False only the shape of the level is drawn: its steps, inputs and edges
+    all lose their text. Used for sub-workflows whose steps are already spelled out in
+    their own figure.
     """
     scope = Scope(prefix)
     steps = wfd.get("steps") or {}
@@ -155,8 +166,11 @@ def emit_workflow(writer, wfd, base_dir, prefix="", external_inputs=None):
             if input_name in input_node:
                 continue  # supplied by the parent, drawn there
             node = scope.node_id(f"in_{input_name}")
-            label = input_name if isinstance(value, list) else f"{input_name}\n{shorten(value)}"
-            writer.line(f"{quote(node)} [label={quote(label)}, {STYLE['input']}];")
+            if not detail:
+                writer.line(f"{quote(node)} [{COMPACT_NODE}, {STYLE['input']}];")
+            else:
+                label = input_name if isinstance(value, list) else f"{input_name}\n{shorten(value)}"
+                writer.line(f"{quote(node)} [label={quote(label)}, {STYLE['input']}];")
             input_node[input_name] = (node, None)
 
     # one node, or one cluster, per step
@@ -165,14 +179,17 @@ def emit_workflow(writer, wfd, base_dir, prefix="", external_inputs=None):
         node = scope.node_id(step_name)
         scope.node_of_step[step_name] = node
         if step_type(step_spec) == "workflow":
-            emit_sub_workflow(writer, step_name, step_spec, wfd, base_dir, scope, input_node)
+            emit_sub_workflow(writer, step_name, step_spec, wfd, base_dir, scope, input_node, detail)
         else:
-            label = step_name
-            produced = output_types_of(step_spec)
-            if produced:
-                label += "\n" + ", ".join(produced)
             style = STYLE["prun"] if step_type(step_spec) == "prun" else STYLE["other"]
-            writer.line(f"{quote(node)} [label={quote(label)}, {style}];")
+            if detail:
+                label = step_name
+                produced = output_types_of(step_spec)
+                if produced:
+                    label += "\n" + ", ".join(produced)
+                writer.line(f"{quote(node)} [label={quote(label)}, {style}];")
+            else:
+                writer.line(f"{quote(node)} [{COMPACT_NODE}, {style}];")
 
     # edges, from the inDS and secondaryDSs of every step
     for step_name, step_spec in steps.items():
@@ -182,11 +199,12 @@ def emit_workflow(writer, wfd, base_dir, prefix="", external_inputs=None):
         connected = False
 
         primary = step_spec.get("inDS")
-        if primary and emit_edge(writer, primary, target, scope, input_node, steps, wfd, base_dir, head, step_spec.get("inDsType")):
+        primary_type = step_spec.get("inDsType") if detail else None
+        if primary and emit_edge(writer, primary, target, scope, input_node, steps, wfd, base_dir, head, primary_type):
             connected = True
 
         secondaries = step_spec.get("secondaryDSs") or []
-        sec_types = step_spec.get("secondaryDsTypes") or []
+        sec_types = step_spec.get("secondaryDsTypes") or [] if detail else []
         for index, source in enumerate(secondaries):
             data_type = sec_types[index] if index < len(sec_types) else None
             if emit_edge(writer, source, target, scope, input_node, steps, wfd, base_dir, head, data_type, EDGE_SECONDARY):
@@ -275,6 +293,10 @@ def emit_edge(writer, source, target, scope, input_node, steps, wfd, base_dir, h
     match = STEP_OUT_RE.match(source)
     if match and match.group(1) in scope.node_of_step:
         parent_name = match.group(1)
+        if not data_type:
+            sub_scope = scope.sub_of_step.get(parent_name)
+            if sub_scope and sub_scope.output_types:
+                attrs.insert(0, f"label={quote(', '.join(sub_scope.output_types))}")
         # leave the parent cluster at its border when the parent is a sub-workflow
         tail_attr = cluster_attr("ltail", scope, parent_name, steps, wfd, base_dir)
         origin = exit_node_of(scope, parent_name)
@@ -292,7 +314,7 @@ def exit_node_of(scope, step_name):
     return scope.node_of_step[step_name]
 
 
-def emit_sub_workflow(writer, step_name, step_spec, wfd, base_dir, scope, parent_input_node):
+def emit_sub_workflow(writer, step_name, step_spec, wfd, base_dir, scope, parent_input_node, detail=True):
     """Emit a ``type: workflow`` step, as a cluster when its definition can be resolved."""
     node = scope.node_of_step[step_name]
     sub_wfd = resolve_sub_workflow(step_spec, wfd, base_dir)
@@ -309,7 +331,7 @@ def emit_sub_workflow(writer, step_name, step_spec, wfd, base_dir, scope, parent
         # the scatter mode is deliberately left out: "zip" reads as a file type next to
         # the output types on the surrounding edges
         label += "  (scatter)"
-    elif step_spec.get("workflow_ref"):
+    elif step_spec.get("workflow_ref") and not ABSTRACT_SUBS:
         label += f"  ({step_spec['workflow_ref']})"
 
     # a scattered sub-workflow reads the parent lists rather than its own declared inputs
@@ -327,11 +349,14 @@ def emit_sub_workflow(writer, step_name, step_spec, wfd, base_dir, scope, parent
     writer.open(f"subgraph {quote('cluster_' + node)}")
     writer.line(f"label={quote(label)};")
     writer.line(CLUSTER_STYLE)
-    sub_scope = emit_workflow(writer, inner_wfd, base_dir, prefix=node, external_inputs=external)[0]
+    sub_scope = emit_workflow(writer, inner_wfd, base_dir, prefix=node, external_inputs=external, detail=detail and not ABSTRACT_SUBS)[0]
     writer.close()
     for line in sub_scope.deferred_edges:
         writer.line(line)
 
+    for output_spec in (inner_wfd.get("outputs") or {}).values():
+        if isinstance(output_spec, dict):
+            sub_scope.output_types += output_spec.get("output_types") or []
     scope.sub_of_step[step_name] = sub_scope
     # edges into the cluster land on one of its entry nodes
     if sub_scope.entries:
@@ -381,8 +406,17 @@ def main():
     parser.add_argument("-o", "--outdir", default=".", help="where rendered images go (default: current directory)")
     parser.add_argument("--dotdir", default=None, help="where the DOT sources go (default: the output directory)")
     parser.add_argument("-T", "--format", default=None, help="also render with dot to this format, e.g. png or svg")
+    parser.add_argument(
+        "--abstract-subworkflows",
+        action="store_true",
+        help="draw sub-workflow internals as shape only, dropping the text of their steps, "
+        "inputs and edges. Use when the sub-workflow has its own figure",
+    )
     parser.add_argument("--prefix", default="", help="prepended to the output file names")
     args = parser.parse_args()
+
+    global ABSTRACT_SUBS
+    ABSTRACT_SUBS = args.abstract_subworkflows
 
     dotdir = args.dotdir or args.outdir
     os.makedirs(args.outdir, exist_ok=True)

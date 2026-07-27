@@ -172,11 +172,45 @@ yaml.
 The same references are used in ``secondaryDSs`` and in the ``from`` field of the workflow
 ``outputs``. A step is a *tail* of the workflow when one of the workflow outputs refers to it.
 
+A step has at most one primary input, given in ``inDS``, and the task is split over its files so
+that each job gets a slice of them, reachable as :hblue:`%IN` in ``exec``. Everything listed in
+``secondaryDSs`` is a secondary input: it does not drive the splitting, each job gets the number
+of files declared for it, and they are reachable as :hblue:`%IN2`, :hblue:`%IN3`, and so on.
+Both kinds make the source step a parent, so the child waits for either.
+
 If a parent step produces several types of output data and the child needs only some of them,
 the types are selected with ``inDsType`` for the primary input and with ``secondaryDsTypes``
 for the secondary inputs, positionally matching the entries of ``secondaryDSs``. The stream name,
 the number of files per job, etc, for each secondary input are given with :hblue:`---secondaryDSs`
 in ``args``, where :hblue:`%{SECDSn}` is the placeholder for the n-th secondary dataset name.
+
+|br|
+
+Reading the pictures
+==========================
+
+The workflow pictures on this page all use the same conventions.
+
+.. list-table::
+   :header-rows: 1
+
+   * - In the picture
+     - Meaning
+   * - Rounded box
+     - A step, labelled with its name and the output types it produces
+   * - Folder, blue at the top / green at the bottom
+     - An entry of the workflow ``inputs`` / ``outputs`` section
+   * - :brown:`Solid` arrow
+     - A primary input: the target step names the source in its ``inDS``
+   * - :brown:`Dashed` arrow
+     - A secondary input: the target step lists the source in its ``secondaryDSs``
+   * - Label on an arrow
+     - The output type the child selects, i.e. its ``inDsType`` or ``secondaryDsTypes`` entry
+   * - Enclosing box
+     - A sub-workflow, labelled with the name of the step that runs it
+
+Where a sub-workflow has its own picture elsewhere, the enclosing box shows only the shape of it,
+with the text of its steps and inputs left out.
 
 |br|
 
@@ -191,8 +225,8 @@ name. The actual dataset in DDM appends the output file type, i.e.
 
     <outDS>_<NNN>_<step_name>_<output_type>
 
-For example, with :hblue:`---outDS user.<your_nickname>.blah` the first step of the merge example
-below writes to :brown:`user.<your_nickname>.blah_001_first_merge.root`. If
+For example, with :hblue:`---outDS user.<your_nickname>.blah` the :blue:`top` step of the simple
+chain below writes to :brown:`user.<your_nickname>.blah_001_top_intermediate.txt`. If
 :hblue:`---outputs` in ``args`` is a comma-separated list, one dataset is created for each output
 type. The naming of steps inside sub-workflows is described in the corresponding sections below.
 
@@ -233,36 +267,36 @@ execution time of the workflow.
 Workflow examples
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Simple task chain
+Simple chain
 ======================
 
-The following description is a chain of three ``prun`` tasks that merge a dataset step by step,
-each step reducing the number of files until a single merged file is left.
+The following description is a parent-child chain of two ``prun`` tasks.
 
-.. figure:: native_workflow/images/pchain_native_dag_multistep_merge_wfd.png
+.. figure:: native_workflow/images/pchain_native_dag_simple_chain.png
 
-.. literalinclude:: native_workflow/wfd/multistep_merge_wfd.yaml
+.. literalinclude:: native_workflow/wfd/simple_chain.yaml
     :language: yaml
-    :caption: multistep_merge_wfd.yaml
+    :caption: simple_chain.yaml
 
-The workflow takes one input, :blue:`input_to_merge`, which is consumed by :blue:`first`.
-:blue:`second` and :blue:`third` chain on the output of their predecessor with the
-:hblue:`step/outDS` reference. The workflow output :blue:`final_output` points at the output of
-:blue:`third` and declares :brown:`merge.root` as its type.
+The workflow takes one input, :blue:`input`, which is consumed by the :blue:`top` step through the
+:hblue:`{input}` reference. :blue:`bottom` chains on the output of :blue:`top` with the
+:hblue:`step/outDS` reference, which is what makes it a child of :blue:`top`. The workflow output
+:blue:`final_output` points at the output of :blue:`bottom` and declares :brown:`results.root` as
+its type, so :blue:`bottom` is the tail of the workflow.
 
-Each step runs :brown:`merge.sh`, which must sit next to the workflow description so that it is
-picked up in the sandbox. Since :hblue:`---writeInputToTxt` is given, ``prun`` writes the list of
-input files of each job to :brown:`input.lis` and the script merges the files listed there.
+Both steps are plain ``prun`` invocations, with :hblue:`%IN` expanded to the filenames of the input
+each job gets. :blue:`bottom` starts processing once :blue:`top` has produced enough output data,
+waits if everything currently available has been processed while :blue:`top` is still running, and
+finishes once all data from :blue:`top` is processed.
 
 Submit it with
 
 .. prompt:: bash
 
-  pchain_native --wfd multistep_merge_wfd.yaml --outDS user.<your_nickname>.blah
+  pchain_native --wfd simple_chain.yaml --outDS user.<your_nickname>.blah
 
-which produces :brown:`user.<your_nickname>.blah_001_first_merge.root`,
-:brown:`user.<your_nickname>.blah_002_second_merge.root` and
-:brown:`user.<your_nickname>.blah_003_third_merge.root`.
+which produces :brown:`user.<your_nickname>.blah_001_top_intermediate.txt` and
+:brown:`user.<your_nickname>.blah_002_bottom_results.root`.
 
 |br|
 
@@ -270,8 +304,7 @@ More complicated chain
 ========================
 
 Steps can have several parents and several children, and the description below shows a workflow
-with two independent branches merging into a final step. Dashed edges are secondary inputs, and
-the edge labels are the output types that the child selects.
+with two independent branches merging into a final step.
 
 .. figure:: native_workflow/images/pchain_native_dag_signal_background_combine_wfd.png
 
@@ -305,7 +338,9 @@ Nested workflow
 A workflow can be used as a step of another workflow. Such a step has :brown:`workflow` in its
 ``type`` field, and the workflow it runs is either referenced by file name or written inline.
 
-The reference form points at another yaml file in the sandbox with ``workflow_ref``.
+The reference form points at another yaml file in the sandbox with ``workflow_ref``. In the
+picture the sub-workflow is drawn as structure only, since its steps are the ones already shown
+in the previous section.
 
 .. figure:: native_workflow/images/pchain_native_dag_nested_workflow_sig_bg_comb_wfd.png
 
@@ -327,15 +362,13 @@ DDM container named after the sub-workflow step, and that container is what :blu
 The same workflow can be written with the sub-workflow inlined in the ``steps`` field of the
 sub-workflow step, which then carries its own ``inputs``, ``outputs`` and ``steps`` sections.
 
-.. figure:: native_workflow/images/pchain_native_dag_nested_workflow_inline_sig_bg_comb_wfd.png
-
 .. literalinclude:: native_workflow/wfd/nested_workflow_inline_sig_bg_comb_wfd.yaml
     :language: yaml
     :caption: nested_workflow_inline_sig_bg_comb_wfd.yaml
 
-The two forms are equivalent. A separate file is reusable across workflows and keeps the parent
-description short, while the inline form keeps a one-off sub-workflow self-contained in a single
-file.
+The two forms are equivalent and give the DAG pictured above. A separate file is reusable across
+workflows and keeps the parent description short, while the inline form keeps a one-off
+sub-workflow self-contained in a single file.
 
 References inside a sub-workflow are resolved in the scope of the sub-workflow, so
 :hblue:`{signal}` binds to the ``inputs`` of the sub-workflow, not to those of the parent, and
@@ -422,10 +455,23 @@ keys are meaningful depends on the template.
 The multistep_merge template
 ==============================
 
-:brown:`multistep_merge` generates the merge chain shown in the first example, with the number of
-steps computed automatically. It queries Rucio for the number of files in ``--inDS``, and adds as
-many merge steps as needed for the chain to converge to a single output file, given how many files
-a single job merges.
+:brown:`multistep_merge` reduces a dataset to a single output file with a chain of ``prun`` merge
+steps, with the number of steps computed automatically. It queries Rucio for the number of files
+in ``--inDS``, and adds as many merge steps as needed for the chain to converge, given how many
+files a single job merges.
+
+The description it generates is an ordinary chain, so it is also a good illustration of what a
+hand-written multi-step workflow looks like.
+
+.. figure:: native_workflow/images/pchain_native_dag_multistep_merge_wfd.png
+
+.. literalinclude:: native_workflow/wfd/multistep_merge_wfd.yaml
+    :language: yaml
+    :caption: a three-step chain generated by multistep_merge
+
+Every step runs the same :brown:`merge.sh` over the output of its predecessor. Since
+:hblue:`---writeInputToTxt` is given, ``prun`` writes the list of input files of each job to
+:brown:`input.lis` and the script merges the files listed there.
 
 .. list-table::
    :header-rows: 1
