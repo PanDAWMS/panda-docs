@@ -15,9 +15,13 @@ Usage:
     wfd2dot.py <wfd.yaml> [<wfd.yaml> ...] [-o OUTDIR] [-T FORMAT]
 
 Writes ``<OUTDIR>/<stem>.dot`` for each input file. With ``-T`` it also renders to
-that format, which requires the Graphviz ``dot`` executable on PATH, e.g.
+that format, which requires the Graphviz ``dot`` executable on PATH. To regenerate
+everything this page uses, from this directory:
 
-    wfd2dot.py ../source/client/wfd/*.yaml -o ../source/client/images --dotdir dag -T png
+    wfd2dot.py wfd/*.yaml -o images --dotdir dag -T png --prefix pchain_native_dag_
+
+That overwrites the DOT sources from the yaml. To re-render after editing a .dot file
+by hand, run ./render_dags.sh instead.
 
 Sub-workflows pulled in with ``workflow_ref`` are looked up next to the referring
 file, matching how the sandbox is laid out at submission time.

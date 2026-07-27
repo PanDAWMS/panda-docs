@@ -17,7 +17,7 @@ is essentially one ``prun`` invocation plus the wiring that says where its input
 Currently steps are PanDA tasks submitted through ``prun``, or sub-workflows.
 
 :orange:`Remark: the native workflow is a recent addition and is still evolving. The description
-language documented on this page covers plain DAGs, nested sub-workflows and scatter.
+language documented on this page covers plain DAGs, nested sub-workflows and scatter.`
 
 .. contents:: Table of Contents
     :local:
@@ -239,9 +239,9 @@ Simple task chain
 The following description is a chain of three ``prun`` tasks that merge a dataset step by step,
 each step reducing the number of files until a single merged file is left.
 
-.. figure:: images/pchain_native_dag_multistep_merge_wfd.png
+.. figure:: native_workflow/images/pchain_native_dag_multistep_merge_wfd.png
 
-.. literalinclude:: wfd/multistep_merge_wfd.yaml
+.. literalinclude:: native_workflow/wfd/multistep_merge_wfd.yaml
     :language: yaml
     :caption: multistep_merge_wfd.yaml
 
@@ -273,9 +273,9 @@ Steps can have several parents and several children, and the description below s
 with two independent branches merging into a final step. Dashed edges are secondary inputs, and
 the edge labels are the output types that the child selects.
 
-.. figure:: images/pchain_native_dag_signal_background_combine_wfd.png
+.. figure:: native_workflow/images/pchain_native_dag_signal_background_combine_wfd.png
 
-.. literalinclude:: wfd/signal_background_combine_wfd.yaml
+.. literalinclude:: native_workflow/wfd/signal_background_combine_wfd.yaml
     :language: yaml
     :caption: signal_background_combine_wfd.yaml
 
@@ -307,9 +307,9 @@ A workflow can be used as a step of another workflow. Such a step has :brown:`wo
 
 The reference form points at another yaml file in the sandbox with ``workflow_ref``.
 
-.. figure:: images/pchain_native_dag_nested_workflow_sig_bg_comb_wfd.png
+.. figure:: native_workflow/images/pchain_native_dag_nested_workflow_sig_bg_comb_wfd.png
 
-.. literalinclude:: wfd/nested_workflow_sig_bg_comb_wfd.yaml
+.. literalinclude:: native_workflow/wfd/nested_workflow_sig_bg_comb_wfd.yaml
     :language: yaml
     :caption: nested_workflow_sig_bg_comb_wfd.yaml
 
@@ -327,9 +327,9 @@ DDM container named after the sub-workflow step, and that container is what :blu
 The same workflow can be written with the sub-workflow inlined in the ``steps`` field of the
 sub-workflow step, which then carries its own ``inputs``, ``outputs`` and ``steps`` sections.
 
-.. figure:: images/pchain_native_dag_nested_workflow_inline_sig_bg_comb_wfd.png
+.. figure:: native_workflow/images/pchain_native_dag_nested_workflow_inline_sig_bg_comb_wfd.png
 
-.. literalinclude:: wfd/nested_workflow_inline_sig_bg_comb_wfd.yaml
+.. literalinclude:: native_workflow/wfd/nested_workflow_inline_sig_bg_comb_wfd.yaml
     :language: yaml
     :caption: nested_workflow_inline_sig_bg_comb_wfd.yaml
 
@@ -364,9 +364,9 @@ This is expressed by scattering a sub-workflow over lists of inputs: the sub-wor
 instantiated once per element, and all the instances run in parallel. The picture shows the
 sub-workflow once, as it is described; at runtime the whole box is instantiated twice.
 
-.. figure:: images/pchain_native_dag_scatter_sig_bg_comb_wfd.png
+.. figure:: native_workflow/images/pchain_native_dag_scatter_sig_bg_comb_wfd.png
 
-.. literalinclude:: wfd/scatter_sig_bg_comb_wfd.yaml
+.. literalinclude:: native_workflow/wfd/scatter_sig_bg_comb_wfd.yaml
     :language: yaml
     :caption: scatter_sig_bg_comb_wfd.yaml
 
