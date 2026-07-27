@@ -1,0 +1,17 @@
+digraph "multistep_merge_chain" {
+  compound=true;
+  rankdir=TB;
+  graph [fontname="Helvetica", bgcolor="transparent", nodesep=0.35, ranksep=0.55];
+  node [fontname="Helvetica", fontsize=11, margin="0.16,0.09"];
+  edge [fontname="Helvetica", fontsize=9, color="#555555", arrowsize=0.8];
+
+  "in_input_to_merge" [label="input_to_merge\n...00.CNF_EMuJSMu_B_7cbc64d_output", shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+  "first" [label="first\nmerge.root", shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+  "second" [label="second\nmerge.root", shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+  "third" [label="third\nmerge.root", shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+  "in_input_to_merge" -> "first";
+  "first" -> "second";
+  "second" -> "third";
+  "out_final_output" [label="final_output\nmerge.root", shape=folder, style=filled, fillcolor="#e6f2e6", color="#5a9a5a", fontcolor="#1f4d1f"];
+  "third" -> "out_final_output";
+}
