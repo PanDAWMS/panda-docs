@@ -25,10 +25,13 @@ if ! command -v dot >/dev/null 2>&1; then
     done
 fi
 
+# Only the yaml examples the page shows a DAG for are listed. multistep_merge_wfd.yaml
+# is deliberately absent: its section illustrates the template with a hand-drawn
+# schematic instead, and images/multistep_merge_template.png is not generated here.
+
 # figures that show every step in full
 "${python}" wfd2dot.py \
     wfd/simple_chain.yaml \
-    wfd/multistep_merge_wfd.yaml \
     wfd/signal_background_combine_wfd.yaml \
     "${common[@]}"
 
