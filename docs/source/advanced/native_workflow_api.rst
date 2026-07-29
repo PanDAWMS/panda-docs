@@ -1,20 +1,26 @@
-==========================================================
-Generating native workflow descriptions programmatically
-==========================================================
+============================================
+Working with PanDA Native Workflows
+============================================
 
-:doc:`PanDA native workflows </client/pchain_native>` are normally described in a hand-written
-yaml file. When the shape of the workflow is not known in advance, for instance because the number
-of steps depends on the data, or when the description is produced by another tool, the yaml can be
-generated instead.
-
-``panda-client`` ships :brown:`pandaclient.workflow_description.WorkflowDescription`, a small
-builder that writes workflow descriptions. It is the same module the built-in workflow templates
-are made of.
+Topics beyond the day-to-day use of :doc:`PanDA native workflows </client/pchain_native>`.
 
 .. contents:: Table of Contents
     :local:
 
 -----------
+
+|br|
+
+Generating descriptions programmatically
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A native workflow is normally described in a hand-written yaml file. When the shape of the
+workflow is not known in advance, for instance because the number of steps depends on the data, or
+when the description is produced by another tool, the yaml can be generated instead.
+
+``panda-client`` ships :brown:`pandaclient.workflow_description.WorkflowDescription`, a small
+builder that writes workflow descriptions. It is the same module the built-in workflow templates
+are made of.
 
 |br|
 
