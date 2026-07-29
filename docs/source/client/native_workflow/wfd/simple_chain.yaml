@@ -1,0 +1,25 @@
+# example of a simple chain workflow using the native YAML workflow description language
+
+name: simple_chain  # optional; the workflow name shown in monitoring
+
+inputs:
+  input: "mc16_valid:mc16_valid.900248.PG_singlepion_flatPt2to50.simul.HITS.e8312_s3238_tid26378578_00"
+
+outputs:
+  final_output:
+    from: bottom/outDS
+    output_types:
+      - results.root
+
+steps:
+  top:
+    type: prun
+    inDS: "{input}"
+    args: "--outputs intermediate.txt --avoidVP"
+    exec: "echo %IN > intermediate.txt"
+
+  bottom:
+    type: prun
+    inDS: top/outDS
+    args: "--outputs results.root --forceStaged --avoidVP"
+    exec: "echo %IN > results.root"

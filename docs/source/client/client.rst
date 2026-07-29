@@ -27,6 +27,7 @@ For end-users
    notebooks/python.ipynb
    jupyter
    pchain
+   pchain_native
    secret
 
 Further specific ATLAS examples can be found here: https://atlas-computing.docs.cern.ch/analysis/pathena-prun/index.html

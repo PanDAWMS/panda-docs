@@ -1,0 +1,72 @@
+# Signal and background processing workflow translated from CWL.
+# Two independent branches (make_signal, make_background_1) feed into premix,
+# while a separate generate_some branch feeds make_background_2; all streams
+# are combined in the final combine step.
+#
+# Fill in the input dataset names before submitting.
+
+name: signal_background_combine
+
+inputs:
+  signal: "mc16_valid:mc16_valid.900248.PG_singlepion_flatPt2to50.simul.HITS.e8312_s3238_tid26378578_00"
+  background: "mc16_5TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e6446_s3238_s3250/"
+
+outputs:
+  outDS:
+    from: combine/outDS
+    output_types:
+      - aaa.root
+
+steps:
+  make_signal:
+    type: prun
+    inDS: "{signal}"
+    containerImage: docker://busybox
+    args: "--outputs abc.dat,def.zip --nFilesPerJob 5"
+    exec: "echo %IN > abc.dat; echo 123 > def.zip"
+
+  make_background_1:
+    type: prun
+    inDS: "{background}"
+    args: "--outputs opq.root,xyz.pool --nGBPerJob 10"
+    exec: "echo %IN > opq.root; echo %IN > xyz.pool"
+
+  generate_some:
+    type: prun
+    args: "--outputs gen.root --nJobs 10"
+    exec: "echo %RNDM:10 > gen.root"
+
+  premix:
+    type: prun
+    inDS: make_signal/outDS
+    inDsType: def.zip
+    secondaryDSs:
+      - make_background_1/outDS
+    secondaryDsTypes:
+      - xyz.pool
+    args: "--outputs klm.root --secondaryDSs IN2:13:%{SECDS1}"
+    exec: "echo %IN %IN2 > klm.root"
+
+  make_background_2:
+    type: prun
+    inDS: "{background}"
+    containerImage: docker://alpine
+    secondaryDSs:
+      - generate_some/outDS
+    secondaryDsTypes:
+      - gen.root
+    args: "--outputs ooo.root,jjj.txt --secondaryDSs IN2:10:%{SECDS1}"
+    exec: "echo %IN > ooo.root; echo %IN2 > jjj.txt"
+
+  combine:
+    type: prun
+    inDS: make_signal/outDS
+    inDsType: abc.dat
+    secondaryDSs:
+      - premix/outDS
+      - make_background_2/outDS
+    secondaryDsTypes:
+      - klm.root
+      - ooo.root
+    args: "--outputs aaa.root --secondaryDSs IN2:2:%{SECDS1},IN3:5:%{SECDS2}"
+    exec: "echo %IN %IN2 %IN3 > aaa.root"

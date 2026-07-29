@@ -1,0 +1,61 @@
+digraph "scatter_sig_bg_comb" {
+  compound=true;
+  rankdir=TB;
+  graph [fontname="Helvetica", bgcolor="transparent", nodesep=0.35, ranksep=0.55, pad="0.12,0.18"];
+  node [fontname="Helvetica", fontsize=11, margin="0.16,0.09"];
+  edge [fontname="Helvetica", fontsize=9, color="#555555", arrowsize=0.8];
+
+  "in_signals" [label="signals", shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+  "in_backgrounds" [label="backgrounds", shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+  subgraph "cluster_many_sig_bg_comb_s1" {
+    label="many_sig_bg_comb  (scatter s1)";
+    graph [style="rounded,filled", fillcolor="#fafafa", color="#9aa5b1", fontcolor="#48525c", fontsize=11];
+    "many_sig_bg_comb_s1__in_signal" [label="", fixedsize=true, width=0.42, height=0.28, shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+    "many_sig_bg_comb_s1__in_background" [label="", fixedsize=true, width=0.42, height=0.28, shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+    "many_sig_bg_comb_s1__make_signal" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s1__make_background_1" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s1__generate_some" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s1__premix" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s1__make_background_2" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s1__combine" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s1__in_signal" -> "many_sig_bg_comb_s1__make_signal";
+    "many_sig_bg_comb_s1__in_background" -> "many_sig_bg_comb_s1__make_background_1";
+    "many_sig_bg_comb_s1__make_signal" -> "many_sig_bg_comb_s1__premix";
+    "many_sig_bg_comb_s1__make_background_1" -> "many_sig_bg_comb_s1__premix" [style=dashed, color="#7a7a7a"];
+    "many_sig_bg_comb_s1__in_background" -> "many_sig_bg_comb_s1__make_background_2";
+    "many_sig_bg_comb_s1__generate_some" -> "many_sig_bg_comb_s1__make_background_2" [style=dashed, color="#7a7a7a"];
+    "many_sig_bg_comb_s1__make_signal" -> "many_sig_bg_comb_s1__combine";
+    "many_sig_bg_comb_s1__premix" -> "many_sig_bg_comb_s1__combine" [style=dashed, color="#7a7a7a"];
+    "many_sig_bg_comb_s1__make_background_2" -> "many_sig_bg_comb_s1__combine" [style=dashed, color="#7a7a7a"];
+  }
+  "in_signals" -> "many_sig_bg_comb_s1__in_signal";
+  "in_backgrounds" -> "many_sig_bg_comb_s1__in_background";
+  subgraph "cluster_many_sig_bg_comb_s2" {
+    label="many_sig_bg_comb  (scatter s2)";
+    graph [style="rounded,filled", fillcolor="#fafafa", color="#9aa5b1", fontcolor="#48525c", fontsize=11];
+    "many_sig_bg_comb_s2__in_signal" [label="", fixedsize=true, width=0.42, height=0.28, shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+    "many_sig_bg_comb_s2__in_background" [label="", fixedsize=true, width=0.42, height=0.28, shape=folder, style=filled, fillcolor="#e8eef7", color="#5a7fb0", fontcolor="#1f3552"];
+    "many_sig_bg_comb_s2__make_signal" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s2__make_background_1" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s2__generate_some" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s2__premix" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s2__make_background_2" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s2__combine" [label="", fixedsize=true, width=0.42, height=0.28, shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+    "many_sig_bg_comb_s2__in_signal" -> "many_sig_bg_comb_s2__make_signal";
+    "many_sig_bg_comb_s2__in_background" -> "many_sig_bg_comb_s2__make_background_1";
+    "many_sig_bg_comb_s2__make_signal" -> "many_sig_bg_comb_s2__premix";
+    "many_sig_bg_comb_s2__make_background_1" -> "many_sig_bg_comb_s2__premix" [style=dashed, color="#7a7a7a"];
+    "many_sig_bg_comb_s2__in_background" -> "many_sig_bg_comb_s2__make_background_2";
+    "many_sig_bg_comb_s2__generate_some" -> "many_sig_bg_comb_s2__make_background_2" [style=dashed, color="#7a7a7a"];
+    "many_sig_bg_comb_s2__make_signal" -> "many_sig_bg_comb_s2__combine";
+    "many_sig_bg_comb_s2__premix" -> "many_sig_bg_comb_s2__combine" [style=dashed, color="#7a7a7a"];
+    "many_sig_bg_comb_s2__make_background_2" -> "many_sig_bg_comb_s2__combine" [style=dashed, color="#7a7a7a"];
+  }
+  "in_signals" -> "many_sig_bg_comb_s2__in_signal";
+  "in_backgrounds" -> "many_sig_bg_comb_s2__in_background";
+  "merge" [label="merge\nmerged.root", shape=box, style="rounded,filled", fillcolor="#fdf3e0", color="#c08b3e", fontcolor="#4d3410"];
+  "many_sig_bg_comb_s1__combine" -> "merge" [ltail="cluster_many_sig_bg_comb_s1"];
+  "many_sig_bg_comb_s2__combine" -> "merge" [ltail="cluster_many_sig_bg_comb_s2"];
+  "out_final_result" [label="final_result\nmerged.root", shape=folder, style=filled, fillcolor="#e6f2e6", color="#5a9a5a", fontcolor="#1f4d1f"];
+  "merge" -> "out_final_result";
+}

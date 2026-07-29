@@ -50,6 +50,7 @@ computing middleware.
    advanced/site_task_classification
    advanced/carbon_footprint
    advanced/task_params
+   advanced/native_workflow_api
    advanced/analysis_data_carousel
    advanced/mcp
 
