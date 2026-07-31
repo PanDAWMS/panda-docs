@@ -18,9 +18,9 @@ To be able to do it outside the CERN network we use SSH tunneling through lxplus
 
 .. code-block:: bash
 
-    ssh -N -p 22 -D 1234 <username>@lxplus.cern.ch -L localhost:13322:aipanda033.cern.ch:22 -L localhost:1330X:aipanda033.cern.ch:800X  -L localhost:1330X:aipanda033.cern.ch:800X
+    ssh -N -p 22 -D 1234 <username>@lxplus.cern.ch -L localhost:13322:aipanda033.cern.ch:22 -L localhost:1330X:aipanda033.cern.ch:800X  -L localhost:1330X:aipanda033.cern.ch:800Y
 
-where ``X`` is any of ``1...9`` (0, 1, 2, 3, 7 are taken), you may need 2 of them, one for backend and another for frontend.
+where ``X`` and ``Y`` is any of ``1...9`` (0, 1, 2, 3, 7 are taken), you need 2 of them, one for backend and another for frontend.
 
 There is `SSH Tunnel Manager app <https://www.tynsoe.org/stm/>`_ for MacOS, we are using it to create and use tunnels.
 
@@ -118,12 +118,15 @@ Turn on Django support by going to **PyCharm** → **Settings** → **Python** �
  * Settings: path to the settings folder of the project: ``backend/rest_api/settings``
  * Manage script: full path to manage.py: ``backend/rest_api/manage.py``
 
-Then go to **Run** → **Edit Configurations** and create a new **Django server** configuration. In the opened window fill in the fields:
+Then go to **Run** → **Edit Configurations** and create a new **Python** configuration. In the opened window fill in the fields:
 
  * Name: ``backend dev`` (or any other you like)
  * Run: choose the remote interpreter we created earlier
- * Host: ``aipanda033.cern.ch``
- * Port:  ``800X`` (the same as in the ssh tunnel command for http port forwarding)
+ * Select **script** in drop-down menu nad put path to the ``manage.py`` file, i.e.  ``/data_aipanda163/<username>/PyCharmProjects/panda-ui/backend/manage.py``
+ * Put the following command and params: ``runserver_plus aipanda033.cern.ch:8004 --cert-file /tmp/cert.crt``
+ * Working directory: ``/data_aipanda163/<username>/PyCharmProjects/panda-ui/backend/``
+ * Environment variables: ``DJANGO_ENVIRONMENT=development;DJANGO_SETTINGS_MODULE=rest_api.settings;PATH_ENV_FILE=/data_aipanda163/<username>/private/.env;PYTHONUNBUFFERED=1``,
+    where PATH_ENV_FILE is explained in the next step
 
 Also, we need to create a separate configuration to run unit tests. Go to **Run** → **Edit configurations** and create
 a new **Django tests** configuration. In the opened window fill in the fields:
@@ -137,7 +140,7 @@ ____________________
 
 For security and common sense reasons, we do not store secrets and logs in the git repository.
 
-So, we need to create a folder for logs on remote node outside of the git repo, e.g. ``/data_aipanda163/<username>/PyCharmProjects/logs/panda-ui/``,
+So, we need to create a folder for logs on the remote VM outside of the git repo, e.g. ``/data_aipanda163/<username>/PyCharmProjects/logs/panda-ui/``,
 and make sure that the folder is writable by the user running the Django server (``chmod 777 <folder>``)
 
 For secrets, we use environment variables stored in a file ``.env`` that is not tracked by git.
@@ -182,7 +185,7 @@ ________________________________________________________
     which node
 
     # Go to the project frontend directory, where package.json is located
-    cd frontend
+    cd /data_aipanda163/<username>/PyCharmProjects/panda-ui/frontend
     # Install the dependencies
     npm install
     # optionally you may need to fix the permissions
