@@ -195,6 +195,8 @@ ________________________________________________________
 2. Set up remote Node.js interpreter in PyCharm
 _______________________________________________
 
+Make sure you have **Node.js** installed on you computer locally, so PyCharm works with Node.js plugins correctly [`PyCharm docs <https://www.jetbrains.com/help/pycharm/developing-node-js-applications.html#ws_node_before_you_start/>`_]
+
 Go to **PyCharm** -> **Settings** > **Plugin** and make sure the following plugins installed and activated:
 ``Node.js``, ``Node.js Remote Interpreter``, ``JavaScript and TypeScript``
 
