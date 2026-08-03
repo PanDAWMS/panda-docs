@@ -18,7 +18,7 @@ To be able to do it outside the CERN network we use SSH tunneling through lxplus
 
 .. code-block:: bash
 
-    ssh -N -p 22 -D 1234 <username>@lxplus.cern.ch -L localhost:13322:aipanda033.cern.ch:22 -L localhost:1330X:aipanda033.cern.ch:800X  -L localhost:1330X:aipanda033.cern.ch:800Y
+    ssh -N -p 22 -D 1234 <username>@lxplus.cern.ch -L localhost:13322:aipanda033.cern.ch:22 -L localhost:1330X:aipanda033.cern.ch:800X  -L localhost:1330Y:aipanda033.cern.ch:800Y
 
 where ``X`` and ``Y`` is any of ``1...9`` (0, 1, 2, 3, 7 are taken), you need 2 of them, one for backend and another for frontend.
 
@@ -116,13 +116,13 @@ Turn on Django support by going to **PyCharm** → **Settings** → **Python** �
  * Enable Django Support: checked
  * Django project root: full path to the local directory of the project, e.g.: ``/Users/<username>/PyCharmProjects/panda-ui``
  * Settings: path to the settings folder of the project: ``backend/rest_api/settings``
- * Manage script: full path to manage.py: ``backend/rest_api/manage.py``
+ * Manage script: full path to manage.py: ``backend/manage.py``
 
 Then go to **Run** → **Edit Configurations** and create a new **Python** configuration. In the opened window fill in the fields:
 
  * Name: ``backend dev`` (or any other you like)
  * Run: choose the remote interpreter we created earlier
- * Select **script** in drop-down menu nad put path to the ``manage.py`` file, i.e.  ``/data_aipanda163/<username>/PyCharmProjects/panda-ui/backend/manage.py``
+ * Select **script** in drop-down menu and put path to the ``manage.py`` file, i.e.  ``/data_aipanda163/<username>/PyCharmProjects/panda-ui/backend/manage.py``
  * Put the following command and params: ``runserver_plus aipanda033.cern.ch:8004 --cert-file /tmp/cert.crt``
  * Working directory: ``/data_aipanda163/<username>/PyCharmProjects/panda-ui/backend/``
  * Environment variables: ``DJANGO_ENVIRONMENT=development;DJANGO_SETTINGS_MODULE=rest_api.settings;PATH_ENV_FILE=/data_aipanda163/<username>/private/.env;PYTHONUNBUFFERED=1``,
