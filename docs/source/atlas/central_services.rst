@@ -98,7 +98,7 @@ Via SQL Developer
 
 Accessing the ATLAS Oracle database is restricted to within CERN's network.
 If you need to connect from outside, you'll have to establish an SSH tunnel.
-Here's how to set it up in  in `SQL Developer <https://www.oracle.com/database/sqldeveloper/>`_.
+Here's how to set it up in `SQL Developer <https://www.oracle.com/database/sqldeveloper/>`_.
 Note that there are compatibility issues with SQL Developer and SSH tunnelling on MacOS with M1 chips as of early 2024.
 
 First, navigate to the SSH panel in SQL Developer [View -> SSH].
