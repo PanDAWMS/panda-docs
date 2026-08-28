@@ -6,6 +6,10 @@ PanDA provides advanced Web based monitoring for different groups of PanDA users
 managers, shifters. Panda monitor can also serve a data source for users scripts and custom automatizing.
 In this section we basic information, needed to monitor jobs and tasks submitted into PanDA.
 
+.. contents:: Table of Contents
+    :local:
+
+
 Task monitoring
 ===============
 :ref:`terminology/terminology:Task` is the basic entity creating when a new payload comes to PanDA. There are two views

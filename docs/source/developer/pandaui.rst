@@ -267,7 +267,7 @@ Put the API URL of your Django backend in ``frontend/src/environments/environmen
 ``apiUrl`` variable, it must end with ``/api``, e.g. ``http://aipanda033.cern.ch:800X/api``
 
 
-5. Runnign version script
+5. Running version script
 _________________________
 
 To display the current version of the app which is running in the footer, we need to generate it.
