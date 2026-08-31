@@ -44,6 +44,20 @@ will install extra packages in addition to panda-client.
 
         uv pip install --no-build-isolation-package panda-client
 
+    or, with Pixi add the following to your ``pixi.toml``
+
+    .. code-block:: toml
+
+      [pypi-options]
+      no-build-isolation = ["panda-client"]
+
+    and then:
+
+    .. prompt:: bash
+
+      pixi add hatchling
+      pixi add --pypi panda-client
+
     If you're installing into an environment that isn't currently active (e.g. scripting an install),
     propagate its location to the build step explicitly:
 
