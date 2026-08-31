@@ -24,6 +24,33 @@ If you install panda-client in JupyterLab,
 
 will install extra packages in addition to panda-client.
 
+.. note::
+
+    panda-client only publishes a source distribution (sdist) to PyPI, not a wheel. Modern installers
+    (pip, uv, etc.) build a wheel from that sdist locally, by default inside an isolated, temporary
+    virtual environment. Since the ``panda_setup.(c)sh`` setup files are generated at wheel-build time
+    based on the environment the wheel is built in, an isolated build environment can produce setup
+    files pointing at a path that no longer exists once the wheel is actually installed.
+
+    To avoid this, disable build isolation so the wheel is built directly in your target environment:
+
+    .. prompt:: bash
+
+        pip install --no-build-isolation panda-client
+
+    or, with uv:
+
+    .. prompt:: bash
+
+        uv pip install --no-build-isolation-package panda-client
+
+    If you're installing into an environment that isn't currently active (e.g. scripting an install),
+    propagate its location to the build step explicitly:
+
+    .. prompt:: bash
+
+        env PANDA_INSTALL_TARGET=<path to environment> uv pip install panda-client
+
 If you want to install panda-client to a non-standard location, get the tarball from
 https://github.com/PanDAWMS/panda-client/releases
 
