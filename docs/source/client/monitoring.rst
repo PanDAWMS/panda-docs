@@ -20,7 +20,7 @@ selection of tasks:
    .. tab:: DOMA PanDA
 
       `http://panda-doma.cern.ch/tasks/ <http://panda-doma.cern.ch/tasks/>`_
-   .. tab:: Arbitary monitoring instance
+   .. tab:: Arbitrary monitoring instance
 
       `https://<monitoringhost>/tasks/`
 
@@ -35,7 +35,7 @@ There are different parameters could be used together with tasks list to provide
   **endtimerange=<YYYY-MM-DDThh:mm|YYYY-MM-DDThh:mm>** defines time boundaries for task end time.
 * **earlierthan=<number>**, **earlierthandays=<number>** defines the right boundary in hours or days of the time window of tasks selection
   relative to the current time.
-* **username=<string>** selects tasks by user name of a person who submitted them. This parameter supports asterics,
+* **username=<string>** selects tasks by user name of a person who submitted them. This parameter supports asterisks,
   e.g. **username=James\***.
 * **tasktype=<prod, anal>** filters tasks by the payload origin - production or analysis.
 * **limit=<number>** limits the size of the data to be retrieved from the PanDA database in order to serve the
@@ -44,7 +44,7 @@ There are different parameters could be used together with tasks list to provide
 * **display_limit=<number>** number of tasks with extended information provided to the query results.
 * **status=<failed, done, running, >** selects tasks which are in one of the status enlisted
   :ref:`here <terminology/terminology:Task>`.
-* **taskname=<string>** filters tasks by its name. This parameter supports asterics,
+* **taskname=<string>** filters tasks by its name. This parameter supports asterisks,
   e.g. **taskname=shared_pipecheck_20210301T161238Z\***.
 
 Here are few examples of such queries:
@@ -63,7 +63,7 @@ Here are few examples of such queries:
 
       `https://panda-doma.cern.ch/tasks/?days=120&taskname=shared_pipecheck_20210301T161238Z* <http://panda-doma.cern.ch/tasks/?days=120&taskname=shared_pipecheck_20210301T161238Z*>`_
 
-   .. tab:: Arbitary monitoring instance
+   .. tab:: Arbitrary monitoring instance
 
       https://<monitoringhost>/tasks/?<task_filter_parameters>
 
@@ -80,7 +80,7 @@ An individual task is accessible by its ID:
 
       `https://panda-doma.cern.ch/task/909/ <https://panda-doma.cern.ch/task/909/>`_
 
-   .. tab:: Arbitary monitoring instance
+   .. tab:: Arbitrary monitoring instance
 
       https://<monitoringhost>/task/?<task_id>
 
@@ -112,7 +112,7 @@ independently to the task view. Jobs list query parameters are the similar to on
       `https://panda-doma.cern.ch/jobs/?jobstatus=failed&date_from=2021-03-15T10:00&date_to=2021-03-15T10:30
       <https://panda-doma.cern.ch/jobs/?jobstatus=failed&date_from=2021-03-15T10:00&date_to=2021-03-15T10:30>`_
 
-   .. tab:: Arbitary monitoring instance
+   .. tab:: Arbitrary monitoring instance
 
       https://<monitoringhost>/jobs/?<jobs_filter_parameters>
 
@@ -129,7 +129,7 @@ An individual job is accessible by its ID:
 
       `https://panda-doma.cern.ch/job?pandaid=253627 <https://panda-doma.cern.ch/job?pandaid=253627>`_
 
-   .. tab:: Arbitary monitoring instance
+   .. tab:: Arbitrary monitoring instance
 
       `<https://\<monitoringhost\>/job?pandaid=\<panda_id\>>`_
 
