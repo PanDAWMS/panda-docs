@@ -45,6 +45,348 @@ info:
     \ is overloaded. The call did not reach PanDA and the response comes from directly\
     \ `httpd`. \n"
 paths:
+  __module__:
+    post:
+      summary: API endpoints for Data Carousel operations.
+      description: "Each operation comes in two flavours sharing one implementation\n\
+        (pandaserver.taskbuffer.data_carousel_ops):\n\n* the synchronous endpoints\
+        \ (`change_staging_destination`, ...) run the operation inline and\n  return\
+        \ its outcome, at the risk of hitting the HTTP timeout on slow DDM/iDDS calls;\n\
+        * the asynchronous endpoints (`submit_change_staging_destination`, ...) register\
+        \ a request in\n  the async_requests table and return immediately with an\
+        \ async_id; the async request watchdog\n  on JEDI runs the very same operation\
+        \ and the outcome is polled with the shared reader\n  `/v1/async_process/get_result`.\n\
+        \nBoth flavours are kept so callers can switch between them without a server-side\
+        \ change."
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required: []
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/async_process/submit_grep_request:
+    post:
+      summary: Submit a grep request to be processed asynchronously on the target
+        service or machine.
+      description: ''
+      tags:
+      - async_process
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pattern:
+                  type: string
+                  description: grep pattern to search for
+                log_filename:
+                  type: string
+                  description: filename (not full path) of the log file under panda_config.logdir
+                service_name:
+                  type: string
+                  description: target service (e.g. "server", "jedi"); mutually exclusive
+                    with machine_name
+                machine_name:
+                  type: string
+                  description: target specific machine hostname; mutually exclusive
+                    with service_name
+                max_matches:
+                  type: integer
+                  description: 'stop after this many matching lines (1..200000). Defaults
+                    to a
+
+                    bound that leaves the stored result unchanged; results that hit
+                    the cap come
+
+                    back with truncated set, so an incomplete answer is never read
+                    as an absent one'
+                tail_bytes:
+                  type: integer
+                  description: 'search only the last this many bytes of the file (1..1073741824),
+
+                    which is how to ask about recent activity in a multi-gigabyte
+                    log. Ignored for
+
+                    .gz files, where an arbitrary offset is not a valid stream'
+              required:
+              - pattern
+              - log_filename
+              - service_name
+              - machine_name
+              - max_matches
+              - tail_bytes
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/async_process/submit_sleep_echo_request:
+    post:
+      summary: Submit a sleep+echo request, run on any one machine in the target service.
+      description: 'Results are readable by the requester or any production-role caller
+        (access="production").
+
+
+        '
+      tags:
+      - async_process
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_name:
+                  type: string
+                  description: target service; the job runs on exactly one of its
+                    alive machines
+                message:
+                  type: string
+                  description: text echoed back as the result
+                seconds:
+                  type: integer
+                  description: seconds to sleep before echoing (0..60)
+              required:
+              - service_name
+              - message
+              - seconds
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  get_result:
+    post:
+      summary: Poll for the results of an async request, of any type and from any
+        submitting module.
+      description: "The response has two shapes, depending on what the request's handler\
+        \ stores.\n\nHandlers writing raw output (grep, sleep_echo) report one entry\
+        \ per machine:\n    {\n        \"success\": bool,        # whether this poll\
+        \ succeeded\n        \"message\": str,\n        \"data\": {\n            \"\
+        overall_status\": \"complete\" | \"pending\",\n            \"expected_machines\"\
+        : [str, ...],\n            \"results\": [{\"machine_name\": str, \"status\"\
+        : str, \"result\": str,\n                          \"truncated\": int, \"\
+        error_msg\": str, \"attempts\": int,\n                          \"started_at\"\
+        : str, \"finished_at\": str,\n                          \"stderr\": str, \"\
+        return_code\": int}, ...]\n        }\n    }\n    overall_status is \"complete\"\
+        \ when all expected machines have a terminal result (done/failed).\n\nHandlers\
+        \ writing a structured payload (e.g. the Data Carousel operations submitted\
+        \ by\npandaserver.api.v1.data_carousel_api) report that payload at the top\
+        \ level instead:\n    {\n        \"success\": bool,        # whether the OPERATION\
+        \ succeeded\n        \"message\": str,         # the operation's message\n\
+        \        \"data\": <the operation's data>,\n        \"async_meta\": {\"status\"\
+        : \"pending\" | \"running\" | \"done\" | \"failed\",\n                   \
+        \    \"attempts\": int, \"started_at\": str, \"finished_at\": str,\n     \
+        \                  \"error_msg\": str}\n    }\n    Poll on async_meta.status,\
+        \ not on success: success is False while the request is still\n    pending\
+        \ or running, and False again when the handler crashed (status \"failed\"\
+        , reason in\n    async_meta.error_msg), so it only tells the operation's outcome\
+        \ once status is \"done\".\n    async_meta is present whenever the poll itself\
+        \ succeeded, so a response without it is a\n    failure of this call (not\
+        \ found, not authorized) rather than a report about the request."
+      tags:
+      - async_process
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: string
+                  description: UUID returned by a submit_* endpoint
+              required:
+              - request_id
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /v1/creds/set_user_secrets:
     post:
       summary: Set user secrets
@@ -473,6 +815,9 @@ paths:
 
         Requires a secure connection production role.
 
+        Runs synchronously; see `submit_change_staging_destination` for the asynchronous
+        flavour.
+
 
         '
       tags:
@@ -557,6 +902,9 @@ paths:
         is taken).
 
         Requires a secure connection production role.
+
+        Runs synchronously; see `submit_change_staging_source` for the asynchronous
+        flavour.
 
 
         '
@@ -656,6 +1004,8 @@ paths:
 
         Requires a secure connection production role.
 
+        Runs synchronously; see `submit_force_to_staging` for the asynchronous flavour.
+
 
         '
       tags:
@@ -733,6 +1083,369 @@ paths:
 
         The requests can be specified by request_id or dataset (if both exist, request_id
         is taken).
+
+        Requires a secure connection production role.
+
+        Runs synchronously; see `submit_retire_unused` for the asynchronous flavour.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+              required:
+              - request_id
+              - dataset
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/submit_change_staging_destination:
+    post:
+      summary: Submit a request to change destination of staging, to be processed
+        asynchronously
+      description: 'Asynchronous flavour of `change_staging_destination`: the request
+        is registered in DB and
+
+        processed by the async request daemon, so the call returns without waiting
+        for DDM or iDDS.
+
+        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
+        to get the
+
+        outcome; it reports the operation''s own success, message and data at the
+        top level.
+
+        Requires a secure connection production role.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+              required:
+              - request_id
+              - dataset
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/submit_change_staging_source:
+    post:
+      summary: Submit a request to change source of staging, to be processed asynchronously
+      description: 'Asynchronous flavour of `change_staging_source`: the request is
+        registered in DB and
+
+        processed by the async request daemon, so the call returns without waiting
+        for DDM or iDDS.
+
+        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
+        to get the
+
+        outcome; it reports the operation''s own success, message and data at the
+        top level.
+
+        Requires a secure connection production role.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+                cancel_fts:
+                  type: boolean
+                  description: whether to cancel current FTS requests on DDM, False
+                    by default
+                change_src_expr:
+                  type: boolean
+                  description: whether to change source_replica_expression of the
+                    DDM rule by replacing old source with new one, instead of just
+                    dropping old source
+                source_rse:
+                  type: string
+                  description: if set, use this source RSE instead of choosing one
+                    randomly, also force change_src_expr to be True; default is None
+              required:
+              - request_id
+              - dataset
+              - cancel_fts
+              - change_src_expr
+              - source_rse
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/submit_force_to_staging:
+    post:
+      summary: Submit a request to force to staging, to be processed asynchronously
+      description: 'Asynchronous flavour of `force_to_staging`: the request is registered
+        in DB and processed
+
+        by the async request daemon, so the call returns without waiting for DDM or
+        iDDS.
+
+        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
+        to get the
+
+        outcome; it reports the operation''s own success, message and data at the
+        top level.
+
+        Requires a secure connection production role.
+
+
+        '
+      tags:
+      - data_carousel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request_id:
+                  type: integer
+                  description: request_id of the staging request, e.g. `123`
+                dataset:
+                  type: string
+                  description: dataset name of the staging request in the format of
+                    Rucio DID, e.g. `"mc20_13TeV:mc20_13TeV.700449.Sh_2211_Wtaunu_mW_120_ECMS_BFilter.merge.AOD.e8351_s3681_r13144_r13146_tid36179107_00"`
+              required:
+              - request_id
+              - dataset
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/data_carousel/submit_retire_unused:
+    post:
+      summary: Submit a request to retire an unused staging request, to be processed
+        asynchronously
+      description: 'Asynchronous flavour of `retire_unused`: the request is registered
+        in DB and processed by
+
+        the async request daemon, so the call returns without waiting for DDM or iDDS.
+
+        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
+        to get the
+
+        outcome; it reports the operation''s own success, message and data at the
+        top level.
 
         Requires a secure connection production role.
 
@@ -1975,7 +2688,7 @@ paths:
                     type: string
                 no_child_retry:
                   type: boolean
-                  description: flag to avoid retrying child tasks. Default is False.
+                  description: flag to avoid retrying child tasks. Default is True.
                 resurrect_datasets:
                   type: boolean
                   description: Specifies whether to resurrect datasets when they were
@@ -3346,7 +4059,12 @@ paths:
       summary: Get execution script for a job.
       description: 'Gets the execution script for a job, including Rucio download
         of input, ALRB setup, downloading transformation script and running the script.
-        Requires a secure connection.
+
+        The generated script takes options to use only a subset of the input files
+        (`--nfiles=<N>`) and to read them directly from storage
+
+        through a generated PoolFileCatalog.xml instead of downloading them (`--direct`,
+        `--rse_expression=<RSE_EXP>`, `--schemes=<SCHEMES>`).
 
 
         '
@@ -3358,11 +4076,12 @@ paths:
         required: true
         type: integer
         description: PanDA job ID
-      - name: timeout
+      - name: days
         in: query
         required: false
         type: integer
-        description: The timeout value. Defaults to 60.
+        description: Number of days to look back in the archive tables. Defaults to
+          30.
       responses:
         '200':
           description: Method called correctly
@@ -4151,6 +4870,30 @@ paths:
                 remaining_time:
                   type: integer
                   description: Remaining walltime. Optional and defaults to `None`.
+                target_architecture:
+                  type: string
+                  description: 'Hardware of the worker node, either as a dictionary
+                    or as a JSON-encoded string.
+
+                    Only jobs of tasks whose hardware requirements are satisfied by
+                    the worker node are returned.
+
+                    The `gpus` key contains the list of GPUs, using the same key names
+                    as `update_worker_node_gpu`, e.g.
+
+                    ``{"gpus": [{"vendor": "NVIDIA", "model": "NVIDIA A100-SXM4-40GB",
+                    "vram": 40960,
+
+                    "architecture": "Ampere", "framework_version": "12.4", "driver_version":
+                    "575.57.08"}]}``.
+
+                    An empty `gpus` list means that the worker node has no GPU, while
+                    an absent `gpus` key means that
+
+                    the worker node doesn''t report GPU information, in which case
+                    GPU requirements are not checked.
+
+                    Optional and defaults to `None`.'
               required:
               - site_name
       responses:
@@ -4921,7 +5664,7 @@ paths:
       parameters:
       - name: type
         in: query
-        required: true
+        required: false
         type: string
         description: can be "analysis" or "production". Defaults to "production" when
           not provided.
@@ -5233,10 +5976,174 @@ paths:
       parameters:
       - name: time_window
         in: query
-        required: true
+        required: false
         type: integer
         description: time window in minutes for the statistics (affects only archived
           jobs)
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/statistics/get_wn_stats_by_site:
+    get:
+      summary: Worker node statistics for a site
+      description: 'Get the worker node statistics for a site and a certain amount
+        of days. There will be a separate entry for each day.
+
+
+        '
+      tags:
+      - statistics
+      parameters:
+      - name: site
+        in: query
+        required: true
+        type: string
+        description: ATLAS site for which the statistics should be returned
+      - name: host
+        in: query
+        required: false
+        type: string
+        description: Host for which the statistics should be returned. Leave empty
+          for all hosts in the site.
+      - name: key
+        in: query
+        required: false
+        type: string
+        description: Key ('jobs' or 'workers') for which the statistics should be
+          returned. Leave empty for all.
+      - name: days
+        in: query
+        required: false
+        type: integer
+        description: Number of days for which the statistics should be returned. Limits
+          are 1 to 7.
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/statistics/get_wn_stats_by_queue:
+    get:
+      summary: Worker node statistics for a PanDA queue
+      description: 'Get the worker node statistics for a PanDA queue and a certain
+        amount of days. There will be a separate entry for each day.
+
+
+        '
+      tags:
+      - statistics
+      parameters:
+      - name: panda_queue
+        in: query
+        required: true
+        type: string
+        description: PanDA queue for which the statistics should be returned
+      - name: host
+        in: query
+        required: false
+        type: string
+        description: Host for which the statistics should be returned. Leave empty
+          for all hosts in the queue.
+      - name: key
+        in: query
+        required: false
+        type: string
+        description: Key ('jobs' or 'workers') for which the statistics should be
+          returned. Leave empty for all.
+      - name: days
+        in: query
+        required: false
+        type: integer
+        description: Number of days for which the statistics should be returned. Limits
+          are 1 to 7.
       responses:
         '200':
           description: Method called correctly
@@ -7383,18 +8290,35 @@ paths:
                   error and was unable to complete your request.
   /v1/task/get_tasks_detailed_info_since:
     get:
-      summary: Get detailed task info for tasks modified since a given time.
-      description: 'Fetches task IDs for tasks modified since ``since`` (max 30-day
+      summary: Get detailed task info for tasks, optionally restricted to those modified
+        since a given time.
+      description: 'Fetches task IDs for tasks modified since ``since`` (max 90-day
         window), applies optional
 
         field filters, and returns full detail (all JediTaskSpec fields + jobParamsTemplate
         +
 
-        taskParams) for each matching task. The request is always scoped to the authenticated
-        user
+        taskParams + input-file progress) for each matching task. The request is always
+        scoped to the
 
-        (DN from the request certificate) unless userName is explicity specified in
+        authenticated user (DN from the request certificate) unless userName is explicity
+        specified in
+
         the filters.
+
+
+        When ``since`` is omitted the time-window cap is removed entirely, so matching
+        tasks are
+
+        returned regardless of age. This is useful for by-ID / by-reqID lookups (e.g.
+
+        ``filters={"jediTaskID": <id>}`` or ``{"reqID": <id>}``) of tasks of any age.
+        Because the
+
+        request always adds ``userName`` to the criteria, the criteria is never empty,
+        so omitting
+
+        ``since`` is safe.
 
 
         Filters are split server-side: plain-value patterns (no regex metacharacters)
@@ -7412,9 +8336,12 @@ paths:
       parameters:
       - name: since
         in: query
-        required: true
+        required: false
         type: string
-        description: time in the format ``%Y-%m-%d %H:%M:%S``
+        description: 'time in the format ``%Y-%m-%d %H:%M:%S``. When omitted, the
+
+          time-window cap is removed and matching tasks are returned regardless of
+          age.'
       - name: filters
         in: query
         required: false
@@ -7507,6 +8434,12 @@ paths:
         required: false
         type: string
         description: list of dataset types, defaults to `["input", "pseudo_input"]`
+      - name: dataset_only
+        in: query
+        required: false
+        type: boolean
+        description: if True, only return dataset information without files, defaults
+          to False
       responses:
         '200':
           description: Method called correctly
@@ -7966,6 +8899,8 @@ paths:
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
 tags:
+- name: async_process
+  description: Operations related to async_process
 - name: credential_management
   description: Operations related to credential_management
 - name: data_carousel

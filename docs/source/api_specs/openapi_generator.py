@@ -237,6 +237,7 @@ if __name__ == "__main__":
     # Define the path to the Python file to convert
     base_path = "panda-server/pandaserver/api/v1/"
     file_paths = [
+        "async_process_api.py",
         "credential_management_api.py",
         "data_carousel_api.py",
         "event_api.py",
