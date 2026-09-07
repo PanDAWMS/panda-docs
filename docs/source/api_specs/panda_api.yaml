@@ -118,9 +118,12 @@ paths:
                   error and was unable to complete your request.
   /v1/async_process/submit_grep_request:
     post:
-      summary: Submit a grep request to be processed asynchronously on the target
+      summary: Submit a grep request
+      description: 'Submit a grep request to be processed asynchronously on the target
         service or machine.
-      description: ''
+
+
+        '
       tags:
       - async_process
       requestBody:
@@ -219,9 +222,11 @@ paths:
                   error and was unable to complete your request.
   /v1/async_process/submit_sleep_echo_request:
     post:
-      summary: Submit a sleep+echo request, run on any one machine in the target service.
-      description: 'Results are readable by the requester or any production-role caller
-        (access="production").
+      summary: Submit sleep+echo request
+      description: 'Submit a sleep+echo request, run on any one machine in the target
+        service.
+
+        Results are readable by the requester or any production-role caller (access="production").
 
 
         '
@@ -298,33 +303,34 @@ paths:
                   error and was unable to complete your request.
   get_result:
     post:
-      summary: Poll for the results of an async request, of any type and from any
-        submitting module.
-      description: "The response has two shapes, depending on what the request's handler\
-        \ stores.\n\nHandlers writing raw output (grep, sleep_echo) report one entry\
-        \ per machine:\n    {\n        \"success\": bool,        # whether this poll\
-        \ succeeded\n        \"message\": str,\n        \"data\": {\n            \"\
-        overall_status\": \"complete\" | \"pending\",\n            \"expected_machines\"\
-        : [str, ...],\n            \"results\": [{\"machine_name\": str, \"status\"\
-        : str, \"result\": str,\n                          \"truncated\": int, \"\
-        error_msg\": str, \"attempts\": int,\n                          \"started_at\"\
-        : str, \"finished_at\": str,\n                          \"stderr\": str, \"\
-        return_code\": int}, ...]\n        }\n    }\n    overall_status is \"complete\"\
-        \ when all expected machines have a terminal result (done/failed).\n\nHandlers\
-        \ writing a structured payload (e.g. the Data Carousel operations submitted\
-        \ by\npandaserver.api.v1.data_carousel_api) report that payload at the top\
-        \ level instead:\n    {\n        \"success\": bool,        # whether the OPERATION\
-        \ succeeded\n        \"message\": str,         # the operation's message\n\
-        \        \"data\": <the operation's data>,\n        \"async_meta\": {\"status\"\
-        : \"pending\" | \"running\" | \"done\" | \"failed\",\n                   \
-        \    \"attempts\": int, \"started_at\": str, \"finished_at\": str,\n     \
-        \                  \"error_msg\": str}\n    }\n    Poll on async_meta.status,\
-        \ not on success: success is False while the request is still\n    pending\
-        \ or running, and False again when the handler crashed (status \"failed\"\
-        , reason in\n    async_meta.error_msg), so it only tells the operation's outcome\
-        \ once status is \"done\".\n    async_meta is present whenever the poll itself\
-        \ succeeded, so a response without it is a\n    failure of this call (not\
-        \ found, not authorized) rather than a report about the request."
+      summary: Get async request result
+      description: "Poll for the results of an async request, of any type and from\
+        \ any submitting module.\n\nThe response has two shapes, depending on what\
+        \ the request's handler stores.\n\nHandlers writing raw output (grep, sleep_echo)\
+        \ report one entry per machine:\n```\n    {\n        \"success\": bool,  \
+        \      # whether this poll succeeded\n        \"message\": str,\n        \"\
+        data\": {\n            \"overall_status\": \"complete\" | \"pending\",\n \
+        \           \"expected_machines\": [str, ...],\n            \"results\": [{\"\
+        machine_name\": str, \"status\": str, \"result\": str,\n                 \
+        \         \"truncated\": int, \"error_msg\": str, \"attempts\": int,\n   \
+        \                       \"started_at\": str, \"finished_at\": str,\n     \
+        \                     \"stderr\": str, \"return_code\": int}, ...]\n     \
+        \   }\n    }\n    ```\n    overall_status is \"complete\" when all expected\
+        \ machines have a terminal result (done/failed).\n\nHandlers writing a structured\
+        \ payload (e.g. the Data Carousel operations submitted by\npandaserver.api.v1.data_carousel_api)\
+        \ report that payload at the top level instead:\n```\n    {\n        \"success\"\
+        : bool,        # whether the OPERATION succeeded\n        \"message\": str,\
+        \         # the operation's message\n        \"data\": <the operation's data>,\n\
+        \        \"async_meta\": {\"status\": \"pending\" | \"running\" | \"done\"\
+        \ | \"failed\",\n                       \"attempts\": int, \"started_at\"\
+        : str, \"finished_at\": str,\n                       \"error_msg\": str}\n\
+        \    }\n    ```\n    Poll on async_meta.status, not on success: success is\
+        \ False while the request is still\n    pending or running, and False again\
+        \ when the handler crashed (status \"failed\", reason in\n    async_meta.error_msg),\
+        \ so it only tells the operation's outcome once status is \"done\".\n    async_meta\
+        \ is present whenever the poll itself succeeded, so a response without it\
+        \ is a\n    failure of this call (not found, not authorized) rather than a\
+        \ report about the request."
       tags:
       - async_process
       requestBody:
