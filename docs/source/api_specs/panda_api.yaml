@@ -338,10 +338,17 @@ paths:
             schema:
               type: object
               properties:
-                request_id:
+                async_id:
                   type: string
                   description: UUID returned by a submit_* endpoint
+                request_id:
+                  type: string
+                  description: 'the name async_id had before the rename, still accepted
+                    so callers
+
+                    that have not moved keep working; ignored when async_id is given'
               required:
+              - async_id
               - request_id
       responses:
         '200':
@@ -1171,8 +1178,7 @@ paths:
         processed by the async request daemon, so the call returns without waiting
         for DDM or iDDS.
 
-        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
-        to get the
+        Poll `/v1/async_process/get_result` with the returned async_id to get the
 
         outcome; it reports the operation''s own success, message and data at the
         top level.
@@ -1257,8 +1263,7 @@ paths:
         processed by the async request daemon, so the call returns without waiting
         for DDM or iDDS.
 
-        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
-        to get the
+        Poll `/v1/async_process/get_result` with the returned async_id to get the
 
         outcome; it reports the operation''s own success, message and data at the
         top level.
@@ -1359,8 +1364,7 @@ paths:
         by the async request daemon, so the call returns without waiting for DDM or
         iDDS.
 
-        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
-        to get the
+        Poll `/v1/async_process/get_result` with the returned async_id to get the
 
         outcome; it reports the operation''s own success, message and data at the
         top level.
@@ -1445,8 +1449,7 @@ paths:
 
         the async request daemon, so the call returns without waiting for DDM or iDDS.
 
-        Poll `/v1/async_process/get_result` with the returned async_id as its request_id
-        to get the
+        Poll `/v1/async_process/get_result` with the returned async_id to get the
 
         outcome; it reports the operation''s own success, message and data at the
         top level.
@@ -3078,10 +3081,12 @@ paths:
                   description: harvester id, e.g. `harvester_central_A`
                 metrics:
                   type: array
-                  description: "list of triplets `[[host, timestamp, metric_dict],[host,\
-                    \ timestamp, metric_dict]...]`. The metric dictionary is json\
-                    \ encoded, as it is stored in the database like that.\n```\nharvester_host\
-                    \ = \"harvester_host.cern.ch\"\ncreation_time = datetime.now().strftime(\"\
+                  description: "list of triplets `[[timestamp, host, metrics_json],[timestamp,\
+                    \ host, metrics_json]...]`, all three of them strings.\nThe metrics\
+                    \ are json encoded, as they are stored in the database like that.\
+                    \ The order is the one\nDBProxy.updateServiceMetrics reads and\
+                    \ the one the example below builds.\n```\nharvester_host = \"\
+                    harvester_host.cern.ch\"\ncreation_time = datetime.now().strftime(\"\
                     %Y-%m-%d %H:%M:%S.%f\")\nmetric = {\n    \"rss_mib\": 2737.36,\n\
                     \    \"memory_pc\": 39.19,\n    \"cpu_pc\": 15.23,\n    \"volume_data_pc\"\
                     : 20.0,\n    \"cert_lifetime\": {\n        \"/data/atlpan/proxy/x509up_u25606_prod\"\
@@ -6205,60 +6210,6 @@ paths:
         '
       tags:
       - system
-      parameters:
-      - name: '**kwargs'
-        in: query
-        required: true
-        type: string
-        description: arbitrary keyword parameters that will be printed out
-      responses:
-        '200':
-          description: Method called correctly
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                    description: Indicates whether the request was successful (True)
-                      or not (False)
-                  message:
-                    type: string
-                    description: Message indicating the nature of the failure. Empty
-                      or meaningless if the request was successful.
-                  data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
-                required:
-                - success
-                - message
-                - data
-        '403':
-          description: Forbidden
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: You are calling an undefined method is not allowed for the
-                  requested URL
-        '404':
-          description: Not Found
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Resource not found
-        '500':
-          description: INTERNAL SERVER ERROR
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: INTERNAL SERVER ERROR. The server encountered an internal
-                  error and was unable to complete your request.
   /v1/system/get_voms_attributes:
     get:
       summary: Get VOMS attributes
