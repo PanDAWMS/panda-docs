@@ -633,8 +633,8 @@ Timeout Rules
 * the above :gdp:`HEARTBEAT_TIMEOUT_<workflow>` for transferring jobs with the ``workflow`` and own stage-out
   mechanism that sets not-null job.jobSubStatus
 * 3 hours for holding jobs with job.currentPriority>=800, while days for holding jobs with job.currentPriority<800
-* ``transtimehi`` days for transferring jobs with job.currentPriority>=800, while
-  ``transtimelo`` days for transferring jobs with job.currentPriority<800
+* `TRANSFER_TIMEOUT_HI_PRIORITY` days for transferring jobs with job.currentPriority>=800, while
+  `TRANSFER_TIMEOUT_LO_PRIORITY` days for transferring jobs with job.currentPriority<800. Parameters can be set in config table.
 * disable all timeout rules when the queue status is :green:`paused` or the queue has :green:`disableReassign`
   in ``catchall``
 * fast rebrokerage for defined, assigned, activated, or starting jobs at the queues
