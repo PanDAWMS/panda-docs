@@ -51,6 +51,7 @@ computing middleware.
    advanced/carbon_footprint
    advanced/task_params
    advanced/native_workflow_api
+   advanced/native_workflow_production
    advanced/analysis_data_carousel
    advanced/mcp
 
