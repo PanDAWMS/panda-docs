@@ -622,6 +622,8 @@ All placeholders available
 """"""""""""""""""""""""""
 
 * ``{accessPoint}``: The directory path where harvester put files for payload interaction about the worker. Specified from accessPoint in messenger section. Usually accessPoint is under a (shared) filesystem which both the Harvester and the Condor schedd service can access
+* ``{arcTokenParam}``: The ready-to-use SDF line ``scitokens_file = <token path>`` for ARC CE, or an empty string. It is non-empty only when the chosen CE is an ARC CE submitted with the "arc" (REST) grid type, "token" is among the authentication methods of the CE in the grid service information (``grid_services.json`` from cacher), and a token is resolved for the CE. It allows one SDF template to submit with token to the ARC CEs which support it, and without token to those which do not
+* ``{ceARCGridType}``: The grid type of the ARC CE to put in ``grid_resource = {ceARCGridType} {ceEndpoint}``, either "arc" (ARC CE REST interface) or "nordugrid" (GridFTP interface). Specified from the ``submit_arc_grid_type`` extra plugin configuration (see :ref:`here <ref-htcondor-extra-plugin-configs>`). Default is "arc"
 * ``{ceEndpoint}``: Endpoint (usually hostname with prefix and/or port) of the computing element (CE). According to the PQ setup in local configuration or on CRIC ("ce_endpoint"). If one or more CEs are configured, one of the active CEs will be chosen (based on a weighting algorithm) for the worker and its endpoint will be put in ``{ceEndpoint}``
 * ``{ceFlavour}``: Type (flavor) of the computing element (CE). Specified from the PQ setup on CRIC ("ce_flavour"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
 * ``{ceHostname}``: Hostname of the computing element (CE). According to the PQ setup in local configuration or on CRIC (short hostname in "ce_endpoint"). If one or more CEs are configured, one of the active CEs will be chosen (based on a weighting algorithm) for the worker and its hostname will be put in ``{ceHostname}``
@@ -629,6 +631,7 @@ All placeholders available
 * ``{ceQueueName}``: Internal queue inside the computing element (CE) to be used (not to be confused with PanDA queue). Specified from the PQ setup on CRIC ("ce_queue_name"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
 * ``{ceVersion}``: Version of the computing element (CE) to be used (not to be confused with PanDA queue). Specified from the PQ setup on CRIC ("ce_version"). This placeholder is only useful when htcondor_submitter attribute useCRICGridCE = true .
 * ``{computingSite}``: Computing site to which the worker to submit. According the worker. Usually ``{computingSite}`` and {pandaQueueName} are identical
+* ``{cricPandaSite}``: The PanDA site which the PQ belongs to. Specified from the PQ setup on CRIC ("panda_site"). This placeholder is only useful when htcondor_submitter attribute useCRIC = true .
 * ``{customSubmitAttributes}``: Custom condor submit attributes to append to the SDF file, in the form "+key = value". According to PQ setup on CRIC (associate parameters "jdl.plusattr.<key>" where <key> is the attribute key name).
 * ``{executableFile}``: Path of the executable file to submit. Specified from htcondor_submitter attribute executableFile
 * ``{gtag}``: The URL for the pilot log (usually stdout of the condor job) of the worker. According to htcondor_submitter attribute logBaseURL (which points to logDir) and the worker. Note the functionality to export logs has to be done additionally outside harvester (e.g. httpd file server)
@@ -643,6 +646,10 @@ All placeholders available
 * ``{nCoreTotal}``: Number of total cores requested by the worker. According to the PQ or the worker
 * ``{nNode}``: Number of nodes requested by the worker. According to the PQ or the worker
 * ``{pandaQueueName}``: PanDA queue (PQ) name of the worker. According to the PQ
+* ``{pandaTokenFilename}``: Filename of the OIDC token for the pilot to authenticate the PanDA server (not to be confused with ``{tokenFilename}``, which is the token to authenticate the CE). Specified from htcondor_submitter attribute pandaTokenFilename
+* ``{pandaTokenKeyFilename}``: Filename of the token key for the pilot to authenticate the PanDA server, i.e. the basename of ``{pandaTokenKeyPath}``
+* ``{pandaTokenKeyPath}``: Complete file path of the token key for the pilot to authenticate the PanDA server. Specified from htcondor_submitter attribute pandaTokenKeyPath. The token key file is typically maintained by the token_key_cred_manager credmanager plugin
+* ``{pandaTokenPath}``: Complete file path of the OIDC token for the pilot to authenticate the PanDA server, equivalent to ``{pandaTokenDir}/{pandaTokenFilename}`` with pandaTokenDir the htcondor_submitter attribute
 * ``{pilotArgs}``: Custom pilot arguments to append to pilot/wrapper command. According to PQ setup on CRIC (associate parameter "pilot_args").
 * ``{pilotDebugOption}``: Default pilot debug option to append to pilot/wrapper command (empty string or "-d"). According to the prodSourceLabel of the worker. For "ptest" and "rc_test2" the value is "-d", and for the rest it is empty string.
 * ``{pilotJobLabel}``: Pilot job label option to pass to pilot "-j" flag. According to the worker.
@@ -652,7 +659,7 @@ All placeholders available
 * ``{pilotType}``: Pilot type option to pass to pilot "-i" flag. According to the worker.
 * ``{pilotUrlOption}``: Pilot url option to append to pilot/wrapper command (empty string or "--piloturl <the_url>"). According to PQ setup on CRIC (associate parameter  "pilot_url").
 * ``{pilotVersion}``: Pilot version to pass to pilot "--pilotversion" flag. According to PQ setup on CRIC ("pilot_version").
-* ``{prodSourceLabel}``: prodSourceLabel of the worker. Specified from htcondor_submitter attribute prodSourceLabel. Should match prodSourceLabel of corresponding PanDA jobs.
+* ``{prodSourceLabel}``: prodSourceLabel of the worker, matching prodSourceLabel of the corresponding PanDA jobs. Derived from the pilotType and the jobType of the worker and the prodSourceLabel of the PQ in queueconfig: for pilotType "RC" it is "rc_test2", for "ALRB" it is "rc_alrb", for "PT" it is "ptest", and for "PR" it is the prodSourceLabel of the PQ.
 * ``{requestCputime}``: CPU time requested by the worker in seconds. According to the PQ or the worker
 * ``{requestCputimeMinute}``: CPU time requested by the worker in minutes. According to the PQ or the worker
 * ``{requestDisk}``: Disk space requested by the worker in KB. Derived from the PQ or the worker
@@ -688,27 +695,60 @@ htcondor_submitter generates the real SDF file according to the SDF template, th
 Attributes of htcondor_submitter
 """"""""""""""""""""""""""""""""
 
-* ``"CEtemplateDir"``: Path of the directory containing SDF templates, one for each CE flavor. Only useful when useCRICGridCE = true, so that harvester selects one of the CEs on CRIC, and get the correct template file in CEtemplateDir according to the CE flavor (also set on CRIC "ce_flavour"). Will be ignored if templateFile is set. Currently the valid filename of SDF templates under CEtemplateDir should be either *htcondor-ce.sdf* for HTCondorCE or *arc-ce_arc.sdf* for ARC CE REST interface. Default is false
+* ``"CEtemplateDir"``: Path of the directory containing SDF templates, one for each CE flavour. Only useful when useCRICGridCE = true, so that harvester selects one of the CEs on CRIC, and get the correct template file in CEtemplateDir according to the CE flavour (also set on CRIC "ce_flavour"). Will be ignored if templateFile is set. The SDF template taken for a worker is the file named *<ce_flavour>.sdf* in lowercase, i.e. *htcondor-ce.sdf* for HTCondorCE, *arc-ce.sdf* for ARC CE (with the default REST interface), and *cream-ce.sdf* for CREAM CE. If ARC CEs are to be submitted through the GridFTP interface instead (submit_arc_grid_type = "nordugrid", see :ref:`here <ref-htcondor-extra-plugin-configs>`), the filename for ARC CE becomes *arc-ce_nordugrid.sdf* . Default is empty string
+* ``"ceEndpoint"``: Endpoint of the CE to submit to, filling the ``{ceEndpoint}`` placeholder. Only useful when useCRICGridCE = false, i.e. to define the CE manually instead of taking it from CRIC. It can be a list, but only together with ceHostname as a list: then the two lists are paired entry by entry and one pair is chosen randomly for each worker. Default is unset
+* ``"ceHostname"``: Hostname of the CE to submit to, filling the ``{ceHostname}`` placeholder. Only useful when useCRICGridCE = false. It can be a list, of which one entry is chosen randomly for each worker. Default is unset
+* ``"ceQueueName"``: Internal queue name inside the CE to submit to, filling the ``{ceQueueName}`` placeholder. Only useful when useCRICGridCE = false. Default is unset
 * ``"condorHostConfig"``: Path of JSON config file of remote condor hosts: condor schedds/pools and their weighting. For each worker, one of condor hosts in condorHostConfig will be selected, with probability according to the given weight, and harvester will submit **from** this condor host (not to be confused with batch-systems or CEs of the PQ, where submits **to**). If set, condorSchedd and condorPool are ignored. Default is null
-* ``"condorPool"``: Condor pool name (condor collector). If there are multiple condor schedds/pools, use condorHostConfig instead. Default is null, i.e. localhost:9618
-* ``"condorSchedd"``: Condor schedd name. If there are multiple condor schedds/pools, use condorHostConfig instead. Default is null, i.e. localhost
+* ``"condorPool"``: Condor pool name (condor collector). If there are multiple condor schedds/pools, use condorHostConfig instead. The strings ``$hostname`` and ``${hostname}`` in the value are replaced with the hostname of the harvester instance. Default is null, i.e. localhost:9618
+* ``"condorSchedd"``: Condor schedd name. If there are multiple condor schedds/pools, use condorHostConfig instead. The strings ``$hostname`` and ``${hostname}`` in the value are replaced with the hostname of the harvester instance. Default is null, i.e. localhost
 * ``"executableFile"``: Executable file of the condor jobs; only used for SDF template placeholder. Default is null
-* ``"logBaseURL"``: Base URL of the file server which exports logDir. Default is null. logBaseURL will be used to construct real URL of the log files (stdout and stderr of the payload, and condor job log) for monitoring. The value of logBaseURL may contain a special placeholder ``[ScheddHostname]``, which will be resolved to the hostname of the condor schedd which hosts the job of the worker - this is useful when harvester submits through multiple condor schedd instances and the job logs are meant to stay on the condor schedd instances to export. Note that the file server (e.g. by apache) for exporting logs should be set up by the admin in addition to the harvester or condor service. 
-* ``"logDir"``: Path of the custom base directory to store logs of condor jobs; only used for SDF template placeholder. Default is environment variable $TMPDIR or "/tmp"
+* ``"logBaseURL"``: Base URL of the file server which exports logDir. Default is null. logBaseURL will be used to construct real URL of the log files (stdout and stderr of the payload, and condor job log) for monitoring. The value of logBaseURL may contain a special placeholder ``[ScheddHostname]``, which will be resolved to the hostname of the condor schedd which hosts the job of the worker - this is useful when harvester submits through multiple condor schedd instances and the job logs are meant to stay on the condor schedd instances to export. The strings ``$hostname`` and ``${hostname}`` are replaced with the hostname of the harvester instance, and ``${harvester_id}`` with the harvesterID. Note that the file server (e.g. by apache) for exporting logs should be set up by the admin in addition to the harvester or condor service.
+* ``"logDir"``: Path of the custom base directory to store logs of condor jobs; only used for SDF template placeholder. The strings ``$hostname`` and ``${hostname}`` in the value are replaced with the hostname of the harvester instance (and the directory is created if it does not exist). Default is environment variable $TMPDIR or "/tmp"
 * ``"minBulkToRandomizedSchedd"``: Number of minimum workers in a cycle that could be submitted from multiple condor hosts. If number of workers in a submitter cycle is less than minBulkToRandomizedSchedd, all the workers will be bulkily submitted from only one condor host. Default is 20
-* ``"nCoreFactor"``: Factor to adjust number of cores requested by the worker. Default is 1
+* ``"nCoreFactor"``: Factor to adjust number of cores (and memory) requested by the worker. Besides a plain integer, it can be a map in the form ``{"<jobType>": {"<resourceType>": <factor>}}`` to set the factor per job type and resource type; the key "Any" is the fallback job type, and for non-unified queues the resource type key is "Undefined". Default is 1
+* ``"nCorePerNode"``: Number of cores per node to request, overriding the corecount of the PQ; only used for SDF template placeholder ``{nCorePerNode}`` and to derive ``{nNode}``. Default is the corecount of the PQ (1 if unknown)
+* ``"nNode"``: Number of nodes to request; only used for SDF template placeholder ``{nNode}``. Default is null, i.e. computed as the total number of cores divided by nCorePerNode, rounded up
 * ``"nProcesses"``: Number of processes (threads) for htcondor_submitter to submit. Default is 1
+* ``"pandaTokenDir"``: Path of the directory of the OIDC token for the pilot to authenticate the PanDA server (not to be confused with tokenDir, which is about tokens to authenticate CEs); only used for SDF template placeholder ``{pandaTokenPath}``. Default is null
+* ``"pandaTokenFilename"``: Filename of the OIDC token for the pilot to authenticate the PanDA server; only used for SDF template placeholders ``{pandaTokenFilename}`` and ``{pandaTokenPath}``. Default is null
+* ``"pandaTokenKeyPath"``: Complete file path of the token key for the pilot to authenticate the PanDA server (typically the file maintained by the token_key_cred_manager credmanager plugin); only used for SDF template placeholders ``{pandaTokenKeyPath}`` and ``{pandaTokenKeyFilename}``. Default is null
 * ``"rcPilotRandomWeightPermille"``: Probability permille (per thousand) to randomly run PR pilot with RC pilot url. Default is 0; i.e. never
 * ``"templateFile"``: Path of SDF template file. Default is null
 * ``"tokenDir"``: Default token directory for a queue; only used for SDF template placeholder {token*} Default is null
 * ``"tokenDirAnalysis"``: token directory for analysis workers in grandly unified queues (should not be used for unified dispatch); only used for SDF template placeholder {token*} if the worker is analysis. Default is null
 * ``"useAnalysisCredentials"``: Try to use analysis credentials first. Default is false
 * ``"useCRIC"``: Whether to use CRIC; i.e. to fill worker attributes and some SDF template placeholders with the PQ setup on CRIC. If false, the SDF template placeholders depending on CRIC (non-empty "harvester_template") should not be used. Default is false
-* ``"useCRICGridCE"``: Whether to select Grid CEs from PQ setup on CRIC. If true, useCRIC will be overwritten to be true as well and for each worker, one of the CEs on CRIC will be selected (weighted by an internal algorithm) to submit the worker to. For Grid, useful with CEtemplateDir attribute. Default is false
+* ``"useCRICGridCE"``: Whether to select Grid CEs from PQ setup on CRIC. If true, useCRIC will be overwritten to be true as well and for each worker, one of the CEs on CRIC will be selected (weighted by an internal algorithm) to submit the worker to. Only CEs which are in ACTIVE state and whose flavour is one of "arc-ce", "cream-ce" and "htcondor-ce" are considered. For Grid, useful with CEtemplateDir attribute. Default is false
 * ``"useFQDN"``: Whether to use FQDN for harvester internal record. If false or null, short hostname is used. Default is null
 * ``"useSpool"``: Whether to use condor spool mechanism. If false, need shared FS across remote schedd. Default is false
-* ``"x509UserProxy"``: x509 user proxy; only used for SDF template placeholder ``{x509UserProxy}``. Default is null
-* ``"x509UserProxyAnalysis"``: x509 user proxy for analysis workers in grandly unified queues (should not be used for unified dispatch); only used for SDF template placeholder ``{x509UserProxy}`` if the worker is analysis. Default is null
+* ``"x509UserProxy"``: x509 user proxy; only used for SDF template placeholder ``{x509UserProxy}``. Default is the environment variable $X509_USER_PROXY
+* ``"x509UserProxyAnalysis"``: x509 user proxy for analysis workers in grandly unified queues (should not be used for unified dispatch); only used for SDF template placeholder ``{x509UserProxy}`` if the worker is analysis. Default is the environment variable $X509_USER_PROXY_ANAL
+
+Note that the attributes ``"useAtlasCRIC"`` (and the older ``"useAtlasAGIS"``) and ``"useAtlasGridCE"`` are deprecated aliases of ``"useCRIC"`` and ``"useCRICGridCE"`` respectively. They are still honored for backward compatibility, but new queue configurations should use the latter.
+
+
+.. _ref-htcondor-extra-plugin-configs:
+
+Extra plugin configurations of htcondor_submitter
+"""""""""""""""""""""""""""""""""""""""""""""""""
+
+Besides the attributes in queueconfig, htcondor_submitter takes instance-wide configurations from ``master.extraPluginConfigs`` in the harvester configuration file, under the key ``HTCondorSubmitter`` . They apply to all PQs served by the harvester instance:
+
+* ``"submit_arc_grid_type"``: Grid type of the htcondor grid universe to submit to ARC CEs with, filling the ``{ceARCGridType}`` placeholder and deciding the SDF template filename under CEtemplateDir. Set it to "nordugrid" to submit through the GridFTP interface. Default is "arc", i.e. the ARC CE REST interface
+
+Example in the harvester configuration file (note that the JSON value must span multiple lines to be parsed as JSON):
+
+.. code-block:: text
+
+    [master]
+
+    extraPluginConfigs =
+      {
+        "HTCondorSubmitter": {
+          "submit_arc_grid_type": "nordugrid"
+        }
+      }
 
 
 .. _ref-htcondor-condor-host-config:
@@ -778,15 +818,24 @@ htcondor_monitor supports event-based monitor check (to be explained) feature.
 Attributes of htcondor_monitor
 """"""""""""""""""""""""""""""
 
-* ``"cacheEnable"``: Whether to enable cache for htcondor_monitor to cache status of condor jobs in FIFO DB. Default follows monitor.pluginCacheEnable if set in harvester configuration, else false.
-* ``"cacheRefreshInterval"``: Factor to adjust number of cores requested by the worker. Default follows harvester_config.monitor.pluginCacheRefreshInterval if set in harvester configuration, else follows monitor.checkInterval in harvester configuration
+* ``"cacheEnable"``: Whether to cache the status of condor jobs in FIFO DB. This is not set per queue: it follows monitor.pluginCacheEnable in the harvester configuration if set, else false
+* ``"cacheRefreshInterval"``: Interval in seconds after which the cached condor job status is considered stale. This is not set per queue: it follows monitor.pluginCacheRefreshInterval in the harvester configuration if set, else monitor.checkInterval
 * ``"cancelUnknown"``: Whether to use consider workers to be cancelled when the status of their corresponding condor jobs is unknown (due to condor problem, connection issue, etc). If true, htcondor_monitor will mark the workers to be cancelled (a terminal status), attempt to kill the corresponding condor jobs, and will not check the workers any longer. If false, the workers will be checked again in next monitor cycle. Default is false
-* ``"condorHostConfig_list"``: The extra list of condor host config files (appended to the list from eventBasedPlugins.condorHostConfig_list in harvester configuration) for htcondor_monitor to check and cache. Note condorHostConfig_list in queueconfig is only useful when event-based in enabled and htcondor_monitor event-based plugin is configured in harvester configuration (eventBasedEnable = true, eventBasedPlugins contains module=pandaharvester.harvestermonitor.htcondor_monitor, name=HTCondorMonitor, condorHostConfig_list is set). Default is null
+* ``"condorHostConfig_list"``: The extra list of condor host config files (appended to the list from eventBasedPlugins.condorHostConfig_list in harvester configuration) for htcondor_monitor to check and cache. The schedds and pools in those files make up the submission hosts to query. Note condorHostConfig_list in queueconfig is only useful when event-based in enabled and htcondor_monitor event-based plugin is configured in harvester configuration (eventBasedEnable = true, eventBasedPlugins contains module=pandaharvester.harvestermonitor.htcondor_monitor, name=HTCondorMonitor, condorHostConfig_list is set). Default is null
 * ``"heldTimeout"``: Timeout in seconds for a worker whose condor jobs in held status to be considered failed. Default is 3600, aka 1 hour
-* ``"nProcesses"``: Number of processes (threads) for htcondor_monitor to query condor job status. Default is 1
+* ``"nProcesses"``: Number of processes (threads) for htcondor_monitor to query condor job status. Default is 4
 * ``"payloadType"``: The type of payload, for the purpose of adding additional error messages according to the payload exit code. Default is null
+* ``"submissionHost_list"``: The extra list of submission hosts (each in the form "<schedd>,<pool>") for htcondor_monitor to check and cache, in addition to those taken from condorHostConfig_list. Like condorHostConfig_list, it is only useful for the event-based check. Default is empty list
 * ``"useCondorHistory"``: Whether to query condor schedd the condor history. Default is true
+* ``"useCondorHistoryMaxAge"``: Maximum age in seconds, since the last status update of a worker, for the worker to be queried with condor history. Older workers are not looked up in the condor history any longer. Default is 7200, aka 2 hours
 
+
+Extra plugin configurations of htcondor_monitor
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+htcondor_monitor also takes instance-wide configurations from ``master.extraPluginConfigs`` in the harvester configuration file, under the key ``HTCondorMonitor`` (see :ref:`here <ref-htcondor-extra-plugin-configs>` for the syntax of the configuration):
+
+* ``"use_condor_history"``: If set to false, the condor history query is disabled for all PQs of the harvester instance, overriding the useCondorHistory attribute of the queues. Default is unset, i.e. each queue follows its own useCondorHistory attribute
 
 |br|
 
@@ -800,5 +849,9 @@ htcondor_sweeper kills condor jobs when corresponding workers are to be killed a
 
 Attributes of htcondor_sweeper
 """"""""""""""""""""""""""""""
+
+* ``"preparatorBasePath"``: Base path of the preparator directories to clean up after the workers terminated. If set, the sub-directory named after the PandaID of each job of the worker is removed. Default is unset, i.e. no preparator directory is cleaned up
+
+Other than that, htcondor_sweeper needs only ``module`` and ``name`` in the ``sweeper`` section of the queueconfig. The condor schedd to remove the condor jobs from is taken from the submissionHost recorded for each worker at submission time, so htcondor_sweeper does not need to be told about schedds or pools.
 
 No customizable attribute yet.
