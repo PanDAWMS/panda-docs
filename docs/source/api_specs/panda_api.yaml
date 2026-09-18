@@ -1170,8 +1170,7 @@ paths:
                   error and was unable to complete your request.
   /v1/data_carousel/submit_change_staging_destination:
     post:
-      summary: Submit a request to change destination of staging, to be processed
-        asynchronously
+      summary: Submit async request to change destination of staging
       description: 'Asynchronous flavour of `change_staging_destination`: the request
         is registered in DB and
 
@@ -1256,7 +1255,7 @@ paths:
                   error and was unable to complete your request.
   /v1/data_carousel/submit_change_staging_source:
     post:
-      summary: Submit a request to change source of staging, to be processed asynchronously
+      summary: Submit async request to change source of staging
       description: 'Asynchronous flavour of `change_staging_source`: the request is
         registered in DB and
 
@@ -1357,7 +1356,7 @@ paths:
                   error and was unable to complete your request.
   /v1/data_carousel/submit_force_to_staging:
     post:
-      summary: Submit a request to force to staging, to be processed asynchronously
+      summary: Submit async request to force to staging
       description: 'Asynchronous flavour of `force_to_staging`: the request is registered
         in DB and processed
 
@@ -1442,8 +1441,7 @@ paths:
                   error and was unable to complete your request.
   /v1/data_carousel/submit_retire_unused:
     post:
-      summary: Submit a request to retire an unused staging request, to be processed
-        asynchronously
+      summary: Submit async request to retire unused staging request
       description: 'Asynchronous flavour of `retire_unused`: the request is registered
         in DB and processed by
 
