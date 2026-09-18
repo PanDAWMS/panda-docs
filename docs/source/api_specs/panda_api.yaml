@@ -3848,7 +3848,7 @@ paths:
   /v1/job/get_status:
     get:
       summary: Get status of a job.
-      description: 'Gets the status for a job and command to the pilot if any. Requires
+      description: 'Gets the status of a job and command to the pilot if any. Requires
         a secure connection.
 
 
