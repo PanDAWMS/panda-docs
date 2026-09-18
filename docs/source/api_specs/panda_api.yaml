@@ -8853,6 +8853,310 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
+  /v1/workflow/submit_workflow:
+    post:
+      summary: Submit a PanDA native workflow as a raw request, with the description
+        in a sandbox.
+      description: 'This is the endpoint the pandaclient uses (see Client.submit_workflow).
+        The description itself
+
+        lives in an uploaded sandbox and is downloaded and parsed asynchronously,
+        so nothing about it can
+
+        be validated here. To submit a description inline instead, with no sandbox,
+        use
+
+        submit_workflow_description.
+
+
+        '
+      tags:
+      - workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                params:
+                  type: string
+                  description: dictionary or JSON of parameters of the raw request
+              required:
+              - params
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/workflow/submit_workflow_raw_request:
+    post:
+      summary: Deprecated alias of submit_workflow.
+      description: ''
+      tags:
+      - workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                params:
+                  type: string
+                  description: dictionary or JSON of parameters of the raw request
+              required:
+              - params
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/workflow/submit_workflow_definition:
+    post:
+      summary: Submit a PanDA native workflow from an already-resolved workflow definition.
+      description: 'NOTE: for testing only. A workflow definition is the engine''s
+        internal, fully-resolved form,
+
+        normally produced by the server itself when it parses a submitted description.
+        Nothing outside
+
+        tests should call this; use submit_workflow to submit a raw request with a
+        sandbox, or
+
+        submit_workflow_description to submit a workflow description inline.
+
+
+        '
+      tags:
+      - workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workflow_definition:
+                  type: string
+                  description: dictionary of workflow definition
+              required:
+              - workflow_definition
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/workflow/submit_workflow_description:
+    post:
+      summary: Submit a PanDA native workflow described inline, without a sandbox.
+      description: 'The description uses the native workflow schema (name, inputs,
+        outputs, steps, options) and is
+
+        passed in the request body rather than in a sandbox, so a step carrying raw
+        task parameters
+
+        needs nothing uploaded. The description is validated synchronously, so that
+        an authoring mistake
+
+        is reported here, while parsing into a workflow definition stays asynchronous
+        as for the other
+
+        submission paths.
+
+
+        '
+      tags:
+      - workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workflow_description:
+                  type: string
+                  description: dictionary or JSON of the workflow description
+              required:
+              - workflow_description
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The data returned if the operation is successful.
+                      Null if it fails or the method does not generate return data.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
 tags:
 - name: async_process
   description: Operations related to async_process
@@ -8880,3 +9184,5 @@ tags:
   description: Operations related to system
 - name: task
   description: Operations related to task
+- name: workflow
+  description: Operations related to workflow
