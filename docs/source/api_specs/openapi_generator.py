@@ -250,6 +250,7 @@ if __name__ == "__main__":
         "statistics_api.py",
         "system_api.py",
         "task_api.py",
+        "workflow_api.py",
     ]
     # Initialize the OpenAPI dictionary
     open_api = {

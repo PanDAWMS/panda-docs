@@ -4,6 +4,9 @@ Working with PanDA Native Workflows
 
 Topics beyond the day-to-day use of :doc:`PanDA native workflows </client/pchain_native>`.
 
+For production chains, where a step carries JEDI task parameters directly and the description
+is submitted to the server as JSON, see :doc:`/advanced/native_workflow_production`.
+
 .. contents:: Table of Contents
     :local:
 
