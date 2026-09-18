@@ -182,6 +182,6 @@ Parents are named by ``key`` rather than by task ID, because a placeholder has n
 Reference
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Every parameter and response of these endpoints is in the `API documentation page <../_static/panda_api.html>`_ under the ``workflow`` tag.
+Every parameter and response of these endpoints is in the `API documentation page <../_static/panda_api.html#tag/workflow>`_, under the ``workflow`` tag.
 
 |br|
