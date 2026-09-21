@@ -1,0 +1,92 @@
+{
+  "name": "example_reco_chain",
+  "inputs": {
+    "raw": "data23_13p6TeV.00456789.physics_Main.daq.RAW"
+  },
+  "outputs": {
+    "merged_aod": {"from": "merge/AOD"}
+  },
+  "options": {},
+  "steps": {
+    "reco": {
+      "type": "task",
+      "task_params": {
+        "taskName": "data23_13p6TeV.00456789.physics_Main.recon.AOD.f1234/",
+        "taskType": "prod",
+        "prodSourceLabel": "managed",
+        "vo": "atlas",
+        "userName": "example",
+        "transPath": "Reco_tf.py",
+        "transUses": "Atlas-24.0.49",
+        "nEventsPerJob": 1000,
+        "noWaitParent": true,
+        "parent_tid": "${PARENT_TASKID}",
+        "log": {
+          "type": "template",
+          "param_type": "log",
+          "value": "log.${TASKID}._${SN}.job.log.tgz",
+          "dataset": "data23_13p6TeV.00456789.physics_Main.recon.log.f1234_wfid${WFID}_tid${TASKID}_00",
+          "offset": 0
+        },
+        "jobParameters": [
+          {"type": "constant", "value": "--autoConfiguration everything"},
+          {
+            "type": "template",
+            "param_type": "input",
+            "value": "--inputBSFile=${IN/L}",
+            "dataset": "{raw}",
+            "offset": 0
+          },
+          {
+            "type": "template",
+            "param_type": "output",
+            "value": "--outputAODFile=AOD.${TASKID}._${SN}.pool.root",
+            "dataset": "data23_13p6TeV.00456789.physics_Main.recon.AOD.f1234_wfid${WFID}_tid${TASKID}_00",
+            "token": "ATLASDATADISK",
+            "offset": 0
+          }
+        ]
+      }
+    },
+    "merge": {
+      "type": "task",
+      "outputs": {"AOD": "--outputAOD_MRGFile"},
+      "task_params": {
+        "taskName": "data23_13p6TeV.00456789.physics_Main.merge.AOD.f1234_m5678/",
+        "taskType": "prod",
+        "prodSourceLabel": "managed",
+        "vo": "atlas",
+        "userName": "example",
+        "transPath": "AODMerge_tf.py",
+        "transUses": "Atlas-24.0.49",
+        "nGBPerJob": 10,
+        "noWaitParent": true,
+        "parent_tid": "${PARENT_TASKID}",
+        "log": {
+          "type": "template",
+          "param_type": "log",
+          "value": "log.${TASKID}._${SN}.job.log.tgz",
+          "dataset": "data23_13p6TeV.00456789.physics_Main.merge.log.f1234_m5678_wfid${WFID}_tid${TASKID}_00",
+          "offset": 0
+        },
+        "jobParameters": [
+          {
+            "type": "template",
+            "param_type": "input",
+            "value": "--inputAODFile=${IN/L}",
+            "dataset": "{reco/AOD}",
+            "offset": 0
+          },
+          {
+            "type": "template",
+            "param_type": "output",
+            "value": "--outputAOD_MRGFile=AOD.${TASKID}._${SN}.pool.root",
+            "dataset": "data23_13p6TeV.00456789.physics_Main.merge.AOD.f1234_m5678_wfid${WFID}_tid${TASKID}_00",
+            "token": "ATLASDATADISK",
+            "offset": 0
+          }
+        ]
+      }
+    }
+  }
+}

@@ -13,36 +13,32 @@ The engine is data-driven: a step runs when the data it consumes is ready, not w
 
 |br|
 
+A complete description
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A description is one JSON object with :hblue:`name`, :hblue:`inputs`, :hblue:`outputs`, :hblue:`steps` and :hblue:`options`. This one reconstructs and then merges, which is enough to show every part fitting together.
+
+.. literalinclude:: native_workflow/wfd/production_two_step.json
+    :language: json
+    :caption: production_two_step.json
+
+Reading it as the engine does:
+
+* ``inputs`` names the datasets the workflow does not produce. ``reco`` consumes one as :hblue:`{raw}`.
+* ``merge`` consumes :hblue:`{reco/AOD}`, and that reference is the whole of the ordering: ``merge`` starts once that data is ready, and nothing says "after reco" anywhere.
+* ``reco`` names its output ``--outputAODFile``, so its key is ``AOD``. ``merge`` names its own ``--outputAOD_MRGFile``, whose derived key would be ``AOD_MRG``, so the step-level ``outputs`` map renames it to the plainer ``AOD``.
+* ``outputs`` declares what the workflow produces, here ``merge/AOD``.
+* Both steps ask for ``parent_tid``. ``merge`` gets the task of ``reco``; ``reco`` takes only an external input, so it has no parent and its task becomes its own, which is how a chain root is recorded. Both set ``noWaitParent``, so JEDI leaves the ordering to the engine.
+* ``${WFID}`` and ``${TASKID}`` appear in the dataset names, and ``${SN}`` and ``${IN/L}`` are left for JEDI to expand per job.
+
+The nine-task ATLAS chain this is cut down from lives in the panda-server repository, at :brown:`pandaserver/workflow/examples/production_chain_wfd.json`, with real transformation parameters throughout.
+
+|br|
+
 Steps that carry task parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Other step types build their parameters from a command line. A step of :hblue:`type: task` supplies them directly: :hblue:`task_params` is the :doc:`task parameter map </advanced/task_params>`, and the engine passes it through untouched.
-
-.. code-block:: json
-
-    {
-      "steps": {
-        "merge_hits": {
-          "type": "task",
-          "outputs": {"HITS": "--outputHITS_MRGFile"},
-          "task_params": {
-            "taskName": "...merge.HITS.e8590_e8586_a934_s4370/",
-            "vo": "atlas",
-            "prodSourceLabel": "managed",
-            "transPath": "HITSMerge_tf.py",
-            "log": {"type": "template", "param_type": "log", "value": "log.${TASKID}._${SN}.job.log.tgz",
-                    "dataset": "...merge.log.e8590_e8586_a934_s4370_tid${TASKID}_00"},
-            "jobParameters": [
-              {"type": "template", "param_type": "input",
-               "value": "--inputHITSFile=${IN_HITS/L}", "dataset": "{simul/HITS}"},
-              {"type": "template", "param_type": "output",
-               "value": "--outputHITS_MRGFile=HITS.${TASKID}._${SN}.pool.root",
-               "dataset": "...merge.HITS.e8590_e8586_a934_s4370_tid${TASKID}_00"}
-            ]
-          }
-        }
-      }
-    }
+Other step types build their parameters from a command line. A step of :hblue:`type: task` supplies them directly: :hblue:`task_params` is the :doc:`task parameter map </advanced/task_params>`, and the engine passes it through untouched, as both steps of the example above do.
 
 ``taskName``, ``jobParameters``, ``log``, ``transPath``, ``vo`` and ``prodSourceLabel`` are required, and the description is rejected on submission without them. A step whose ``prodSourceLabel`` is a production one is refused unless the submitter holds a production role.
 
@@ -93,8 +89,23 @@ Two IDs are not known when the description is written. PanDA substitutes both be
    * - :hblue:`${TASKID}`
      - The JEDI task ID of the step's own task
      - When that step's task is submitted
+   * - :hblue:`${PARENT_TASKID}`
+     - The JEDI task ID of the step feeding this one
+     - Before that step's task is submitted, since it is an input to the submission
 
-Use them anywhere in ``task_params``, dataset names included. They are distinct from the JEDI per-job templates such as ``${SN}``, ``${MAXEVENTS}`` and ``${IN_HITS/L}``, which PanDA leaves untouched for JEDI to expand per job, and from ``$JEDITASKID``, which JEDI substitutes into job file names for non-production tasks only.
+``${PARENT_TASKID}`` is the exception to the rest of this: nothing in the engine uses it. A step starts from its data, not from a parent task, so the engine never reads ``parent_tid``. Production machinery does, which is why a step may ask for it to be filled:
+
+.. code-block:: json
+
+    {"task_params": {"parent_tid": "${PARENT_TASKID}", "noWaitParent": true}}
+
+The engine then records the task of the step producing this step's input. A step whose inputs all come from outside the workflow submits with no parent, so JEDI makes its task its own parent, as a chain root is recorded today. It is per step and entirely optional: leave ``parent_tid`` out and nothing is set.
+
+A step fed by more than one step has to say which one is meant, since ``parent_tid`` holds a single task. Name it: :hblue:`${PARENT_TASKID:merge_hits}`, using the step name, which is the part that can be known when the description is written. The named step has to be one of those feeding this one, so that ``parent_tid`` and the relation queries describe the same relation. A task ID outright, ``"parent_tid": 52397622``, is also accepted, and is the way to attach a chain to a task that already exists outside the workflow.
+
+Set ``noWaitParent`` alongside it, as the production examples do. Without it JEDI holds the task until the parent is done, on top of the engine's own ordering; the server logs a warning if it is missing.
+
+Use the other two anywhere in ``task_params``, dataset names included. They are distinct from the JEDI per-job templates such as ``${SN}``, ``${MAXEVENTS}`` and ``${IN_HITS/L}``, which PanDA leaves untouched for JEDI to expand per job, and from ``$JEDITASKID``, which JEDI substitutes into job file names for non-production tasks only.
 
 |br|
 
