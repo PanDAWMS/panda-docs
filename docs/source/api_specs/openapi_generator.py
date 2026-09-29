@@ -46,6 +46,35 @@ def extract_docstrings(file_path):
     return docstrings
 
 
+def map_type(type_name):
+    """
+    Map a docstring type name to an OpenAPI type.
+
+    Returns:
+        tuple: (OpenAPI type, OpenAPI item type for arrays or None)
+    """
+    type_name = (type_name or "").lower()
+
+    # lists first, then dicts, then scalars: "dict[str, int]" must not be taken for an int
+    if "list[int]" in type_name or "list of int" in type_name:
+        return "array", "integer"
+    if "list[str]" in type_name or "list of str" in type_name:
+        return "array", "string"
+    if "list[float]" in type_name or "list of float" in type_name:
+        return "array", "number"
+    if "list" in type_name:
+        return "array", "object"
+    if "dict" in type_name:
+        return "object", None
+    if "int" in type_name:
+        return "integer", None
+    if "float" in type_name:
+        return "number", None
+    if "bool" in type_name:
+        return "boolean", None
+    return "string", None  # Default type (fallback)
+
+
 def extract_parameters(parsed):
     """
     Extract parameters from a docstring and format them as OpenAPI parameters.
@@ -60,25 +89,10 @@ def extract_parameters(parsed):
             continue
 
         # Map each parameter to OpenAPI format
-        param_type = "string"  # Default type (fallback)
-        if "list[int]" in param.type_name or "list of int" in param.type_name:
-            param_type = "array"
-            item_type = "integer"
-        elif "list[str]" in param.type_name or "list of str" in param.type_name:
-            param_type = "array"
-            item_type = "string"
-        elif "list[float]" in param.type_name or "list of float" in param.type_name:
-            param_type = "array"
-            item_type = "number"
-        elif "list" in param.type_name:
-            param_type = "array"
-            item_type = "object"
-        elif "int" in param.type_name:
-            param_type = "integer"
-        elif "float" in param.type_name:
-            param_type = "number"
-        elif "bool" in param.type_name:
-            param_type = "boolean"
+        param_type, item_type = map_type(param.type_name)
+        # Swagger 2.0 query parameters cannot be objects, a dict is passed as a string in the URL
+        if param_type == "object":
+            param_type = "string"
 
         print(
             f"Param: {param.arg_name}, Type: {param_type}, Optional: {param.is_optional} {param.description}"
@@ -116,27 +130,7 @@ def extract_parameters_as_json(parsed):
             continue
 
         # Map the type to OpenAPI type
-        param_type = "string"  # Default type
-        if "list[int]" in param.type_name or "list of int" in param.type_name:
-            param_type = "array"
-            item_type = "integer"
-        elif "list[str]" in param.type_name or "list of str" in param.type_name:
-            param_type = "array"
-            item_type = "string"
-        elif "list[float]" in param.type_name or "list of float" in param.type_name:
-            param_type = "array"
-            item_type = "number"
-        elif "list" in param.type_name:
-            param_type = "array"
-            item_type = "object"
-        elif "int" in param.type_name:
-            param_type = "integer"
-        elif "float" in param.type_name:
-            param_type = "number"
-        elif "bool" in param.type_name:
-            param_type = "boolean"
-        else:
-            param_type = "string"
+        param_type, item_type = map_type(param.type_name)
 
         # Build schema for the parameter
         param_schema = {"type": param_type, "description": param.description}
