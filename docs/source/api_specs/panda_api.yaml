@@ -5686,8 +5686,7 @@ paths:
                   description: Version of the pilot reporting the attributes.
                 pilot_attributes:
                   type: object
-                  description: The attributes to insert, either as a dictionary or
-                    as a JSON-encoded string.
+                  description: Dictionary with the attributes to insert.
                 timeout:
                   type: integer
                   description: The timeout value. Defaults to 60.
