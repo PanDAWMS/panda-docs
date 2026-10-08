@@ -38,9 +38,11 @@ The nine-task ATLAS chain this is cut down from lives in the panda-server reposi
 Steps that carry task parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Other step types build their parameters from a command line. A step of :hblue:`type: task` supplies them directly: :hblue:`task_params` is the :doc:`task parameter map </advanced/task_params>`, and the engine passes it through untouched, as both steps of the example above do.
+Other step types build their parameters from a command line. A step of :hblue:`type: task` supplies them directly: :hblue:`task_params` is the :doc:`task parameter map </advanced/task_params>`, and the engine passes it through as authored, as both steps of the example above do.
 
 ``taskName``, ``jobParameters``, ``log``, ``transPath``, ``vo`` and ``prodSourceLabel`` are required, and the description is rejected on submission without them. A step whose ``prodSourceLabel`` is a production one is refused unless the submitter holds a production role.
+
+``userName``, ``taskType`` and ``taskPriority`` are the submitter's to set rather than the description's. A submitter holding a production role keeps whatever the description authored, which is how a chain names the account it runs under; for a submitter without the role the engine writes their own identity and the analysis task type over anything the description asked for, exactly as an ordinary task submission does. A step built from a command line authors none of the three, so the engine always fills those in.
 
 |br|
 
