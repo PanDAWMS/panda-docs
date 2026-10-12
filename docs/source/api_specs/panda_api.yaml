@@ -115,10 +115,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: '{"success": bool, "message": str, "data": {"async_id":
-                      str, "request_id": str}}. request_id repeats async_id under
-                      the name this field had before the rename, for callers that
-                      have not moved yet; it goes away once they have, so read async_id'
+                    description: The ID to poll /v1/async_process/get_result with.
+                      request_id repeats async_id under the name this field had before
+                      the rename, for callers that have not moved yet; it goes away
+                      once they have, so read async_id.
                     properties:
                       async_id:
                         type: string
@@ -200,10 +200,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: '{"success": bool, "message": str, "data": {"async_id":
-                      str, "request_id": str}}. request_id repeats async_id under
-                      the name this field had before the rename, for callers that
-                      have not moved yet; it goes away once they have, so read async_id'
+                    description: The ID to poll /v1/async_process/get_result with.
+                      request_id repeats async_id under the name this field had before
+                      the rename, for callers that have not moved yet; it goes away
+                      once they have, so read async_id.
                     properties:
                       async_id:
                         type: string
@@ -236,8 +236,8 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  get_result:
-    post:
+  /v1/async_process/get_result:
+    get:
       summary: Get async request result
       description: "Poll for the results of an async request, of any type and from\
         \ any submitting module.\n\nThe response has two shapes, depending on what\
@@ -266,25 +266,21 @@ paths:
         \ found, not authorized) rather than a report about the request."
       tags:
       - async_process
-      requestBody:
+      parameters:
+      - name: async_id
+        in: query
         required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                async_id:
-                  type: string
-                  description: UUID returned by a submit_* endpoint
-                request_id:
-                  type: string
-                  description: 'the name async_id had before the rename, still accepted
-                    so callers
+        description: UUID returned by a submit_* endpoint
+        schema:
+          type: string
+      - name: request_id
+        in: query
+        required: true
+        description: 'the name async_id had before the rename, still accepted so callers
 
-                    that have not moved keep working; ignored when async_id is given'
-              required:
-              - async_id
-              - request_id
+          that have not moved keep working; ignored when async_id is given'
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -304,8 +300,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Depends on the request''s handler, see the two shapes
+                      above. For handlers writing raw output (grep, sleep_echo), the
+                      overall_status ("complete" or "pending"), the expected_machines
+                      and one result per machine. For handlers writing a structured
+                      payload (e.g. Data Carousel operations), the operation''s own
+                      data, with success and message also the operation''s own and
+                      an extra top-level async_meta field carrying the request''s
+                      status ("pending", "running", "done" or "failed"). On failure:
+                      not set when the poll itself fails (async_id not found, not
+                      authorized); the message field contains the reason.'
                 required:
                 - success
                 - message
@@ -373,9 +377,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the outcome,
+                      "OK" when the secret was stored.
                 required:
                 - success
                 - message
@@ -441,10 +444,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains the user
-                      secrets. When unsuccessful, the message field contains the error
-                      message.
+                    type: string
+                    description: 'The user''s secrets as a JSON-encoded dictionary
+                      of key to value, limited to the requested keys when keys is
+                      given, and an empty dictionary when there are none. On failure:
+                      an empty dictionary.'
                 required:
                 - success
                 - message
@@ -511,9 +515,13 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the user
-                      secrets. When unsuccessful, the message field contains the error
-                      message.
+                    description: The contents of the requested public and private
+                      key files.
+                    properties:
+                      public_key:
+                        type: string
+                      private_key:
+                        type: string
                 required:
                 - success
                 - message
@@ -580,9 +588,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the x509
-                      proxy. When unsuccessful, the message field contains the error
-                      message.
+                    description: The x509 proxy of the requested user (the caller
+                      by default) with the requested role.
+                    properties:
+                      user_proxy:
+                        type: string
                 required:
                 - success
                 - message
@@ -663,9 +673,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the access
-                      token. When unsuccessful, the message field contains the error
-                      message.
+                    description: The access token for the client. The field is named
+                      user_proxy for historical reasons, although it holds a token.
+                    properties:
+                      user_proxy:
+                        type: string
                 required:
                 - success
                 - message
@@ -727,9 +739,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the token
-                      key. When unsuccessful, the message field contains the error
-                      message.
+                    description: The latest token key for the client.
+                    properties:
+                      tokenKey:
+                        type: string
                 required:
                 - success
                 - message
@@ -809,8 +822,15 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The cancelled request and the new one resubmitted
+                      with the new destination. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      new_request_id:
+                        type: integer
+                      dataset:
+                        type: string
                 required:
                 - success
                 - message
@@ -910,8 +930,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The request with its new source. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      dataset:
+                        type: string
+                      source_rse:
+                        type: string
+                      ddm_rule_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -991,8 +1019,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The request and its new status. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      dataset:
+                        type: string
+                      status:
+                        type: string
+                      ddm_rule_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1070,8 +1106,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The retired request. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      dataset:
+                        type: string
+                      status:
+                        type: string
+                      ddm_rule_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1152,8 +1196,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1250,8 +1297,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1332,8 +1382,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1413,8 +1466,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1493,9 +1549,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains the number
-                      of available event ranges.
+                    type: integer
+                    description: The number of event ranges available for the job.
                 required:
                 - success
                 - message
@@ -1535,7 +1590,7 @@ paths:
         in: query
         required: true
         description: 'json encoded string with JEDI task ID + PanDA job ID pairs,
-          in the format `[{"task_id": <task>, "job_id": <job>}, ...]`'
+          in the format `[{"task_id": <task>, "panda_id": <job>}, ...]`'
         schema:
           type: integer
       responses:
@@ -1557,10 +1612,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'When successful, the data field contains the status
-                      of the event ranges in the format `{<job_id>: {<event_range_id>:
-                      {"status": <status>, "error": <error_code>, "dialog": <dialog>},
-                      ...}, ...}`'
+                    description: 'The status of each event range, keyed by PanDA job
+                      ID and then by event range ID: `{<job_id>: {<event_range_id>:
+                      {"status": <status>, "error": <error_code>, "dialog": <dialog>}}}`.
+                      Empty when no event range was found.'
                 required:
                 - success
                 - message
@@ -1646,10 +1701,24 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains the event
-                      ranges. When unsuccessful, the message field contains the error
-                      message.
+                    type: array
+                    description: The acquired event ranges, at most n_ranges, empty
+                      when none is available.
+                    items:
+                      type: object
+                      properties:
+                        eventRangeID:
+                          type: string
+                        startEvent:
+                          type: integer
+                        lastEvent:
+                          type: integer
+                        LFN:
+                          type: string
+                        GUID:
+                          type: string
+                        scope:
+                          type: string
                 required:
                 - success
                 - message
@@ -1731,9 +1800,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field can contain a command
-                      for the pilot. When unsuccessful, the message field contains
-                      the error message.
+                    description: The commands for the pilot, as a JSON-encoded dictionary
+                      of command per PanDA job ID, empty when there is none.
+                    properties:
+                      Command:
+                        type: string
                 required:
                 - success
                 - message
@@ -1813,11 +1884,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'When successful, the data field will contain a dictionary
-                      `{"Returns": [], "Commands":{<PanDA ID>: <Command>, ...}}`.
-                      `Returns` is list with a status for each event range and `Commands`
-                      is a dictionary with a possible command per PanDA job ID. When
-                      unsuccessful, the message field contains the error message.'
+                    description: Returns, one status per event range, and Commands,
+                      a possible command per PanDA job ID. With version 0 both are
+                      JSON-encoded strings (of a list and of a dictionary); with other
+                      versions they are the decoded list and dictionary.
                 required:
                 - success
                 - message
@@ -1883,10 +1953,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field will contain the
-                      URL to the file. Otherwise the message field will indicate the
-                      issue.
+                    type: string
+                    description: The URL of the uploaded log file.
                 required:
                 - success
                 - message
@@ -1951,9 +2019,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2076,9 +2142,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2143,9 +2207,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2210,9 +2272,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. Nothing is deleted at the moment, so success
+                      is always true.
                 required:
                 - success
                 - message
@@ -2290,9 +2351,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2361,9 +2420,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Not used. The message field contains the result:
+                      "FOUND:<host>:<file name>" when the file is in the cache; otherwise
+                      success is false and the message is "NOTFOUND" or the error.'
                 required:
                 - success
                 - message
@@ -2428,9 +2487,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: string
+                    description: The path where the checkpoint file was placed on
+                      the server. The message field repeats it as "Successfully placed
+                      at <path>".
                 required:
                 - success
                 - message
@@ -2499,9 +2559,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2599,8 +2657,12 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The URL of the log file where the recovery is reported
+                      as the request is processed. The message field says "The request
+                      was accepted and will be processed in a few minutes".
+                    properties:
+                      logFileURL:
+                        type: string
                 required:
                 - success
                 - message
@@ -2675,9 +2737,19 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When unsuccessful, the message field will indicate
-                      the issue. When the request asked to process the workflow synchronously
-                      or with the check file, the data field will contain the response.
+                    description: 'Only when dry_run or sync is set: the outcome of
+                      processing the workflow right away, with status true when it
+                      succeeded, the iDDS request ID (null when no request was submitted)
+                      and the processing log. Otherwise not used, and the message
+                      field says the request was accepted and will be processed in
+                      a few minutes.'
+                    properties:
+                      status:
+                        type: boolean
+                      request_id:
+                        type: integer
+                      log:
+                        type: string
                 required:
                 - success
                 - message
@@ -2791,9 +2863,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2886,9 +2956,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: One entry per reported worker, in the same order,
+                      true once the worker was updated. A database error fails the
+                      whole call.
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -2973,9 +3046,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: '[true] when the metrics were stored.'
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -3050,9 +3124,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3124,9 +3196,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3185,9 +3255,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: The highest worker ID registered for the harvester
+                      instance. The call fails with a database error message when
+                      the instance has no workers yet.
                 required:
                 - success
                 - message
@@ -3242,8 +3313,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Worker counts, nested by computing site, harvester
+                      ID, job type, resource type and worker status.
                 required:
                 - success
                 - message
@@ -3324,9 +3395,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains "OK" on success,
+                      otherwise the reason.
                 required:
                 - success
                 - message
@@ -3398,9 +3468,24 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: The oldest commands in status new for the harvester
+                      instance, at most n_commands, which are then marked as retrieved.
+                      params is null for commands without parameters, and ack_requested
+                      is 1 when the command has to be acknowledged.
+                    items:
+                      type: object
+                      properties:
+                        command_id:
+                          type: integer
+                        command:
+                          type: string
+                        params:
+                          type: object
+                        ack_requested:
+                          type: integer
+                        creation_date:
+                          type: string
                 required:
                 - success
                 - message
@@ -3471,9 +3556,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3560,9 +3643,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3643,9 +3724,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. On success, the message field confirms
+                      the setting, e.g. "set numSlots=<n> for PQ=<queue> gshare=<share>
+                      resource=<type>".
                 required:
                 - success
                 - message
@@ -3713,10 +3794,17 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains a list of
-                      tupes with (status, command). When unsuccessful, the message
-                      field contains the error message and data an error code.
+                    type: array
+                    description: 'One entry per requested job ID, in the same order.
+                      command is the command waiting for the pilot, if any. On failure:
+                      {"code": int}, the error code (time out or failure).'
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        command:
+                          type: string
                 required:
                 - success
                 - message
@@ -3785,10 +3873,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains a list with
-                      job descriptions. When unsuccessful, the message field contains
-                      the error message and data an error code.
+                    type: array
+                    description: One job description per requested job ID, in the
+                      same order, or null for an ID that was not found. Only the first
+                      5500 IDs are looked up.
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -3857,10 +3947,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains a list with
-                      job descriptions. When unsuccessful, the message field contains
-                      the error message and data an error code.
+                    type: array
+                    description: One job description per requested job ID, in the
+                      same order, also looking in the archive tables, or null for
+                      an ID that was not found. Only the first 5500 IDs are looked
+                      up.
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -3980,9 +4073,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the medata.
-                      When unsuccessful, the message field contains the error message
-                      and data an error code.
+                    description: The metadata of the task's finished user jobs, keyed
+                      by PanDA job ID. Empty when there is none, with the message
+                      "No metadata found".
                 required:
                 - success
                 - message
@@ -4094,9 +4187,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data field contains a list of bools indicating
-                      the success of the kill operations.
+                    type: array
+                    description: 'One entry per requested job ID, in the same order:
+                      whether the job was killed.'
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -4162,9 +4257,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The jobs are reassigned asynchronously,
+                      and success is always true.
                 required:
                 - success
                 - message
@@ -4233,9 +4327,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the outcome.
                 required:
                 - success
                 - message
@@ -4304,9 +4396,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the outcome,
+                      "Succeeded" when the debug mode was set.
                 required:
                 - success
                 - message
@@ -4370,9 +4461,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'One entry per stored job: (PanDA job ID, job definition
+                      ID, job name), or (PanDA job ID, job definition ID, {"jobsetID":
+                      jobset ID}) for analysis and ptest jobs.'
+                    items:
+                      type: array
+                      items: {}
                 required:
                 - success
                 - message
@@ -4427,8 +4522,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'When successful, the data field contains the banned
-                      users in the format `{"user1": False, "user2": False}`'
+                    description: 'The disabled users, keyed by user name, each with
+                      the value false. On failure: null.'
                 required:
                 - success
                 - message
@@ -4490,8 +4585,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains a dictionary
-                      with the site data of the requested type.
+                    description: The specifications of the sites of the requested
+                      type, keyed by site name. Each value holds the site's SiteSpec
+                      attributes, without the DDM endpoint and slot details.
                 required:
                 - success
                 - message
@@ -4545,9 +4641,22 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains a list of
-                      resource types.
+                    type: array
+                    description: The resource types with their core count and memory-per-core
+                      limits.
+                    items:
+                      type: object
+                      properties:
+                        resource_name:
+                          type: string
+                        mincore:
+                          type: integer
+                        maxcore:
+                          type: integer
+                        minrampercore:
+                          type: integer
+                        maxrampercore:
+                          type: integer
                 required:
                 - success
                 - message
@@ -4707,8 +4816,20 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data is a list of job dictionaries. When failed,
-                      the message contains the error message.
+                    description: 'The acquired jobs, in jobs, one job dictionary each.
+                      A job dictionary holds the job description for the pilot, StatusCode
+                      0, nSent, and, when they apply, the user''s secrets in secrets,
+                      the pilot secrets in pilotSecrets, and the proxy key in credname
+                      and myproxy. When n_jobs is explicitly null, data is the job
+                      dictionary of the single acquired job instead. On failure: null,
+                      with the reason in the message field (e.g. "No jobs in PanDA").'
+                    properties:
+                      StatusCode:
+                        type: integer
+                      jobs:
+                        type: array
+                        items:
+                          type: object
                 required:
                 - success
                 - message
@@ -4775,11 +4896,19 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: 'The data is a list of job status dictionaries, in
-                      the format ``` [{"job_id": <job_id_requested>, "status": "not
-                      found", "attempt_number": 0}), {"job_id": <job_id>, "status":
-                      <status>, "attempt_number": <attempt_nr>}] ```'
+                    type: array
+                    description: One entry per requested job ID, in the same order.
+                      For a job that was not found, job_id is the requested ID, status
+                      is "not found" and attempt_number is 0.
+                    items:
+                      type: object
+                      properties:
+                        job_id:
+                          type: integer
+                        status:
+                          type: string
+                        attempt_number:
+                          type: integer
                 required:
                 - success
                 - message
@@ -5013,9 +5142,19 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'Data will contain a dictionary with the pilot secrets
-                      and the command to the pilot. ``` {"pilotSecrets": <pilot_secrets>,
-                      "command": <command>} ```'
+                    description: 'StatusCode 0 when the job was updated, the command
+                      for the pilot (null when there is none) and, when there are
+                      any, the pilot secrets in pilotSecrets. When the update failed
+                      or timed out, success is still true, StatusCode is the failure
+                      or time out code, and the message field contains the reason;
+                      when storing meta_data failed, ErrorDiag repeats it. On failure:
+                      {"StatusCode": int}, the invalid request code (job_id is "NULL"
+                      or job_status is not a valid job status).'
+                    properties:
+                      StatusCode:
+                        type: integer
+                      command:
+                        type: string
                 required:
                 - success
                 - message
@@ -5090,10 +5229,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: 'Data will contain a dictionary with the pilot secrets
-                      and the command to the pilot. ``` {"pilotSecrets": <pilot_secrets>,
-                      "command": <command>} ```'
+                    type: array
+                    description: 'One entry per job in job_list, in the same order:
+                      the full response of update_job for that job, with its own success,
+                      message and data. On failure: an empty list.'
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -5159,10 +5300,27 @@ paths:
         '200':
           description: Method called correctly
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                description: The result of the status update or an error message.
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    description: Not used. success tells whether the status was updated,
+                      and when it was not, the message field contains the reason (invalid
+                      state, failure or time out).
+                required:
+                - success
+                - message
+                - data
         '403':
           description: Forbidden
           content:
@@ -5274,9 +5432,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the reason when
+                      the update failed.
                 required:
                 - success
                 - message
@@ -5381,9 +5538,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the reason when
+                      the update failed.
                 required:
                 - success
                 - message
@@ -5462,9 +5618,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the reason when
+                      the attributes were not stored.
                 required:
                 - success
                 - message
@@ -5528,9 +5683,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the job
-                      statistics by cloud. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'Number of jobs by cloud and job status, {<cloud>:
+                      {<job status>: int}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5586,9 +5740,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the job
-                      statistics by cloud. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'Number of production jobs by cloud, processing type
+                      and job status, {<cloud>: {<processing type>: {<job status>:
+                      int}}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5643,9 +5797,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the job
-                      statistics by cloud. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'Number of active jobs by site and job status, {<site>:
+                      {<job status>: int}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5700,9 +5853,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the job
-                      statistics by site, resource_type and prodsourcelabel. When
-                      unsuccessful, the message field contains the error message.
+                    description: 'Number of active jobs by site, resource type, prodsourcelabel
+                      and job status, {<site>: {<resource type>: {<prodsourcelabel>:
+                      {<job status>: int}}}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5766,9 +5919,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the job
-                      statistics by cloud. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'Number of jobs by site, resource type and job status,
+                      {<site>: {<resource type>: {<job status>: int}}}. On failure:
+                      an empty dict.'
                 required:
                 - success
                 - message
@@ -5832,9 +5985,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the job
-                      statistics by cloud. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'Number of jobs by site, prodsourcelabel, resource
+                      type and job status, {<site>: {<prodsourcelabel>: {<resource
+                      type>: {<job status>: int}}}}. The prodsourcelabel is the one
+                      of the job''s global share, "unknown" for an unknown share.
+                      On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5916,9 +6071,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the worker
-                      node statistics. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'The worker node metrics by host and key, {<host>:
+                      {<key>: [[<timestamp>, <statistics>], ...]}}, one entry per
+                      stored measurement in the requested days. On failure: an empty
+                      dict.'
                 required:
                 - success
                 - message
@@ -6000,9 +6156,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the worker
-                      node statistics. When unsuccessful, the message field contains
-                      the error message.
+                    description: 'The worker node metrics by host and key, {<host>:
+                      {<key>: [[<timestamp>, <statistics>], ...]}}, one entry per
+                      stored measurement in the requested days. On failure: an empty
+                      dict.'
                 required:
                 - success
                 - message
@@ -6065,8 +6222,15 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The request parameters and the environment variables,
+                      each as a dictionary of strings. The message field contains
+                      the same as text, one "key = value" per parameter and one "key
+                      : value" per environment variable.'
+                    properties:
+                      parameters:
+                        type: object
+                      environment:
+                        type: object
                 required:
                 - success
                 - message
@@ -6121,9 +6285,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'The system response with text representation and
-                      dictionary of attributes. Example: `{"success": True, "message":
-                      "<formatted string>", "data": {"key": "value"}}`'
+                    description: 'The GRST_CRED_* environment variables, {<variable>:
+                      <value>}. The message field contains the same as text, one "key
+                      : value" per line in sorted order.'
                 required:
                 - success
                 - message
@@ -6178,9 +6342,26 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the message field contains a string
-                      with the user attributes, and the data field contains the dictionary
-                      representation.
+                    description: The user attributes as seen by PanDA. The message
+                      field contains them as text, also with the bare user DN and
+                      the email address.
+                    properties:
+                      user_dn_raw:
+                        type: string
+                      user_dn_clean:
+                        type: string
+                      fqans:
+                        type: array
+                        items:
+                          type: object
+                      is_production_user:
+                        type: boolean
+                      production_working_groups:
+                        type: array
+                        items:
+                          type: object
+                      primary_working_group:
+                        type: string
                 required:
                 - success
                 - message
@@ -6234,9 +6415,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. success is true when the server is alive.
                 required:
                 - success
                 - message
@@ -6328,10 +6507,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: The return code, 0 when the retry was registered,
+                      otherwise the reason it was not, explained in the message field.
+                      success is always true, so check this code. For an analysis
+                      task that is still running, scouting or pending, the failed
+                      jobs are retried instead and the code is 0, or 3 when new_parameters
+                      were given.
                 required:
                 - success
                 - message
@@ -6399,10 +6581,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6467,10 +6652,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6548,10 +6736,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6616,10 +6807,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6686,10 +6880,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6793,9 +6990,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data field contains a list of bools indicating
-                      the success of the kill operations.
+                    type: array
+                    description: 'One entry per job of the task (defined, active and
+                      archived), in the same order as their PanDA IDs: whether the
+                      job was killed.'
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -6865,10 +7065,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6941,10 +7144,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: '0 when the task was reactivated, otherwise an error
+                      code, with success false and the reason in the message field.
+                      On failure: null when task_id is not an integer or on a database
+                      error.'
                 required:
                 - success
                 - message
@@ -7010,10 +7214,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -7081,10 +7288,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -7159,10 +7369,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: '0 when the share was reassigned, -1 on a database
+                      error. On failure: null when task_id_list is not a list or share
+                      is not a string.'
                 required:
                 - success
                 - message
@@ -7235,10 +7445,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 0 when jumbo jobs were enabled, otherwise an error
+                      code (1 for a database error), with success false and the reason
+                      in the message field.
                 required:
                 - success
                 - message
@@ -7309,8 +7519,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the dictionary
-                      of JEDI task IDs to datasets.
+                    description: The managed tasks with jumbo jobs that are finished
+                      or done and were modified in the requested window, keyed by
+                      JEDI task ID. Each value has the task's "status" and its output
+                      "datasets" (a list of dataset names).
                 required:
                 - success
                 - message
@@ -7384,9 +7596,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. When it failed, the message field contains
+                      the reason.
                 required:
                 - success
                 - message
@@ -7451,9 +7662,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. When it failed, the message field contains
+                      the reason.
                 required:
                 - success
                 - message
@@ -7522,9 +7732,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When there was an error, the message field contains
-                      the description and the data field contains the code.
+                    type: integer
+                    description: '0 when the attempts were increased, otherwise an
+                      error code, with success false and the reason in the message
+                      field. On failure: null when task_id or increase is invalid,
+                      or on a database error.'
                 required:
                 - success
                 - message
@@ -7583,10 +7795,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains the status
-                      of the task. When there was an error, the message field contains
-                      the description.
+                    type: string
+                    description: The status of the task.
                 required:
                 - success
                 - message
@@ -7658,9 +7868,12 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: When successful, the data field contains the task
-                      details. When there was an error, the message field contains
-                      the description.
+                    description: 'The task details: comma-separated input and output
+                      dataset names (inDS, outDS), job statistics, the PanDA IDs of
+                      the task''s jobs and merge jobs (PandaID, mergePandaID) and
+                      the merge status. With include_status also the task status (status),
+                      with include_parameters also the command line parameters (cliParams)
+                      when the task has them.'
                 required:
                 - success
                 - message
@@ -7735,10 +7948,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    description: Not used. On success the message field says how many
+                      tasks were changed, e.g. "1 tasks changed"; otherwise it says
+                      why nothing was changed (e.g. "Task not found").
                 required:
                 - success
                 - message
@@ -7808,10 +8020,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    description: Not used. On success the message field says how many
+                      tasks were changed, e.g. "1 tasks changed"; otherwise it says
+                      why nothing was changed (e.g. "Task not found").
                 required:
                 - success
                 - message
@@ -7880,10 +8091,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    description: Not used. On success the message field says how many
+                      tasks were changed, e.g. "1 tasks changed"; otherwise it says
+                      why nothing was changed (e.g. "Task not found").
                 required:
                 - success
                 - message
@@ -7957,10 +8167,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    description: 'Not used. On success the message field says how
+                      many tasks were changed, e.g. "1 tasks changed"; otherwise it
+                      says why nothing was changed (e.g. "Task not found"). On failure:
+                      2 when attribute_name is not a changeable split rule, otherwise
+                      null.'
                 required:
                 - success
                 - message
@@ -8048,9 +8259,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    description: 'The matching tasks keyed by request ID (reqID),
+                      each a dict of the task''s fields: the basic fields, or with
+                      full=True the full information for at most 500 tasks. since
+                      is capped at 30 days ago, and the result is empty when nothing
+                      matches or since cannot be parsed.'
                 required:
                 - success
                 - message
@@ -8170,8 +8383,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: On success ``data`` is a list of task detail dicts.
+                    type: array
+                    description: 'The details of each matching task, at most n_tasks:
+                      all JediTaskSpec fields plus jobParamsTemplate, taskParams and
+                      the input-file progress.'
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -8252,10 +8469,24 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: array
+                    description: One entry per dataset of the requested types, with
+                      the dataset's name and ID and its files (lfn, scope, id, status),
+                      in the format above.
+                    items:
+                      type: object
+                      properties:
+                        dataset:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            id:
+                              type: integer
+                        files:
+                          type: array
+                          items:
+                            type: object
                 required:
                 - success
                 - message
@@ -8315,10 +8546,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: array
+                    description: The PanDA job IDs of the task, in any status (defined,
+                      active and archived).
+                    items:
+                      type: integer
                 required:
                 - success
                 - message
@@ -8387,10 +8619,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    type: integer
+                    description: 'The JEDI task ID of the new task, or of the existing
+                      task when it is re-executed with old and/or new input instead
+                      (message "reactivation accepted"). null if the ID could not
+                      be read. On failure: the error code.'
                 required:
                 - success
                 - message
@@ -8450,9 +8683,7 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: True for success, False for failure, and an error
-                      message. Return code in the data field, 0 for success, others
-                      for failure.
+                    description: The task parameters the task was created with.
                 required:
                 - success
                 - message
@@ -8515,10 +8746,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: On success the ``data`` field contains a dictionary
-                      with all JediTaskSpec attributes plus additional information.
-                      On failure ``success`` is False and ``message`` contains the
-                      error description.
+                    description: All JediTaskSpec fields of the task, plus jobParamsTemplate
+                      and taskParams.
                 required:
                 - success
                 - message
@@ -8581,10 +8810,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'On success the ``data`` field contains the parent
-                      task details. On failure ``success`` is False with a message
-                      distinguishing: child-not-found, no-parent, parent-not-found,
-                      or retrieval error.'
+                    description: 'The details of the parent task, in the same format
+                      as get_detailed_info: all JediTaskSpec fields plus jobParamsTemplate
+                      and taskParams.'
                 required:
                 - success
                 - message
@@ -8658,10 +8886,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: When successful, the data field contains a list of
-                      job descriptions. If no jobs are found, returns success=True
-                      with empty list.
+                    type: array
+                    description: The job descriptions of the task's jobs, also looking
+                      in the archive tables, with extra information. Empty when the
+                      task has no jobs; only the first 5500 jobs are looked up, and
+                      jobs that are not found are left out.
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -8738,8 +8969,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow. The description
+                      in the sandbox is downloaded and parsed later, asynchronously.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -8805,8 +9039,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow, as for submit_workflow.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -8884,8 +9120,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -8964,8 +9202,12 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow. On success, the
+                      message field may carry a warning about task names that already
+                      exist; the workflow is registered anyway.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -9034,11 +9276,18 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'When successful, data holds {"workflow_id": int,
-                      "steps": [...]}, one entry per step in step_id order, each with
-                      step_id, name, type, flavor, status, target_id and parent_step_ids.
-                      A step taking only data produced outside the workflow has no
-                      parent, and a step that has not started yet has no target_id.'
+                    description: The workflow's steps, one entry per step in step_id
+                      order, each with step_id, name, type, flavor, status, target_id
+                      and parent_step_ids. A step taking only data produced outside
+                      the workflow has no parent, and a step that has not started
+                      yet has no target_id.
+                    properties:
+                      workflow_id:
+                        type: integer
+                      steps:
+                        type: array
+                        items:
+                          type: object
                 required:
                 - success
                 - message
@@ -9122,13 +9371,19 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: 'When successful, data holds {"workflow_id": int,
-                      "tasks": [...]}, parents first, each entry with key, task_id,
-                      workflow_id, step_id, name, flavor, status and parents. Parents
-                      are named by key rather than by task ID, since a task not yet
-                      submitted has no ID to be named by; every entry carries its
-                      own task_id. Entering by task_id adds "asked_for", the key of
-                      the task asked about.'
+                    description: The workflow's tasks, parents first, each entry with
+                      key, task_id, workflow_id, step_id, name, flavor, status and
+                      parents. Parents are named by key rather than by task ID, since
+                      a task not yet submitted has no ID to be named by; every entry
+                      carries its own task_id. Entering by task_id adds "asked_for",
+                      the key of the task asked about.
+                    properties:
+                      workflow_id:
+                        type: integer
+                      tasks:
+                        type: array
+                        items:
+                          type: object
                 required:
                 - success
                 - message
