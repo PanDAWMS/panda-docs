@@ -1,11 +1,12 @@
 ============================================
-Working with PanDA Native Workflows
+Authoring Descriptions from Code
 ============================================
 
-Topics beyond the day-to-day use of :doc:`PanDA native workflows </client/pchain_native>`.
+Building an analysis workflow description from code rather than writing the YAML by hand, for
+topics beyond the day-to-day use of :doc:`PanDA native workflows </client/pchain_native>`.
 
 For production chains, where a step carries JEDI task parameters directly and the description
-is submitted to the server as JSON, see :doc:`/advanced/native_workflow_production`.
+is submitted to the server as JSON, see :doc:`/advanced/native_workflow_production/description`.
 
 .. contents:: Table of Contents
     :local:
