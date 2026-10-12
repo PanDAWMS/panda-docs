@@ -1,9 +1,7 @@
-swagger: '2.0'
-schemes:
-- http
-- https
-host: pandaserver.cern.ch
-basePath: /api
+openapi: 3.0.3
+servers:
+- url: https://pandaserver.cern.ch/api
+- url: http://pandaserver.cern.ch/api
 info:
   title: PanDA API
   version: 1.0.0
@@ -45,85 +43,11 @@ info:
     \ is overloaded. The call did not reach PanDA and the response comes from directly\
     \ `httpd`. \n"
 paths:
-  __module__:
-    post:
-      summary: API endpoints for Data Carousel operations.
-      description: "Each operation comes in two flavours sharing one implementation\n\
-        (pandaserver.taskbuffer.data_carousel_ops):\n\n* the synchronous endpoints\
-        \ (`change_staging_destination`, ...) run the operation inline and\n  return\
-        \ its outcome, at the risk of hitting the HTTP timeout on slow DDM/iDDS calls;\n\
-        * the asynchronous endpoints (`submit_change_staging_destination`, ...) register\
-        \ a request in\n  the async_requests table and return immediately with an\
-        \ async_id; the async request watchdog\n  on JEDI runs the very same operation\
-        \ and the outcome is polled with the shared reader\n  `/v1/async_process/get_result`.\n\
-        \nBoth flavours are kept so callers can switch between them without a server-side\
-        \ change."
-      tags:
-      - data_carousel
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties: {}
-              required: []
-      responses:
-        '200':
-          description: Method called correctly
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                    description: Indicates whether the request was successful (True)
-                      or not (False)
-                  message:
-                    type: string
-                    description: Message indicating the nature of the failure. Empty
-                      or meaningless if the request was successful.
-                  data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
-                required:
-                - success
-                - message
-                - data
-        '403':
-          description: Forbidden
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: You are calling an undefined method is not allowed for the
-                  requested URL
-        '404':
-          description: Not Found
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Resource not found
-        '500':
-          description: INTERNAL SERVER ERROR
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: INTERNAL SERVER ERROR. The server encountered an internal
-                  error and was unable to complete your request.
   /v1/async_process/submit_grep_request:
     post:
       summary: Submit a grep request
-      description: 'Submit a grep request to be processed asynchronously on the target
+      description: Submit a grep request to be processed asynchronously on the target
         service or machine.
-
-
-        '
       tags:
       - async_process
       requestBody:
@@ -191,8 +115,15 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID to poll /v1/async_process/get_result with.
+                      request_id repeats async_id under the name this field had before
+                      the rename, for callers that have not moved yet; it goes away
+                      once they have, so read async_id.
+                    properties:
+                      async_id:
+                        type: string
+                      request_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -226,10 +157,7 @@ paths:
       description: 'Submit a sleep+echo request, run on any one machine in the target
         service.
 
-        Results are readable by the requester or any production-role caller (access="production").
-
-
-        '
+        Results are readable by the requester or any production-role caller (access="production").'
       tags:
       - async_process
       requestBody:
@@ -272,8 +200,15 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID to poll /v1/async_process/get_result with.
+                      request_id repeats async_id under the name this field had before
+                      the rename, for callers that have not moved yet; it goes away
+                      once they have, so read async_id.
+                    properties:
+                      async_id:
+                        type: string
+                      request_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -301,8 +236,8 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
-  get_result:
-    post:
+  /v1/async_process/get_result:
+    get:
       summary: Get async request result
       description: "Poll for the results of an async request, of any type and from\
         \ any submitting module.\n\nThe response has two shapes, depending on what\
@@ -331,25 +266,21 @@ paths:
         \ found, not authorized) rather than a report about the request."
       tags:
       - async_process
-      requestBody:
+      parameters:
+      - name: async_id
+        in: query
         required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                async_id:
-                  type: string
-                  description: UUID returned by a submit_* endpoint
-                request_id:
-                  type: string
-                  description: 'the name async_id had before the rename, still accepted
-                    so callers
+        description: UUID returned by a submit_* endpoint
+        schema:
+          type: string
+      - name: request_id
+        in: query
+        required: true
+        description: 'the name async_id had before the rename, still accepted so callers
 
-                    that have not moved keep working; ignored when async_id is given'
-              required:
-              - async_id
-              - request_id
+          that have not moved keep working; ignored when async_id is given'
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -369,8 +300,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Depends on the request''s handler, see the two shapes
+                      above. For handlers writing raw output (grep, sleep_echo), the
+                      overall_status ("complete" or "pending"), the expected_machines
+                      and one result per machine. For handlers writing a structured
+                      payload (e.g. Data Carousel operations), the operation''s own
+                      data, with success and message also the operation''s own and
+                      an extra top-level async_meta field carrying the request''s
+                      status ("pending", "running", "done" or "failed"). On failure:
+                      not set when the poll itself fails (async_id not found, not
+                      authorized); the message field contains the reason.'
                 required:
                 - success
                 - message
@@ -401,10 +340,7 @@ paths:
   /v1/creds/set_user_secrets:
     post:
       summary: Set user secrets
-      description: 'Set a key-value pair to store in PanDA. Requires a secure connection.
-
-
-        '
+      description: Set a key-value pair to store in PanDA. Requires a secure connection.
       tags:
       - credential_management
       requestBody:
@@ -441,9 +377,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the outcome,
+                      "OK" when the secret was stored.
                 required:
                 - success
                 - message
@@ -474,11 +409,8 @@ paths:
   /v1/creds/get_user_secrets:
     post:
       summary: Get user secrets
-      description: 'Get the secrets for a user identified by a list of keys. Requires
+      description: Get the secrets for a user identified by a list of keys. Requires
         a secure connection.
-
-
-        '
       tags:
       - credential_management
       requestBody:
@@ -512,9 +444,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: string
+                    description: 'The user''s secrets as a JSON-encoded dictionary
+                      of key to value, limited to the requested keys when keys is
+                      given, and an empty dictionary when there are none. On failure:
+                      an empty dictionary.'
                 required:
                 - success
                 - message
@@ -545,24 +479,23 @@ paths:
   /v1/creds/get_key_pair:
     get:
       summary: Get key pair
-      description: 'This function retrieves the distinguished name (DN) from the request
+      description: This function retrieves the distinguished name (DN) from the request
         and uses it to get a key pair. Requires a secure connection.
-
-
-        '
       tags:
       - credential_management
       parameters:
       - name: public_key_name
         in: query
         required: true
-        type: string
         description: The name of the public key.
+        schema:
+          type: string
       - name: private_key_name
         in: query
         required: true
-        type: string
         description: The name of the private key.
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -582,8 +515,13 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The contents of the requested public and private
+                      key files.
+                    properties:
+                      public_key:
+                        type: string
+                      private_key:
+                        type: string
                 required:
                 - success
                 - message
@@ -614,24 +552,23 @@ paths:
   /v1/creds/get_proxy:
     get:
       summary: Get proxy
-      description: 'Get the x509 proxy certificate for a user with a role. Requires
+      description: Get the x509 proxy certificate for a user with a role. Requires
         a secure connection.
-
-
-        '
       tags:
       - credential_management
       parameters:
       - name: role
         in: query
         required: false
-        type: string
         description: The role of the user. Defaults to None.
+        schema:
+          type: string
       - name: dn
         in: query
         required: false
-        type: string
         description: The distinguished name of the user. Defaults to None.
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -651,8 +588,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The x509 proxy of the requested user (the caller
+                      by default) with the requested role.
+                    properties:
+                      user_proxy:
+                        type: string
                 required:
                 - success
                 - message
@@ -683,24 +623,37 @@ paths:
   /v1/creds/get_access_token:
     get:
       summary: Get access token
-      description: 'Get the OAuth access token for the specified client. Requires
-        a secure connection.
-
-
-        '
+      description: Get the OAuth access token for the specified client. Requires a
+        secure connection.
       tags:
       - credential_management
       parameters:
       - name: client_name
         in: query
         required: true
-        type: string
         description: client_name for the token as defined in token_cache_config
+        schema:
+          type: string
       - name: token_key
         in: query
         required: false
-        type: string
         description: key to get the token from the token cache. Defaults to None.
+        schema:
+          type: string
+      - name: audience
+        in: query
+        required: false
+        description: audience of the token, required for clients with audience_from_request.
+          Defaults to None.
+        schema:
+          type: string
+      - name: scope
+        in: query
+        required: false
+        description: space separated scopes, required for clients with scope_from_request.
+          Defaults to None.
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -720,8 +673,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The access token for the client. The field is named
+                      user_proxy for historical reasons, although it holds a token.
+                    properties:
+                      user_proxy:
+                        type: string
                 required:
                 - success
                 - message
@@ -752,20 +708,18 @@ paths:
   /v1/creds/get_token_key:
     get:
       summary: Get token key
-      description: 'This function retrieves the distinguished name (DN) from the request
+      description: This function retrieves the distinguished name (DN) from the request
         and uses it to get a token key for the specified client. Requires a secure
         connection.
-
-
-        '
       tags:
       - credential_management
       parameters:
       - name: client_name
         in: query
         required: true
-        type: string
         description: The name of the client requesting the token key
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -785,8 +739,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The latest token key for the client.
+                    properties:
+                      tokenKey:
+                        type: string
                 required:
                 - success
                 - message
@@ -827,10 +783,7 @@ paths:
         Requires a secure connection production role.
 
         Runs synchronously; see `submit_change_staging_destination` for the asynchronous
-        flavour.
-
-
-        '
+        flavour.'
       tags:
       - data_carousel
       requestBody:
@@ -869,8 +822,15 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The cancelled request and the new one resubmitted
+                      with the new destination. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      new_request_id:
+                        type: integer
+                      dataset:
+                        type: string
                 required:
                 - success
                 - message
@@ -915,10 +875,7 @@ paths:
         Requires a secure connection production role.
 
         Runs synchronously; see `submit_change_staging_source` for the asynchronous
-        flavour.
-
-
-        '
+        flavour.'
       tags:
       - data_carousel
       requestBody:
@@ -973,8 +930,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The request with its new source. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      dataset:
+                        type: string
+                      source_rse:
+                        type: string
+                      ddm_rule_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1015,10 +980,7 @@ paths:
 
         Requires a secure connection production role.
 
-        Runs synchronously; see `submit_force_to_staging` for the asynchronous flavour.
-
-
-        '
+        Runs synchronously; see `submit_force_to_staging` for the asynchronous flavour.'
       tags:
       - data_carousel
       requestBody:
@@ -1057,8 +1019,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The request and its new status. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      dataset:
+                        type: string
+                      status:
+                        type: string
+                      ddm_rule_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1097,10 +1067,7 @@ paths:
 
         Requires a secure connection production role.
 
-        Runs synchronously; see `submit_retire_unused` for the asynchronous flavour.
-
-
-        '
+        Runs synchronously; see `submit_retire_unused` for the asynchronous flavour.'
       tags:
       - data_carousel
       requestBody:
@@ -1139,8 +1106,16 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The retired request. On failure: null.'
+                    properties:
+                      request_id:
+                        type: integer
+                      dataset:
+                        type: string
+                      status:
+                        type: string
+                      ddm_rule_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1182,10 +1157,7 @@ paths:
         outcome; it reports the operation''s own success, message and data at the
         top level.
 
-        Requires a secure connection production role.
-
-
-        '
+        Requires a secure connection production role.'
       tags:
       - data_carousel
       requestBody:
@@ -1224,8 +1196,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1267,10 +1242,7 @@ paths:
         outcome; it reports the operation''s own success, message and data at the
         top level.
 
-        Requires a secure connection production role.
-
-
-        '
+        Requires a secure connection production role.'
       tags:
       - data_carousel
       requestBody:
@@ -1325,8 +1297,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1368,10 +1343,7 @@ paths:
         outcome; it reports the operation''s own success, message and data at the
         top level.
 
-        Requires a secure connection production role.
-
-
-        '
+        Requires a secure connection production role.'
       tags:
       - data_carousel
       requestBody:
@@ -1410,8 +1382,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1452,10 +1427,7 @@ paths:
         outcome; it reports the operation''s own success, message and data at the
         top level.
 
-        Requires a secure connection production role.
-
-
-        '
+        Requires a secure connection production role.'
       tags:
       - data_carousel
       requestBody:
@@ -1494,8 +1466,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The ID of the registered async request, to poll
+                      with /v1/async_process/get_result. On failure: null.'
+                    properties:
+                      async_id:
+                        type: string
                 required:
                 - success
                 - message
@@ -1526,35 +1501,36 @@ paths:
   /v1/event/get_available_event_range_count:
     get:
       summary: Get available event range count
-      description: 'This function returns the count of available event ranges for
-        a given job_id, jobset_id, and task_id. Requires a secure connection and production
+      description: This function returns the count of available event ranges for a
+        given job_id, jobset_id, and task_id. Requires a secure connection and production
         role.
-
-
-        '
       tags:
       - event
       parameters:
       - name: job_id
         in: query
         required: true
-        type: integer
         description: PanDA job ID
+        schema:
+          type: integer
       - name: jobset_id
         in: query
         required: true
-        type: integer
         description: Jobset ID
+        schema:
+          type: integer
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID
+        schema:
+          type: integer
       - name: timeout
         in: query
         required: false
-        type: integer
         description: The timeout value. Defaults to 60.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -1573,9 +1549,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: The number of event ranges available for the job.
                 required:
                 - success
                 - message
@@ -1606,20 +1581,18 @@ paths:
   /v1/event/get_event_range_statuses:
     get:
       summary: Get event range statuses
-      description: 'Gets a dictionary with the status of the event ranges for the
-        given pairs of PanDA job IDs and JEDI task IDs. Requires a secure connection.
-
-
-        '
+      description: Gets a dictionary with the status of the event ranges for the given
+        pairs of PanDA job IDs and JEDI task IDs. Requires a secure connection.
       tags:
       - event
       parameters:
       - name: job_task_ids
         in: query
         required: true
-        type: integer
         description: 'json encoded string with JEDI task ID + PanDA job ID pairs,
-          in the format `[{"task_id": <task>, "job_id": <job>}, ...]`'
+          in the format `[{"task_id": <task>, "panda_id": <job>}, ...]`'
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -1639,8 +1612,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The status of each event range, keyed by PanDA job
+                      ID and then by event range ID: `{<job_id>: {<event_range_id>:
+                      {"status": <status>, "error": <error_code>, "dialog": <dialog>}}}`.
+                      Empty when no event range was found.'
                 required:
                 - success
                 - message
@@ -1671,11 +1646,8 @@ paths:
   /v1/event/acquire_event_ranges:
     post:
       summary: Acquire event ranges
-      description: 'Acquires a list of event ranges with a given PandaID for execution.
+      description: Acquires a list of event ranges with a given PandaID for execution.
         Requires a secure connection and production role.
-
-
-        '
       tags:
       - event
       requestBody:
@@ -1729,9 +1701,24 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: The acquired event ranges, at most n_ranges, empty
+                      when none is available.
+                    items:
+                      type: object
+                      properties:
+                        eventRangeID:
+                          type: string
+                        startEvent:
+                          type: integer
+                        lastEvent:
+                          type: integer
+                        LFN:
+                          type: string
+                        GUID:
+                          type: string
+                        scope:
+                          type: string
                 required:
                 - success
                 - message
@@ -1762,11 +1749,8 @@ paths:
   /v1/event/update_single_event_range:
     post:
       summary: Update single event range
-      description: 'Updates the status of a specific event range. Requires a secure
+      description: Updates the status of a specific event range. Requires a secure
         connection and production role.
-
-
-        '
       tags:
       - event
       requestBody:
@@ -1816,8 +1800,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The commands for the pilot, as a JSON-encoded dictionary
+                      of command per PanDA job ID, empty when there is none.
+                    properties:
+                      Command:
+                        type: string
                 required:
                 - success
                 - message
@@ -1848,11 +1835,8 @@ paths:
   /v1/event/update_event_ranges:
     post:
       summary: Update event ranges
-      description: 'Updates the event ranges in bulk. Requires a secure connection
+      description: Updates the event ranges in bulk. Requires a secure connection
         and production role.
-
-
-        '
       tags:
       - event
       requestBody:
@@ -1900,8 +1884,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Returns, one status per event range, and Commands,
+                      a possible command per PanDA job ID. With version 0 both are
+                      JSON-encoded strings (of a list and of a dictionary); with other
+                      versions they are the decoded list and dictionary.
                 required:
                 - success
                 - message
@@ -1932,12 +1918,9 @@ paths:
   /v1/file_server/upload_jedi_log:
     post:
       summary: Upload a JEDI log file
-      description: 'Uploads a JEDI log file and returns the URL to the file. If there
+      description: Uploads a JEDI log file and returns the URL to the file. If there
         is already a log file for the task, it will be overwritten. Requires a secure
         connection and production role.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -1970,9 +1953,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: string
+                    description: The URL of the uploaded log file.
                 required:
                 - success
                 - message
@@ -2003,11 +1985,8 @@ paths:
   /v1/file_server/update_jedi_log:
     post:
       summary: Update a JEDI log file
-      description: 'Updates a JEDI log file, appending more content at the end of
-        the file. Requires a secure connection and production role.
-
-
-        '
+      description: Updates a JEDI log file, appending more content at the end of the
+        file. Requires a secure connection and production role.
       tags:
       - file_server
       requestBody:
@@ -2040,9 +2019,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2073,10 +2050,7 @@ paths:
   /v1/file_server/download_jedi_log:
     post:
       summary: Download JEDI log file
-      description: 'Downloads the JEDI log file, if required at a particular offset.
-
-
-        '
+      description: Downloads the JEDI log file, if required at a particular offset.
       tags:
       - file_server
       requestBody:
@@ -2099,27 +2073,10 @@ paths:
         '200':
           description: Method called correctly
           content:
-            application/json:
+            text/plain:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                    description: Indicates whether the request was successful (True)
-                      or not (False)
-                  message:
-                    type: string
-                    description: Message indicating the nature of the failure. Empty
-                      or meaningless if the request was successful.
-                  data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
-                required:
-                - success
-                - message
-                - data
+                type: string
+                description: The content of the log file or an error message.
         '403':
           description: Forbidden
           content:
@@ -2152,10 +2109,7 @@ paths:
         User caches will get registered in the PanDA database and will account towards
         user limits.
 
-        PanDA log files will be stored in gzip format. Requires a secure connection.
-
-
-        '
+        PanDA log files will be stored in gzip format. Requires a secure connection.'
       tags:
       - file_server
       requestBody:
@@ -2188,9 +2142,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2221,11 +2173,8 @@ paths:
   /v1/file_server/touch_cache_file:
     post:
       summary: Touch file in the cache directory.
-      description: 'Touches a file in the cache directory. It avoids the file to expire
+      description: Touches a file in the cache directory. It avoids the file to expire
         and being deleted by server clean up processes. Requires a secure connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2258,9 +2207,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2291,11 +2238,8 @@ paths:
   /v1/file_server/delete_cache_file:
     post:
       summary: Delete cache file
-      description: 'Deletes a file from the cache directory. Currently a dummy method.
+      description: Deletes a file from the cache directory. Currently a dummy method.
         Requires a secure connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2328,9 +2272,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. Nothing is deleted at the moment, so success
+                      is always true.
                 required:
                 - success
                 - message
@@ -2361,12 +2304,9 @@ paths:
   /v1/file_server/register_cache_file:
     post:
       summary: Register cache file
-      description: 'Registers a file from the cache directory into the PanDA database,
-        so that PanDA knows the server it''s on. Requires a secure connection and
-        production role.
-
-
-        '
+      description: Registers a file from the cache directory into the PanDA database,
+        so that PanDA knows the server it's on. Requires a secure connection and production
+        role.
       tags:
       - file_server
       requestBody:
@@ -2411,9 +2351,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2444,11 +2382,8 @@ paths:
   /v1/file_server/validate_cache_file:
     post:
       summary: Validate cache file
-      description: 'Validates a cache file owned by the caller by checking the file
+      description: Validates a cache file owned by the caller by checking the file
         metadata that was registered in the database. Requires a secure connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2485,9 +2420,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Not used. The message field contains the result:
+                      "FOUND:<host>:<file name>" when the file is in the cache; otherwise
+                      success is false and the message is "NOTFOUND" or the error.'
                 required:
                 - success
                 - message
@@ -2518,11 +2453,8 @@ paths:
   /v1/file_server/upload_hpo_checkpoint:
     post:
       summary: Upload a HPO checkpoint file
-      description: 'Uploads a HPO checkpoint file to the server. Requires a secure
+      description: Uploads a HPO checkpoint file to the server. Requires a secure
         connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2555,9 +2487,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: string
+                    description: The path where the checkpoint file was placed on
+                      the server. The message field repeats it as "Successfully placed
+                      at <path>".
                 required:
                 - success
                 - message
@@ -2588,11 +2521,8 @@ paths:
   /v1/file_server/delete_hpo_checkpoint:
     post:
       summary: Delete a HPO checkpoint file.
-      description: 'Deletes a HPO checkpoint file from the server. Requires a secure
+      description: Deletes a HPO checkpoint file from the server. Requires a secure
         connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2629,9 +2559,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2662,11 +2590,8 @@ paths:
   /v1/file_server/upload_file_recovery_request:
     post:
       summary: Upload file recovery request
-      description: 'Upload request to recover lost files. Either task_id or dataset
+      description: Upload request to recover lost files. Either task_id or dataset
         needs to be specified. Requires a secure connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2732,8 +2657,12 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The URL of the log file where the recovery is reported
+                      as the request is processed. The message field says "The request
+                      was accepted and will be processed in a few minutes".
+                    properties:
+                      logFileURL:
+                        type: string
                 required:
                 - success
                 - message
@@ -2764,11 +2693,8 @@ paths:
   /v1/file_server/upload_workflow_request:
     post:
       summary: Upload workflow request to the server.
-      description: 'Uploads a workflow request to the server. The request can be processed
+      description: Uploads a workflow request to the server. The request can be processed
         synchronously or asynchronously. Requires a secure connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2811,8 +2737,19 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Only when dry_run or sync is set: the outcome of
+                      processing the workflow right away, with status true when it
+                      succeeded, the iDDS request ID (null when no request was submitted)
+                      and the processing log. Otherwise not used, and the message
+                      field says the request was accepted and will be processed in
+                      a few minutes.'
+                    properties:
+                      status:
+                        type: boolean
+                      request_id:
+                        type: integer
+                      log:
+                        type: string
                 required:
                 - success
                 - message
@@ -2843,11 +2780,8 @@ paths:
   /v1/file_server/upload_event_picking_request:
     post:
       summary: Upload event picking request to the server.
-      description: 'Uploads an event picking request to the server. Requires a secure
+      description: Uploads an event picking request to the server. Requires a secure
         connection.
-
-
-        '
       tags:
       - file_server
       requestBody:
@@ -2929,9 +2863,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -2962,10 +2894,7 @@ paths:
   /v1/harvester/update_workers:
     post:
       summary: Update workers.
-      description: 'Update the details for a list of workers. Requires a secure connection.
-
-
-        '
+      description: Update the details for a list of workers. Requires a secure connection.
       tags:
       - harvester
       requestBody:
@@ -3027,9 +2956,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: One entry per reported worker, in the same order,
+                      true once the worker was updated. A database error fails the
+                      whole call.
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -3060,11 +2992,8 @@ paths:
   /v1/harvester/update_service_metrics:
     post:
       summary: Update harvester service metrics.
-      description: 'Update the service metrics for a harvester instance. Requires
-        a secure connection.
-
-
-        '
+      description: Update the service metrics for a harvester instance. Requires a
+        secure connection.
       tags:
       - harvester
       requestBody:
@@ -3117,9 +3046,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: '[true] when the metrics were stored.'
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -3150,10 +3080,7 @@ paths:
   /v1/harvester/add_dialogs:
     post:
       summary: Add harvester dialog messages.
-      description: 'Add messages for a harvester instance. Requires a secure connection.
-
-
-        '
+      description: Add messages for a harvester instance. Requires a secure connection.
       tags:
       - harvester
       requestBody:
@@ -3197,9 +3124,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3230,12 +3155,9 @@ paths:
   /v1/harvester/heartbeat:
     post:
       summary: Heartbeat for harvester.
-      description: 'Send a heartbeat for harvester and optionally update the instance
+      description: Send a heartbeat for harvester and optionally update the instance
         data. User and host are retrieved from the request object and updated in the
         database. Requires a secure connection.
-
-
-        '
       tags:
       - harvester
       requestBody:
@@ -3249,7 +3171,7 @@ paths:
                   type: string
                   description: harvester id, e.g. `harvester_central_A`
                 data:
-                  type: string
+                  type: object
                   description: 'metadata dictionary to be updated in the PanDA database,
                     e.g. `data = {"startTime": <start time>, "sw_version": <release
                     version>, "commit_stamp": <commit timestamp>}`'
@@ -3274,9 +3196,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3307,18 +3227,16 @@ paths:
   /v1/harvester/get_current_worker_id:
     get:
       summary: Get the current worker ID.
-      description: 'Retrieve the current worker ID. Requires a secure connection.
-
-
-        '
+      description: Retrieve the current worker ID. Requires a secure connection.
       tags:
       - harvester
       parameters:
       - name: harvester_id
         in: query
         required: true
-        type: string
         description: harvester id, e.g. `harvester_central_A`
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -3337,9 +3255,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: The highest worker ID registered for the harvester
+                      instance. The call fails with a database error message when
+                      the instance has no workers yet.
                 required:
                 - success
                 - message
@@ -3370,11 +3289,8 @@ paths:
   /v1/harvester/get_worker_statistics:
     get:
       summary: Get worker statistics.
-      description: 'Get statistics for all the workers managed across the Grid. Requires
+      description: Get statistics for all the workers managed across the Grid. Requires
         a secure connection.
-
-
-        '
       tags:
       - harvester
       parameters: []
@@ -3397,8 +3313,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Worker counts, nested by computing site, harvester
+                      ID, job type, resource type and worker status.
                 required:
                 - success
                 - message
@@ -3429,11 +3345,8 @@ paths:
   /v1/harvester/report_worker_statistics:
     post:
       summary: Report worker statistics.
-      description: 'Report statistics for the workers managed by a harvester instance
+      description: Report statistics for the workers managed by a harvester instance
         at a PanDA queue. Requires a secure connection.
-
-
-        '
       tags:
       - harvester
       requestBody:
@@ -3482,9 +3395,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains "OK" on success,
+                      otherwise the reason.
                 required:
                 - success
                 - message
@@ -3515,11 +3427,8 @@ paths:
   /v1/harvester/acquire_commands:
     post:
       summary: Get harvester commands.
-      description: 'Retrieves the commands for a specified harvester instance. Requires
+      description: Retrieves the commands for a specified harvester instance. Requires
         a secure connection and production role.
-
-
-        '
       tags:
       - harvester
       requestBody:
@@ -3559,9 +3468,24 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: The oldest commands in status new for the harvester
+                      instance, at most n_commands, which are then marked as retrieved.
+                      params is null for commands without parameters, and ack_requested
+                      is 1 when the command has to be acknowledged.
+                    items:
+                      type: object
+                      properties:
+                        command_id:
+                          type: integer
+                        command:
+                          type: string
+                        params:
+                          type: object
+                        ack_requested:
+                          type: integer
+                        creation_date:
+                          type: string
                 required:
                 - success
                 - message
@@ -3592,11 +3516,8 @@ paths:
   /v1/harvester/acknowledge_commands:
     post:
       summary: Acknowledge harvester commands.
-      description: 'Acknowledges the list of command IDs in the PanDA database. Requires
+      description: Acknowledges the list of command IDs in the PanDA database. Requires
         a secure connection and production role.
-
-
-        '
       tags:
       - harvester
       requestBody:
@@ -3635,9 +3556,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3668,12 +3587,9 @@ paths:
   /v1/harvester/add_sweep_command:
     post:
       summary: Add sweep command for harvester.
-      description: 'Send a command to harvester to kill the workers in a PanDA queue,
+      description: Send a command to harvester to kill the workers in a PanDA queue,
         with the possibility of specifying filters by status, CE or submission host.
         Requires a secure connection and production role.
-
-
-        '
       tags:
       - harvester
       requestBody:
@@ -3727,9 +3643,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used.
                 required:
                 - success
                 - message
@@ -3760,11 +3674,8 @@ paths:
   /v1/harvester/add_target_slots:
     post:
       summary: Set target slots.
-      description: 'Set the target number of slots for a PanDA queue, when you want
+      description: Set the target number of slots for a PanDA queue, when you want
         to build up job pressure. Requires secure connection and production role.
-
-
-        '
       tags:
       - harvester
       requestBody:
@@ -3813,9 +3724,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. On success, the message field confirms
+                      the setting, e.g. "set numSlots=<n> for PQ=<queue> gshare=<share>
+                      resource=<type>".
                 required:
                 - success
                 - message
@@ -3846,27 +3757,25 @@ paths:
   /v1/job/get_status:
     get:
       summary: Get status of a job.
-      description: 'Gets the status of a job and command to the pilot if any. Requires
+      description: Gets the status of a job and command to the pilot if any. Requires
         a secure connection.
-
-
-        '
       tags:
       - job
       parameters:
       - name: job_ids
         in: query
         required: true
-        type: array
         description: list of PanDA job IDs.
-        items:
-          type: integer
-        collectionFormat: multi
+        schema:
+          type: array
+          items:
+            type: integer
       - name: timeout
         in: query
         required: false
-        type: integer
         description: The timeout value. Defaults to 60.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -3885,9 +3794,17 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'One entry per requested job ID, in the same order.
+                      command is the command waiting for the pilot, if any. On failure:
+                      {"code": int}, the error code (time out or failure).'
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        command:
+                          type: string
                 required:
                 - success
                 - message
@@ -3918,28 +3835,26 @@ paths:
   /v1/job/get_description:
     get:
       summary: Get description of a job.
-      description: 'Gets the description of a job from the main/active schema. The
+      description: Gets the description of a job from the main/active schema. The
         description includes job attributes, job parameters and related file attributes.
         Requires a secure connection.
-
-
-        '
       tags:
       - job
       parameters:
       - name: job_ids
         in: query
         required: true
-        type: array
         description: List of PanDA job IDs.
-        items:
-          type: integer
-        collectionFormat: multi
+        schema:
+          type: array
+          items:
+            type: integer
       - name: timeout
         in: query
         required: false
-        type: integer
         description: The timeout value. Defaults to 60.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -3958,9 +3873,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: One job description per requested job ID, in the
+                      same order, or null for an ID that was not found. Only the first
+                      5500 IDs are looked up.
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -3991,28 +3909,26 @@ paths:
   /v1/job/get_description_incl_archive:
     get:
       summary: Get description of a job.
-      description: 'Gets the description of a job, also looking into the secondary/archive
+      description: Gets the description of a job, also looking into the secondary/archive
         schema. The description includes job attributes, job parameters and related
         file attributes. Requires a secure connection.
-
-
-        '
       tags:
       - job
       parameters:
       - name: job_ids
         in: query
         required: true
-        type: array
         description: List of PanDA job IDs.
-        items:
-          type: integer
-        collectionFormat: multi
+        schema:
+          type: array
+          items:
+            type: integer
       - name: timeout
         in: query
         required: false
-        type: integer
         description: The timeout value. Defaults to 60.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -4031,9 +3947,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: One job description per requested job ID, in the
+                      same order, also looking in the archive tables, or null for
+                      an ID that was not found. Only the first 5500 IDs are looked
+                      up.
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -4071,49 +3991,32 @@ paths:
         (`--nfiles=<N>`) and to read them directly from storage
 
         through a generated PoolFileCatalog.xml instead of downloading them (`--direct`,
-        `--rse_expression=<RSE_EXP>`, `--schemes=<SCHEMES>`).
-
-
-        '
+        `--rse_expression=<RSE_EXP>`, `--schemes=<SCHEMES>`).'
       tags:
       - job
       parameters:
       - name: job_id
         in: query
         required: true
-        type: integer
         description: PanDA job ID
+        schema:
+          type: integer
       - name: days
         in: query
         required: false
-        type: integer
         description: Number of days to look back in the archive tables. Defaults to
           30.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
           content:
-            application/json:
+            text/plain:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                    description: Indicates whether the request was successful (True)
-                      or not (False)
-                  message:
-                    type: string
-                    description: Message indicating the nature of the failure. Empty
-                      or meaningless if the request was successful.
-                  data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
-                required:
-                - success
-                - message
-                - data
+                type: string
+                description: The generated script, or a message starting with `ERROR:`
+                  when the script could not be generated.
         '403':
           description: Forbidden
           content:
@@ -4140,19 +4043,17 @@ paths:
   /v1/job/get_metadata_for_analysis_jobs:
     get:
       summary: Get metadata for analysis jobs
-      description: 'Gets the metadata from the metatable for analysis jobs in `finished`
+      description: Gets the metadata from the metatable for analysis jobs in `finished`
         status. Requires a secure connection.
-
-
-        '
       tags:
       - job
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -4172,8 +4073,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The metadata of the task's finished user jobs, keyed
+                      by PanDA job ID. Empty when there is none, with the message
+                      "No metadata found".
                 required:
                 - success
                 - message
@@ -4204,10 +4106,7 @@ paths:
   /v1/job/kill:
     post:
       summary: Kill the jobs
-      description: 'Kills the jobs with the given PanDA IDs. Requires a secure connection.
-
-
-        '
+      description: Kills the jobs with the given PanDA IDs. Requires a secure connection.
       tags:
       - job
       requestBody:
@@ -4263,9 +4162,11 @@ paths:
                   type: boolean
                   description: Use the email as ID. Defaults to False.
                 kill_options:
-                  type: string
+                  type: array
                   description: 'Defaults to []. Possible options are: `keepUnmerged`,
                     `jobSubStatus=xyz`'
+                  items:
+                    type: object
               required:
               - job_ids
       responses:
@@ -4286,9 +4187,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'One entry per requested job ID, in the same order:
+                      whether the job was killed.'
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -4319,10 +4222,7 @@ paths:
   /v1/job/reassign:
     post:
       summary: Reassign a list of jobs
-      description: 'Reassigns a list of jobs. Requires a secure connection.
-
-
-        '
+      description: Reassigns a list of jobs. Requires a secure connection.
       tags:
       - job
       requestBody:
@@ -4357,9 +4257,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The jobs are reassigned asynchronously,
+                      and success is always true.
                 required:
                 - success
                 - message
@@ -4390,11 +4289,8 @@ paths:
   /v1/job/set_command:
     post:
       summary: Set a pilot command
-      description: 'Sets a command to the pilot for a job. Requires a secure connection
+      description: Sets a command to the pilot for a job. Requires a secure connection
         and production role.
-
-
-        '
       tags:
       - job
       requestBody:
@@ -4431,9 +4327,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the outcome.
                 required:
                 - success
                 - message
@@ -4464,11 +4358,8 @@ paths:
   /v1/job/set_debug_mode:
     post:
       summary: Set the debug mode
-      description: 'Sets the debug mode for a job. Requires a secure connection and
+      description: Sets the debug mode for a job. Requires a secure connection and
         production role.
-
-
-        '
       tags:
       - job
       requestBody:
@@ -4505,9 +4396,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the outcome,
+                      "Succeeded" when the debug mode was set.
                 required:
                 - success
                 - message
@@ -4538,10 +4428,7 @@ paths:
   /v1/job/submit:
     post:
       summary: Submit jobs
-      description: 'Sets the debug mode for a job. Requires a secure connection.
-
-
-        '
+      description: Sets the debug mode for a job. Requires a secure connection.
       tags:
       - job
       requestBody:
@@ -4574,9 +4461,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'One entry per stored job: (PanDA job ID, job definition
+                      ID, job name), or (PanDA job ID, job definition ID, {"jobsetID":
+                      jobset ID}) for analysis and ptest jobs.'
+                    items:
+                      type: array
+                      items: {}
                 required:
                 - success
                 - message
@@ -4607,11 +4498,8 @@ paths:
   /v1/metaconfig/get_banned_users:
     get:
       summary: Get banned users
-      description: 'Gets the list of banned users from the system (users with `status=disabled`
+      description: Gets the list of banned users from the system (users with `status=disabled`
         in ATLAS_PANDAMETA.users). Requires a secure connection.
-
-
-        '
       tags:
       - metaconfig
       parameters: []
@@ -4634,8 +4522,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The disabled users, keyed by user name, each with
+                      the value false. On failure: null.'
                 required:
                 - success
                 - message
@@ -4666,20 +4554,18 @@ paths:
   /v1/metaconfig/get_site_specs:
     get:
       summary: Get site specs
-      description: 'Gets a dictionary of site specs. By default `analysis` sites are
+      description: Gets a dictionary of site specs. By default `analysis` sites are
         returned. Requires a secure connection.
-
-
-        '
       tags:
       - metaconfig
       parameters:
       - name: type
         in: query
         required: false
-        type: string
         description: type of site as defined in CRIC (currently `unified`, `production`,
           `analysis`, `all`). Defaults to `analysis`.
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -4699,8 +4585,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The specifications of the sites of the requested
+                      type, keyed by site name. Each value holds the site's SiteSpec
+                      attributes, without the DDM endpoint and slot details.
                 required:
                 - success
                 - message
@@ -4731,11 +4618,8 @@ paths:
   /v1/metaconfig/get_resource_types:
     get:
       summary: Get resource types
-      description: 'Gets the resource types (`SCORE`, `MCORE`, etc.) together with
+      description: Gets the resource types (`SCORE`, `MCORE`, etc.) together with
         their definitions. Requires a secure connection and production role.
-
-
-        '
       tags:
       - metaconfig
       parameters: []
@@ -4757,9 +4641,22 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: The resource types with their core count and memory-per-core
+                      limits.
+                    items:
+                      type: object
+                      properties:
+                        resource_name:
+                          type: string
+                        mincore:
+                          type: integer
+                        maxcore:
+                          type: integer
+                        minrampercore:
+                          type: integer
+                        maxrampercore:
+                          type: integer
                 required:
                 - success
                 - message
@@ -4790,11 +4687,8 @@ paths:
   /v1/pilot/acquire_jobs:
     post:
       summary: Acquire jobs
-      description: 'Acquire jobs for the pilot. The jobs are reserved, the job status
+      description: Acquire jobs for the pilot. The jobs are reserved, the job status
         is updated and the jobs are returned. Requires a secure connection.
-
-
-        '
       tags:
       - pilot
       requestBody:
@@ -4878,7 +4772,7 @@ paths:
                   type: integer
                   description: Remaining walltime. Optional and defaults to `None`.
                 target_architecture:
-                  type: string
+                  type: object
                   description: 'Hardware of the worker node, either as a dictionary
                     or as a JSON-encoded string.
 
@@ -4922,8 +4816,20 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The acquired jobs, in jobs, one job dictionary each.
+                      A job dictionary holds the job description for the pilot, StatusCode
+                      0, nSent, and, when they apply, the user''s secrets in secrets,
+                      the pilot secrets in pilotSecrets, and the proxy key in credname
+                      and myproxy. When n_jobs is explicitly null, data is the job
+                      dictionary of the single acquired job instead. On failure: null,
+                      with the reason in the message field (e.g. "No jobs in PanDA").'
+                    properties:
+                      StatusCode:
+                        type: integer
+                      jobs:
+                        type: array
+                        items:
+                          type: object
                 required:
                 - success
                 - message
@@ -4954,26 +4860,24 @@ paths:
   /v1/pilot/get_job_status:
     get:
       summary: Get job status
-      description: 'Gets the status for a list of jobs. Requires a secure connection.
-
-
-        '
+      description: Gets the status for a list of jobs. Requires a secure connection.
       tags:
       - pilot
       parameters:
       - name: job_ids
         in: query
         required: true
-        type: array
         description: list of job IDs.
-        items:
-          type: object
-        collectionFormat: multi
+        schema:
+          type: array
+          items:
+            type: object
       - name: timeout
         in: query
         required: false
-        type: integer
         description: The timeout value. Defaults to 60.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -4992,9 +4896,19 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: One entry per requested job ID, in the same order.
+                      For a job that was not found, job_id is the requested ID, status
+                      is "not found" and attempt_number is 0.
+                    items:
+                      type: object
+                      properties:
+                        job_id:
+                          type: integer
+                        status:
+                          type: string
+                        attempt_number:
+                          type: integer
                 required:
                 - success
                 - message
@@ -5025,11 +4939,8 @@ paths:
   /v1/pilot/update_job:
     post:
       summary: Update job
-      description: 'Updates the details for a job, stores the metadata and excerpts
+      description: Updates the details for a job, stores the metadata and excerpts
         from the pilot log. Requires a secure connection and production role.
-
-
-        '
       tags:
       - pilot
       requestBody:
@@ -5231,8 +5142,19 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'StatusCode 0 when the job was updated, the command
+                      for the pilot (null when there is none) and, when there are
+                      any, the pilot secrets in pilotSecrets. When the update failed
+                      or timed out, success is still true, StatusCode is the failure
+                      or time out code, and the message field contains the reason;
+                      when storing meta_data failed, ErrorDiag repeats it. On failure:
+                      {"StatusCode": int}, the invalid request code (job_id is "NULL"
+                      or job_status is not a valid job status).'
+                    properties:
+                      StatusCode:
+                        type: integer
+                      command:
+                        type: string
                 required:
                 - success
                 - message
@@ -5267,10 +5189,7 @@ paths:
         and excerpt from the pilot log. Internally, this method loops over
 
         the jobs and calls `update_job` for each job. Requires a secure connection
-        and production role.
-
-
-        '
+        and production role.'
       tags:
       - pilot
       requestBody:
@@ -5310,9 +5229,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'One entry per job in job_list, in the same order:
+                      the full response of update_job for that job, with its own success,
+                      message and data. On failure: an empty list.'
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -5343,11 +5265,8 @@ paths:
   /v1/pilot/update_worker_status:
     post:
       summary: Update worker status
-      description: 'Updates the status of a worker with the information seen by the
+      description: Updates the status of a worker with the information seen by the
         pilot. Requires a secure connection and production role.
-
-
-        '
       tags:
       - pilot
       requestBody:
@@ -5395,9 +5314,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. success tells whether the status was updated,
+                      and when it was not, the message field contains the reason (invalid
+                      state, failure or time out).
                 required:
                 - success
                 - message
@@ -5428,12 +5347,9 @@ paths:
   /v1/pilot/update_worker_node:
     post:
       summary: Update worker node
-      description: 'Updates a worker node in the worker node map. When already found,
+      description: Updates a worker node in the worker node map. When already found,
         it updates the `last_seen` time. When not found, it adds the worker node.
         Requires a secure connection and production role.
-
-
-        '
       tags:
       - pilot
       requestBody:
@@ -5516,9 +5432,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the reason when
+                      the update failed.
                 required:
                 - success
                 - message
@@ -5549,12 +5464,9 @@ paths:
   /v1/pilot/update_worker_node_gpu:
     post:
       summary: Update GPUs for a worker node
-      description: 'Updates the GPUs associated to a worker node in the worker node
+      description: Updates the GPUs associated to a worker node in the worker node
         map. When already found, it updates the `last_seen` time. Requires a secure
         connection and production role.
-
-
-        '
       tags:
       - pilot
       requestBody:
@@ -5626,9 +5538,88 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. The message field contains the reason when
+                      the update failed.
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/pilot/update_pilot_attributes:
+    post:
+      summary: Update pilot attributes
+      description: 'Inserts the attributes a pilot reports for a job. The attributes
+        for a job can only be inserted once, a second call
+
+        for the same job fails. The serialized attributes can be at most `MAX_PILOT_ATTRIBUTES_SIZE`
+        bytes. Requires a secure connection and production role.'
+      tags:
+      - pilot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: integer
+                  description: PanDA job ID.
+                pilot_version:
+                  type: string
+                  description: Version of the pilot reporting the attributes.
+                pilot_attributes:
+                  type: object
+                  description: Dictionary with the attributes to insert.
+                timeout:
+                  type: integer
+                  description: The timeout value. Defaults to 60.
+              required:
+              - job_id
+              - pilot_version
+              - pilot_attributes
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    description: Not used. The message field contains the reason when
+                      the attributes were not stored.
                 required:
                 - success
                 - message
@@ -5659,22 +5650,20 @@ paths:
   /v1/statistics/job_stats_by_cloud:
     get:
       summary: Job statistics by cloud.
-      description: 'Get the job statistics by cloud, which includes the active jobs
+      description: Get the job statistics by cloud, which includes the active jobs
         and jobs in final states modified in the last 12 hours. You have to filter
         the statistics by type, which can be either "production" or "analysis". Used
         by panglia monitoring. Requires a secure connection.
-
-
-        '
       tags:
       - statistics
       parameters:
       - name: type
         in: query
         required: false
-        type: string
         description: can be "analysis" or "production". Defaults to "production" when
           not provided.
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -5694,8 +5683,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Number of jobs by cloud and job status, {<cloud>:
+                      {<job status>: int}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5726,12 +5715,9 @@ paths:
   /v1/statistics/production_job_stats_by_cloud_and_processing_type:
     get:
       summary: Production job statistics by cloud and processing type.
-      description: 'Get the production job statistics by cloud and processing type,
+      description: Get the production job statistics by cloud and processing type,
         which includes the active jobs and jobs in final states modified in the last
         12 hours. Used by panglia monitoring. Requires a secure connection.
-
-
-        '
       tags:
       - statistics
       parameters: []
@@ -5754,8 +5740,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Number of production jobs by cloud, processing type
+                      and job status, {<cloud>: {<processing type>: {<job status>:
+                      int}}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5786,11 +5773,8 @@ paths:
   /v1/statistics/active_job_stats_by_site:
     get:
       summary: Active job statistics by site
-      description: 'Get the active (not in a final state) job statistics by site.
-        Used by Harvester. Requires a secure connection.
-
-
-        '
+      description: Get the active (not in a final state) job statistics by site. Used
+        by Harvester. Requires a secure connection.
       tags:
       - statistics
       parameters: []
@@ -5813,8 +5797,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Number of active jobs by site and job status, {<site>:
+                      {<job status>: int}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5845,11 +5829,8 @@ paths:
   /v1/statistics/active_job_detailed_stats_by_site:
     get:
       summary: Active job detailed statistics by site, resource_type and prodsourcelabel
-      description: 'Get the active (not in a final state) job statistics by site,
-        resource_type and prodsourcelabel. Used by Harvester.
-
-
-        '
+      description: Get the active (not in a final state) job statistics by site, resource_type
+        and prodsourcelabel. Used by Harvester.
       tags:
       - statistics
       parameters: []
@@ -5872,8 +5853,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Number of active jobs by site, resource type, prodsourcelabel
+                      and job status, {<site>: {<resource type>: {<prodsourcelabel>:
+                      {<job status>: int}}}}. On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -5904,22 +5886,20 @@ paths:
   /v1/statistics/job_stats_by_site_and_resource_type:
     get:
       summary: Job statistics by site and resource type
-      description: 'Get the job statistics by computing site (PanDA queue) and resource
+      description: Get the job statistics by computing site (PanDA queue) and resource
         type (SCORE, MCORE, ...). This includes the active jobs and jobs in final
         states modified in the specified time window (default of 12 hours). Requires
         a secure connection.
-
-
-        '
       tags:
       - statistics
       parameters:
       - name: time_window
         in: query
         required: false
-        type: integer
         description: time window in minutes for the statistics (affects only archived
           jobs)
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -5939,8 +5919,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Number of jobs by site, resource type and job status,
+                      {<site>: {<resource type>: {<job status>: int}}}. On failure:
+                      an empty dict.'
                 required:
                 - success
                 - message
@@ -5971,22 +5952,20 @@ paths:
   /v1/statistics/job_stats_by_site_share_and_resource_type:
     get:
       summary: Job statistics by site, global share and resource type
-      description: 'Get the job statistics by computing site (PanDA queue), global
+      description: Get the job statistics by computing site (PanDA queue), global
         share and resource type (SCORE, MCORE, ...). This includes the active jobs
         and jobs in final states modified in the specified time window (default of
         12 hours). Requires a secure connection.
-
-
-        '
       tags:
       - statistics
       parameters:
       - name: time_window
         in: query
         required: false
-        type: integer
         description: time window in minutes for the statistics (affects only archived
           jobs)
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -6006,8 +5985,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Number of jobs by site, prodsourcelabel, resource
+                      type and job status, {<site>: {<prodsourcelabel>: {<resource
+                      type>: {<job status>: int}}}}. The prodsourcelabel is the one
+                      of the job''s global share, "unknown" for an unknown share.
+                      On failure: an empty dict.'
                 required:
                 - success
                 - message
@@ -6038,37 +6020,38 @@ paths:
   /v1/statistics/get_wn_stats_by_site:
     get:
       summary: Worker node statistics for a site
-      description: 'Get the worker node statistics for a site and a certain amount
+      description: Get the worker node statistics for a site and a certain amount
         of days. There will be a separate entry for each day.
-
-
-        '
       tags:
       - statistics
       parameters:
       - name: site
         in: query
         required: true
-        type: string
         description: ATLAS site for which the statistics should be returned
+        schema:
+          type: string
       - name: host
         in: query
         required: false
-        type: string
         description: Host for which the statistics should be returned. Leave empty
           for all hosts in the site.
+        schema:
+          type: string
       - name: key
         in: query
         required: false
-        type: string
         description: Key ('jobs' or 'workers') for which the statistics should be
           returned. Leave empty for all.
+        schema:
+          type: string
       - name: days
         in: query
         required: false
-        type: integer
         description: Number of days for which the statistics should be returned. Limits
           are 1 to 7.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -6088,8 +6071,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The worker node metrics by host and key, {<host>:
+                      {<key>: [[<timestamp>, <statistics>], ...]}}, one entry per
+                      stored measurement in the requested days. On failure: an empty
+                      dict.'
                 required:
                 - success
                 - message
@@ -6120,37 +6105,38 @@ paths:
   /v1/statistics/get_wn_stats_by_queue:
     get:
       summary: Worker node statistics for a PanDA queue
-      description: 'Get the worker node statistics for a PanDA queue and a certain
+      description: Get the worker node statistics for a PanDA queue and a certain
         amount of days. There will be a separate entry for each day.
-
-
-        '
       tags:
       - statistics
       parameters:
       - name: panda_queue
         in: query
         required: true
-        type: string
         description: PanDA queue for which the statistics should be returned
+        schema:
+          type: string
       - name: host
         in: query
         required: false
-        type: string
         description: Host for which the statistics should be returned. Leave empty
           for all hosts in the queue.
+        schema:
+          type: string
       - name: key
         in: query
         required: false
-        type: string
         description: Key ('jobs' or 'workers') for which the statistics should be
           returned. Leave empty for all.
+        schema:
+          type: string
       - name: days
         in: query
         required: false
-        type: integer
         description: Number of days for which the statistics should be returned. Limits
           are 1 to 7.
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -6170,8 +6156,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The worker node metrics by host and key, {<host>:
+                      {<key>: [[<timestamp>, <statistics>], ...]}}, one entry per
+                      stored measurement in the requested days. On failure: an empty
+                      dict.'
                 required:
                 - success
                 - message
@@ -6202,20 +6190,79 @@ paths:
   /v1/system/get_attributes:
     get:
       summary: Get attributes
-      description: 'Gets all parameters and environment variables.
-
-
-        '
+      description: Gets all parameters and environment variables.
       tags:
       - system
+      parameters:
+      - name: '**kwargs'
+        in: query
+        required: true
+        description: 'arbitrary keyword parameters that will be printed out. Each
+          value is whatever the caller sent,
+
+          not a dict; only str() is ever applied to it'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: 'The request parameters and the environment variables,
+                      each as a dictionary of strings. The message field contains
+                      the same as text, one "key = value" per parameter and one "key
+                      : value" per environment variable.'
+                    properties:
+                      parameters:
+                        type: object
+                      environment:
+                        type: object
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /v1/system/get_voms_attributes:
     get:
       summary: Get VOMS attributes
-      description: 'Gets the VOMS attributes (i.e. the ones starting with GRST) in
+      description: Gets the VOMS attributes (i.e. the ones starting with GRST) in
         sorted order. Requires a secure connection.
-
-
-        '
       tags:
       - system
       parameters: []
@@ -6238,8 +6285,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The GRST_CRED_* environment variables, {<variable>:
+                      <value>}. The message field contains the same as text, one "key
+                      : value" per line in sorted order.'
                 required:
                 - success
                 - message
@@ -6270,11 +6318,8 @@ paths:
   /v1/system/get_user_attributes:
     get:
       summary: Get user attributes
-      description: 'Gets user attributes as seen by PanDA for debug purposes. Requires
+      description: Gets user attributes as seen by PanDA for debug purposes. Requires
         a secure connection.
-
-
-        '
       tags:
       - system
       parameters: []
@@ -6297,8 +6342,26 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The user attributes as seen by PanDA. The message
+                      field contains them as text, also with the bare user DN and
+                      the email address.
+                    properties:
+                      user_dn_raw:
+                        type: string
+                      user_dn_clean:
+                        type: string
+                      fqans:
+                        type: array
+                        items:
+                          type: object
+                      is_production_user:
+                        type: boolean
+                      production_working_groups:
+                        type: array
+                        items:
+                          type: object
+                      primary_working_group:
+                        type: string
                 required:
                 - success
                 - message
@@ -6329,11 +6392,8 @@ paths:
   /v1/system/is_alive:
     get:
       summary: Is alive
-      description: 'Check if the server is alive. Basic function for the health check
+      description: Check if the server is alive. Basic function for the health check
         used in SLS monitoring.
-
-
-        '
       tags:
       - system
       parameters: []
@@ -6355,9 +6415,7 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. success is true when the server is alive.
                 required:
                 - success
                 - message
@@ -6388,12 +6446,9 @@ paths:
   /v1/task/retry:
     post:
       summary: Task retry
-      description: 'Retry a given task e.g. in exhausted state. Requires a secure
-        connection without a production role to retry own tasks and with a production
-        role to retry others'' tasks.
-
-
-        '
+      description: Retry a given task e.g. in exhausted state. Requires a secure connection
+        without a production role to retry own tasks and with a production role to
+        retry others' tasks.
       tags:
       - task
       requestBody:
@@ -6407,7 +6462,7 @@ paths:
                   type: integer
                   description: JEDI Task ID
                 new_parameters:
-                  type: string
+                  type: object
                   description: 'a dictionary with the new parameters for rerunning
                     the task. The new parameters are merged with the existing ones.
 
@@ -6452,9 +6507,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: The return code, 0 when the retry was registered,
+                      otherwise the reason it was not, explained in the message field.
+                      success is always true, so check this code. For an analysis
+                      task that is still running, scouting or pending, the failed
+                      jobs are retried instead and the code is 0, or 3 when new_parameters
+                      were given.
                 required:
                 - success
                 - message
@@ -6489,10 +6548,7 @@ paths:
         back to its previous active state. Resume can also be used to kick a task
         in staging state to the next state.
 
-        Requires a secure connection and production role.
-
-
-        '
+        Requires a secure connection and production role.'
       tags:
       - task
       requestBody:
@@ -6525,9 +6581,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6558,11 +6618,8 @@ paths:
   /v1/task/release:
     post:
       summary: Task release
-      description: 'Release a given task by skipping iDDS for staging. Requires a
-        secure connection and production role.
-
-
-        '
+      description: Release a given task by skipping iDDS for staging. Requires a secure
+        connection and production role.
       tags:
       - task
       requestBody:
@@ -6595,9 +6652,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6628,11 +6689,8 @@ paths:
   /v1/task/reassign:
     post:
       summary: Task reassign
-      description: 'Reassign a given task to a site, nucleus or cloud - depending
-        on the parameters. Requires a secure connection.
-
-
-        '
+      description: Reassign a given task to a site, nucleus or cloud - depending on
+        the parameters. Requires a secure connection.
       tags:
       - task
       requestBody:
@@ -6678,9 +6736,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6711,11 +6773,8 @@ paths:
   /v1/task/pause:
     post:
       summary: Task pause
-      description: 'Pause a given task. Requires a secure connection and production
+      description: Pause a given task. Requires a secure connection and production
         role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -6748,9 +6807,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6781,10 +6844,7 @@ paths:
   /v1/task/kill:
     post:
       summary: Task kill
-      description: 'Kill a given task. Requires a secure connection.
-
-
-        '
+      description: Kill a given task. Requires a secure connection.
       tags:
       - task
       requestBody:
@@ -6820,9 +6880,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -6853,10 +6917,7 @@ paths:
   /v1/task/kill_unfinished_jobs:
     post:
       summary: Kill all unfinished jobs in a task
-      description: 'Kills all unfinished jobs in a task. Requires a secure connection.
-
-
-        '
+      description: Kills all unfinished jobs in a task. Requires a secure connection.
       tags:
       - task
       requestBody:
@@ -6929,9 +6990,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'One entry per job of the task (defined, active and
+                      archived), in the same order as their PanDA IDs: whether the
+                      job was killed.'
+                    items:
+                      type: boolean
                 required:
                 - success
                 - message
@@ -6962,10 +7026,7 @@ paths:
   /v1/task/finish:
     post:
       summary: Task finish
-      description: 'Finish a given task. Requires a secure connection.
-
-
-        '
+      description: Finish a given task. Requires a secure connection.
       tags:
       - task
       requestBody:
@@ -7004,9 +7065,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -7040,10 +7105,7 @@ paths:
       description: 'Reactivate a given task, i.e. recycle a finished/done task. A
         reactivated task will generate new jobs and then go to done/finished.
 
-        Requires a secure connection and production role.
-
-
-        '
+        Requires a secure connection and production role.'
       tags:
       - task
       requestBody:
@@ -7082,9 +7144,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: '0 when the task was reactivated, otherwise an error
+                      code, with success false and the reason in the message field.
+                      On failure: null when task_id is not an integer or on a database
+                      error.'
                 required:
                 - success
                 - message
@@ -7115,12 +7179,9 @@ paths:
   /v1/task/avalanche:
     post:
       summary: Task avalanche
-      description: 'Avalanche a given task. This triggers the avalanche for tasks
-        in scouting state or dynamically reconfigures the task to skip over the scouting
+      description: Avalanche a given task. This triggers the avalanche for tasks in
+        scouting state or dynamically reconfigures the task to skip over the scouting
         state. Requires a secure connection and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7153,9 +7214,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -7186,11 +7251,8 @@ paths:
   /v1/task/reload_input:
     post:
       summary: Reload input
-      description: 'Request to reload the input for a given task. Requires a secure
+      description: Request to reload the input for a given task. Requires a secure
         connection and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7226,9 +7288,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The return code, 0 when the command was registered
+                      (it is executed within a few minutes), otherwise 1 (it could
+                      not be registered), 2 (task not found) or 4 (the command is
+                      not accepted in the task''s current status), with success false
+                      and the reason in the message field. On failure: null instead
+                      of a code when task_id is not an integer.'
                 required:
                 - success
                 - message
@@ -7259,11 +7325,8 @@ paths:
   /v1/task/reassign_global_share:
     post:
       summary: Reassign the global share of a task
-      description: 'Reassign the global share of a task. Requires a secure connection
+      description: Reassign the global share of a task. Requires a secure connection
         and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7306,9 +7369,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: '0 when the share was reassigned, -1 on a database
+                      error. On failure: null when task_id_list is not a list or share
+                      is not a string.'
                 required:
                 - success
                 - message
@@ -7339,11 +7403,8 @@ paths:
   /v1/task/enable_jumbo_jobs:
     post:
       summary: Enable Jumbo jobs
-      description: 'Enables the Jumbo jobs for a given task ID. Requires a secure
-        connection and production role.
-
-
-        '
+      description: Enables the Jumbo jobs for a given task ID. Requires a secure connection
+        and production role.
       tags:
       - task
       requestBody:
@@ -7384,9 +7445,10 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 0 when jumbo jobs were enabled, otherwise an error
+                      code (1 for a database error), with success false and the reason
+                      in the message field.
                 required:
                 - success
                 - message
@@ -7420,25 +7482,24 @@ paths:
       description: 'Gets a map of the jumbo-job-enabled tasks to their datasets, filtering
         by the last modification time (now - from_offset to now - to_offset).
 
-        Requires a secure connection.
-
-
-        '
+        Requires a secure connection.'
       tags:
       - task
       parameters:
       - name: from_offset
         in: query
         required: true
-        type: integer
         description: '`now - from_offset` in days will serve as the floor for modification
           time (Previously called n_days)'
+        schema:
+          type: integer
       - name: to_offset
         in: query
         required: false
-        type: integer
         description: '`now - to_offset` in days will serve as the ceiling for modification
           time. Defaults to 0. (Previously called grace_period)'
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -7458,8 +7519,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The managed tasks with jumbo jobs that are finished
+                      or done and were modified in the requested window, keyed by
+                      JEDI task ID. Each value has the task's "status" and its output
+                      "datasets" (a list of dataset names).
                 required:
                 - success
                 - message
@@ -7490,11 +7553,8 @@ paths:
   /v1/task/enable_job_cloning:
     post:
       summary: Enable job cloning
-      description: 'Enable job cloning for a given task. Requires secure connection
+      description: Enable job cloning for a given task. Requires secure connection
         and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7536,9 +7596,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. When it failed, the message field contains
+                      the reason.
                 required:
                 - success
                 - message
@@ -7569,11 +7628,8 @@ paths:
   /v1/task/disable_job_cloning:
     post:
       summary: Disable job cloning
-      description: 'Disable job cloning for a given task. Requires secure connection
+      description: Disable job cloning for a given task. Requires secure connection
         and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7606,9 +7662,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. When it failed, the message field contains
+                      the reason.
                 required:
                 - success
                 - message
@@ -7639,11 +7694,8 @@ paths:
   /v1/task/increase_attempts:
     post:
       summary: Increase possible task attempts
-      description: 'Increase possible task attempts. Requires secure connection and
+      description: Increase possible task attempts. Requires secure connection and
         production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7680,9 +7732,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: '0 when the attempts were increased, otherwise an
+                      error code, with success false and the reason in the message
+                      field. On failure: null when task_id or increase is invalid,
+                      or on a database error.'
                 required:
                 - success
                 - message
@@ -7713,18 +7767,16 @@ paths:
   /v1/task/get_status:
     get:
       summary: Get task status
-      description: 'Get the status of a given task. Requires secure connection.
-
-
-        '
+      description: Get the status of a given task. Requires secure connection.
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI Task ID
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -7743,9 +7795,8 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: string
+                    description: The status of the task.
                 required:
                 - success
                 - message
@@ -7776,28 +7827,28 @@ paths:
   /v1/task/get_details:
     get:
       summary: Get task details
-      description: 'Get the details of a given task. Requires secure connection.
-
-
-        '
+      description: Get the details of a given task. Requires secure connection.
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI Task ID
+        schema:
+          type: integer
       - name: include_parameters
         in: query
         required: false
-        type: boolean
         description: flag to include task parameter information (Previously fullFlag)
+        schema:
+          type: boolean
       - name: include_status
         in: query
         required: false
-        type: boolean
         description: flag to include status information (Previously withTaskInfo)
+        schema:
+          type: boolean
       responses:
         '200':
           description: Method called correctly
@@ -7817,8 +7868,12 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The task details: comma-separated input and output
+                      dataset names (inDS, outDS), job statistics, the PanDA IDs of
+                      the task''s jobs and merge jobs (PandaID, mergePandaID) and
+                      the merge status. With include_status also the task status (status),
+                      with include_parameters also the command line parameters (cliParams)
+                      when the task has them.'
                 required:
                 - success
                 - message
@@ -7852,10 +7907,7 @@ paths:
       description: 'Change a task attribute within the list of valid attributes ("ramCount",
         "wallTime", "cpuTime", "coreCount").
 
-        Requires a secure connection and production role.
-
-
-        '
+        Requires a secure connection and production role.'
       tags:
       - task
       requestBody:
@@ -7896,9 +7948,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. On success the message field says how many
+                      tasks were changed, e.g. "1 tasks changed"; otherwise it says
+                      why nothing was changed (e.g. "Task not found").
                 required:
                 - success
                 - message
@@ -7929,11 +7981,8 @@ paths:
   /v1/task/change_modification_time:
     post:
       summary: Change task modification time
-      description: 'Change the modification time for a task to `now() + hour_offset`.
+      description: Change the modification time for a task to `now() + hour_offset`.
         Requires a secure connection and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -7971,9 +8020,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. On success the message field says how many
+                      tasks were changed, e.g. "1 tasks changed"; otherwise it says
+                      why nothing was changed (e.g. "Task not found").
                 required:
                 - success
                 - message
@@ -8004,11 +8053,8 @@ paths:
   /v1/task/change_priority:
     post:
       summary: Change priority
-      description: 'Change the priority of a given task. Requires a secure connection
+      description: Change the priority of a given task. Requires a secure connection
         and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -8045,9 +8091,9 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: Not used. On success the message field says how many
+                      tasks were changed, e.g. "1 tasks changed"; otherwise it says
+                      why nothing was changed (e.g. "Task not found").
                 required:
                 - success
                 - message
@@ -8078,11 +8124,8 @@ paths:
   /v1/task/change_split_rule:
     post:
       summary: Change the split rule
-      description: 'Change the split rule for a task by modifying or adding an `attribute_name=value
+      description: Change the split rule for a task by modifying or adding an `attribute_name=value
         pair`. Requires a secure connection and production role.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -8124,9 +8167,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'Not used. On success the message field says how
+                      many tasks were changed, e.g. "1 tasks changed"; otherwise it
+                      says why nothing was changed (e.g. "Task not found"). On failure:
+                      2 when attribute_name is not a changeable split rule, otherwise
+                      null.'
                 required:
                 - success
                 - message
@@ -8157,42 +8202,44 @@ paths:
   /v1/task/get_tasks_modified_since:
     get:
       summary: Get tasks modified since
-      description: 'Get the tasks with `modificationtime > since`. Requires a secure
+      description: Get the tasks with `modificationtime > since`. Requires a secure
         connection.
-
-
-        '
       tags:
       - task
       parameters:
       - name: since
         in: query
         required: true
-        type: string
         description: time in the format `%Y-%m-%d %H:%M:%S`, e.g. `2024-12-18 14:30:45`.
           The tasks with `modificationtime > since` will be returned
+        schema:
+          type: string
       - name: dn
         in: query
         required: false
-        type: string
         description: user DN
+        schema:
+          type: string
       - name: full
         in: query
         required: false
-        type: boolean
         description: flag to include full task information. If `full=False` the basic
           fields are `jediTaskID, modificationTime, status, processingType, transUses,
           transHome, architecture, reqID, creationDate, site, cloud, taskName`
+        schema:
+          type: boolean
       - name: min_task_id
         in: query
         required: false
-        type: integer
         description: minimum task ID
+        schema:
+          type: integer
       - name: prod_source_label
         in: query
         required: false
-        type: string
         description: task type (e.g. `user`, `managed`, `test`, etc.)
+        schema:
+          type: string
       responses:
         '200':
           description: Method called correctly
@@ -8212,8 +8259,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The matching tasks keyed by request ID (reqID),
+                      each a dict of the task''s fields: the basic fields, or with
+                      full=True the full information for at most 500 tasks. since
+                      is capped at 30 days ago, and the result is empty when nothing
+                      matches or since cannot be parsed.'
                 required:
                 - success
                 - message
@@ -8254,7 +8304,7 @@ paths:
         taskParams + input-file progress) for each matching task. The request is always
         scoped to the
 
-        authenticated user (DN from the request certificate) unless userName is explicity
+        authenticated user (DN from the request certificate) unless userName is explicitly
         specified in
 
         the filters.
@@ -8280,25 +8330,22 @@ paths:
         equality conditions pushed to the DB; patterns with metacharacters are applied
         in Python via
 
-        ``re.search`` on the full task dict returned by ``get_task_details_json``.
-
-
-        '
+        ``re.search`` on the full task dict returned by ``get_task_details_json``.'
       tags:
       - task
       parameters:
       - name: since
         in: query
         required: false
-        type: string
         description: 'time in the format ``%Y-%m-%d %H:%M:%S``. When omitted, the
 
           time-window cap is removed and matching tasks are returned regardless of
           age.'
+        schema:
+          type: string
       - name: filters
         in: query
         required: false
-        type: string
         description: 'JSON-encoded dict of {field: pattern} pairs.
 
           Plain values (no regex metacharacters) become SQL equality conditions.
@@ -8310,11 +8357,14 @@ paths:
 
           silently ignored. Example: ``{"status": "finished|done", "prodSourceLabel":
           "user"}``'
+        schema:
+          type: string
       - name: n_tasks
         in: query
         required: false
-        type: integer
         description: maximum number of task IDs to retrieve (default 500)
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -8333,9 +8383,12 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: 'The details of each matching task, at most n_tasks:
+                      all JediTaskSpec fields plus jobParamsTemplate, taskParams and
+                      the input-file progress.'
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -8373,26 +8426,31 @@ paths:
         \    {\n                \"lfn\": lfn,\n                \"scope\": file_scope,\n\
         \                \"id\": file_id,\n                \"status\": status\n  \
         \          },\n            ...\n        ]\n    },\n    ...\n]\n```\nRequires\
-        \ a secure connection.\n\n"
+        \ a secure connection."
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID
+        schema:
+          type: integer
       - name: dataset_types
         in: query
         required: false
-        type: string
         description: list of dataset types, defaults to `["input", "pseudo_input"]`
+        schema:
+          type: array
+          items:
+            type: object
       - name: dataset_only
         in: query
         required: false
-        type: boolean
         description: if True, only return dataset information without files, defaults
           to False
+        schema:
+          type: boolean
       responses:
         '200':
           description: Method called correctly
@@ -8411,9 +8469,24 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: One entry per dataset of the requested types, with
+                      the dataset's name and ID and its files (lfn, scope, id, status),
+                      in the format above.
+                    items:
+                      type: object
+                      properties:
+                        dataset:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            id:
+                              type: integer
+                        files:
+                          type: array
+                          items:
+                            type: object
                 required:
                 - success
                 - message
@@ -8444,19 +8517,17 @@ paths:
   /v1/task/get_job_ids:
     get:
       summary: Get job IDs
-      description: 'Get a list with the job IDs `[job_id, ...]` (in any status) associated
+      description: Get a list with the job IDs `[job_id, ...]` (in any status) associated
         to a given task. Requires a secure connection.
-
-
-        '
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -8475,9 +8546,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: The PanDA job IDs of the task, in any status (defined,
+                      active and archived).
+                    items:
+                      type: integer
                 required:
                 - success
                 - message
@@ -8508,11 +8581,8 @@ paths:
   /v1/task/submit:
     post:
       summary: Register task
-      description: 'Insert the task parameters to register a task. Requires a secure
+      description: Insert the task parameters to register a task. Requires a secure
         connection.
-
-
-        '
       tags:
       - task
       requestBody:
@@ -8523,7 +8593,7 @@ paths:
               type: object
               properties:
                 task_parameters:
-                  type: string
+                  type: object
                   description: Dictionary with all the required task parameters. The
                     parameters are the attributes in the JediTaskSpec object (https://github.com/PanDAWMS/panda-jedi/blob/master/pandajedi/jedicore/JediTaskSpec.py).
                 parent_tid:
@@ -8549,9 +8619,11 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: integer
+                    description: 'The JEDI task ID of the new task, or of the existing
+                      task when it is re-executed with old and/or new input instead
+                      (message "reactivation accepted"). null if the ID could not
+                      be read. On failure: the error code.'
                 required:
                 - success
                 - message
@@ -8582,18 +8654,16 @@ paths:
   /v1/task/get_task_parameters:
     get:
       summary: Get task parameters
-      description: 'Get a dictionary with the task parameters used to create a task.
-
-
-        '
+      description: Get a dictionary with the task parameters used to create a task.
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -8613,8 +8683,7 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The task parameters the task was created with.
                 required:
                 - success
                 - message
@@ -8648,18 +8717,16 @@ paths:
       description: 'Get all task fields together with jobParamsTemplate and taskParams
         for a given task.
 
-        The record is read without locking. Requires a secure connection.
-
-
-        '
+        The record is read without locking. Requires a secure connection.'
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -8679,8 +8746,8 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: All JediTaskSpec fields of the task, plus jobParamsTemplate
+                      and taskParams.
                 required:
                 - success
                 - message
@@ -8714,18 +8781,16 @@ paths:
       description: 'Resolve the parent task from a given child task and return only
         the parent
 
-        detailed information. Requires a secure connection.
-
-
-        '
+        detailed information. Requires a secure connection.'
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: child JEDI task ID
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -8745,8 +8810,9 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: 'The details of the parent task, in the same format
+                      as get_detailed_info: all JediTaskSpec fields plus jobParamsTemplate
+                      and taskParams.'
                 required:
                 - success
                 - message
@@ -8784,25 +8850,24 @@ paths:
 
         to only unsuccessful jobs (status ``failed``, ``cancelled``, or ``closed``).
 
-        Requires a secure connection.
-
-
-        '
+        Requires a secure connection.'
       tags:
       - task
       parameters:
       - name: task_id
         in: query
         required: true
-        type: integer
         description: JEDI task ID.
+        schema:
+          type: integer
       - name: unsuccessful_only
         in: query
         required: true
-        type: boolean
         description: 'When True, return only failed, cancelled, or closed jobs.
 
           Defaults to False.'
+        schema:
+          type: boolean
       responses:
         '200':
           description: Method called correctly
@@ -8821,9 +8886,13 @@ paths:
                     description: Message indicating the nature of the failure. Empty
                       or meaningless if the request was successful.
                   data:
-                    type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    type: array
+                    description: The job descriptions of the task's jobs, also looking
+                      in the archive tables, with extra information. Empty when the
+                      task has no jobs; only the first 5500 jobs are looked up, and
+                      jobs that are not found are left out.
+                    items:
+                      type: object
                 required:
                 - success
                 - message
@@ -8866,10 +8935,7 @@ paths:
         be validated here. To submit a description inline instead, with no sandbox,
         use
 
-        submit_workflow_description.
-
-
-        '
+        submit_workflow_description.'
       tags:
       - workflow
       requestBody:
@@ -8880,7 +8946,7 @@ paths:
               type: object
               properties:
                 params:
-                  type: string
+                  type: object
                   description: dictionary or JSON of parameters of the raw request
               required:
               - params
@@ -8903,8 +8969,11 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow. The description
+                      in the sandbox is downloaded and parsed later, asynchronously.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -8935,11 +9004,8 @@ paths:
   /v1/workflow/submit_workflow_raw_request:
     post:
       summary: Submit a workflow request (deprecated)
-      description: 'Deprecated alias of submit_workflow, kept for pandaclient versions
+      description: Deprecated alias of submit_workflow, kept for pandaclient versions
         that still target this path.
-
-
-        '
       tags:
       - workflow
       requestBody:
@@ -8950,7 +9016,7 @@ paths:
               type: object
               properties:
                 params:
-                  type: string
+                  type: object
                   description: dictionary or JSON of parameters of the raw request
               required:
               - params
@@ -8973,8 +9039,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow, as for submit_workflow.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -9018,10 +9086,7 @@ paths:
         tests should call this; use submit_workflow to submit a raw request with a
         sandbox, or
 
-        submit_workflow_description to submit a workflow description inline.
-
-
-        '
+        submit_workflow_description to submit a workflow description inline.'
       tags:
       - workflow
       requestBody:
@@ -9032,7 +9097,7 @@ paths:
               type: object
               properties:
                 workflow_definition:
-                  type: string
+                  type: object
                   description: dictionary of workflow definition
               required:
               - workflow_definition
@@ -9055,8 +9120,10 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -9101,10 +9168,7 @@ paths:
         is reported here, while parsing into a workflow definition stays asynchronous
         as for the other
 
-        submission paths.
-
-
-        '
+        submission paths.'
       tags:
       - workflow
       requestBody:
@@ -9115,7 +9179,7 @@ paths:
               type: object
               properties:
                 workflow_description:
-                  type: string
+                  type: object
                   description: dictionary or JSON of the workflow description
               required:
               - workflow_description
@@ -9138,8 +9202,12 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The ID of the registered workflow. On success, the
+                      message field may carry a warning about task names that already
+                      exist; the workflow is registered anyway.
+                    properties:
+                      workflow_id:
+                        type: integer
                 required:
                 - success
                 - message
@@ -9179,18 +9247,16 @@ paths:
         it does hold, and answers for a running workflow as readily as for a finished
         one. Requires a
 
-        secure connection.
-
-
-        '
+        secure connection.'
       tags:
       - workflow
       parameters:
       - name: workflow_id
         in: query
         required: true
-        type: integer
         description: ID of the workflow to report on
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -9210,8 +9276,18 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The workflow's steps, one entry per step in step_id
+                      order, each with step_id, name, type, flavor, status, target_id
+                      and parent_step_ids. A step taking only data produced outside
+                      the workflow has no parent, and a step that has not started
+                      yet has no target_id.
+                    properties:
+                      workflow_id:
+                        type: integer
+                      steps:
+                        type: array
+                        items:
+                          type: object
                 required:
                 - success
                 - message
@@ -9260,23 +9336,22 @@ paths:
         Give either workflow_id, for a whole chain, or task_id, to enter at a task
         without knowing
 
-        which workflow it belongs to.
-
-
-        '
+        which workflow it belongs to.'
       tags:
       - workflow
       parameters:
       - name: workflow_id
         in: query
         required: false
-        type: integer
         description: ID of the workflow to report on. Give this or task_id
+        schema:
+          type: integer
       - name: task_id
         in: query
         required: false
-        type: integer
         description: JEDI task ID to report the workflow of. Give this or workflow_id
+        schema:
+          type: integer
       responses:
         '200':
           description: Method called correctly
@@ -9296,8 +9371,19 @@ paths:
                       or meaningless if the request was successful.
                   data:
                     type: object
-                    description: The data returned if the operation is successful.
-                      Null if it fails or the method does not generate return data.
+                    description: The workflow's tasks, parents first, each entry with
+                      key, task_id, workflow_id, step_id, name, flavor, status and
+                      parents. Parents are named by key rather than by task ID, since
+                      a task not yet submitted has no ID to be named by; every entry
+                      carries its own task_id. Entering by task_id adds "asked_for",
+                      the key of the task asked about.
+                    properties:
+                      workflow_id:
+                        type: integer
+                      tasks:
+                        type: array
+                        items:
+                          type: object
                 required:
                 - success
                 - message
