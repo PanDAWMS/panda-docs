@@ -18,7 +18,7 @@ A complete description
 
 A description is one JSON object with :hblue:`name`, :hblue:`inputs`, :hblue:`outputs`, :hblue:`steps` and :hblue:`options`. This one reconstructs and then merges, which is enough to show every part fitting together.
 
-.. literalinclude:: native_workflow/wfd/production_two_step.json
+.. literalinclude:: wfd/production_two_step.json
     :language: json
     :caption: production_two_step.json
 
@@ -38,9 +38,11 @@ The nine-task ATLAS chain this is cut down from lives in the panda-server reposi
 Steps that carry task parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Other step types build their parameters from a command line. A step of :hblue:`type: task` supplies them directly: :hblue:`task_params` is the :doc:`task parameter map </advanced/task_params>`, and the engine passes it through untouched, as both steps of the example above do.
+Other step types build their parameters from a command line. A step of :hblue:`type: task` supplies them directly: :hblue:`task_params` is the :doc:`task parameter map </advanced/task_params>`, and the engine passes it through as authored, as both steps of the example above do.
 
 ``taskName``, ``jobParameters``, ``log``, ``transPath``, ``vo`` and ``prodSourceLabel`` are required, and the description is rejected on submission without them. A step whose ``prodSourceLabel`` is a production one is refused unless the submitter holds a production role.
+
+``userName``, ``taskType`` and ``taskPriority`` are the submitter's to set rather than the description's. A submitter holding a production role keeps whatever the description authored, which is how a chain names the account it runs under; for a submitter without the role the engine writes their own identity and the analysis task type over anything the description asked for, exactly as an ordinary task submission does. A step built from a command line authors none of the three, so the engine always fills those in.
 
 |br|
 
@@ -135,6 +137,122 @@ Parsing itself is asynchronous. The response means the workflow is registered, n
 
 |br|
 
+When a step fails
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A workflow runs until one of its steps fails, and then it fails as a whole. There is no tolerated failure: no step can be marked as allowed to fail, there is no retry count and no attempt limit, and the workflow does not wait to see whether its other steps would have succeeded. One failed step is the end of the workflow it belongs to.
+
+A step fails when its task reaches ``failed``, ``exhausted``, ``broken``, ``tobroken``, ``aborted``, ``toabort`` or ``aborting``. Killing a task by hand is in that list, so killing one task of a chain ends the chain.
+
+The engine then stops everything else the workflow had in flight. Every step that is not already finished is cancelled, and a cancelled step whose task is running has that task killed. A step that never started is cancelled too, so it ends in a terminal status rather than waiting for inputs that will now never arrive. A step already ``done`` keeps that status, and a step ``closed`` because its condition was false stays ``closed`` rather than being reported as something the failure stopped.
+
+Failure travels outward through nested workflows in both directions. A sub-workflow step whose child workflow fails is itself ``failed``, and that fails the workflow holding it; the same applies to each child of a scatter, so one failing scatter instance fails the scatter and then the workflow above it. Worth knowing: a child workflow that is **cancelled** makes its parent step ``failed``, not ``cancelled``. Cancelling part of a running workflow therefore reads from the outside as a failure of the whole.
+
+There is one case where a failed step does not fail the workflow. The engine finishes a workflow as soon as every output it declares has reached a good status, and it checks that before it looks at the steps. A step that fails after the last declared output is already complete therefore arrives too late to change the outcome, and the workflow is ``done``.
+
+|br|
+
+States that are neither progress nor failure
+============================================
+
+Two situations leave a workflow running indefinitely instead of failing:
+
+* **A task the engine cannot read.** If a task reports a status the engine does not recognise, or has disappeared from both JEDI and DEFT, the step is left exactly as it was and re-checked on the next cycle, for as long as that lasts. It never becomes ``failed``.
+* **A step whose task cannot be submitted.** A submission that fails leaves the step ``ready``, to be tried again on the next cycle. This is deliberate, since most such failures are transient, but there is no limit on the retrying.
+
+Both show up as a workflow that stays ``running`` with a step that does not advance. Neither is reported as an error on any query, so a consumer that waits for a terminal status should also treat a workflow that has not changed for a long time as something to look into.
+
+|br|
+
+Finding out why
+================
+
+A failed workflow records which of its steps failed, and each step records why it reached the status it did. :brown:`/v1/workflow/get_workflow_status` reports that reason alongside the workflow's own status and a count of its steps by status:
+
+.. code-block:: json
+
+    {"workflow_id": 133, "name": "example_full_chain", "status": "failed",
+     "reason": "step recon (step_id=525) failed: task 48810706 reported broken",
+     "parent_id": null, "creation_time": "2026-10-12T09:14:03",
+     "start_time": "2026-10-12T09:15:01", "end_time": "2026-10-12T11:02:44", "n_steps": 9,
+     "step_status_counts": {"done": 4, "failed": 1, "cancelled": 4}}
+
+The tally gives the shape of the failure, and ``reason`` names the step that caused it and what that step's target reported. ``reason`` is null while a workflow is still running, and carries the cancellation reason for a workflow that was cancelled rather than failed.
+
+Per step, :brown:`/v1/workflow/get_step_relations` carries the same field. A step that failed says what its task or child workflow reported; a step cancelled behind it says so and repeats which step failed, so that collateral cancellation is never mistaken for a deliberate one:
+
+.. code-block:: json
+
+    {"step_id": 525, "name": "recon", "status": "failed",
+     "reason": "task 48810706 reported broken", "target_id": "48810706"}
+    {"step_id": 526, "name": "deriv_phys", "status": "cancelled",
+     "reason": "step recon (step_id=525) failed: task 48810706 reported broken; cancelled with the workflow",
+     "target_id": "48810720"}
+
+What the step records is what the target reported, not why the target got there. For the underlying error, follow the failed step's ``target_id`` to its JEDI task and read it there, as for any other task.
+
+|br|
+
+Recovering
+================
+
+A failed workflow is final. It is never looked at again, and there is no endpoint to retry it, to restart one of its steps, or to cancel it from outside. Recovery means submitting a new description, which starts a new workflow with new steps and new tasks.
+
+|br|
+
+Statuses
+================
+
+A workflow passes through these:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Status
+     - Meaning
+   * - ``registered``
+     - Accepted and stored; not yet parsed.
+   * - ``parsed``
+     - The description has been turned into steps and data.
+   * - ``checking``, ``checked``
+     - Waiting on the input datasets the workflow starts from, then satisfied.
+   * - ``starting``, ``running``
+     - Steps are being submitted and monitored.
+   * - ``done``
+     - Every output reached a good status, or every step finished with none failed.
+   * - ``failed``
+     - A step failed or was cancelled.
+   * - ``cancelled``
+     - Stopped before it could run, by a definition the engine could not use.
+
+And a step through these:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Status
+     - Meaning
+   * - ``registered``, ``checking``
+     - Created; working out whether it has to run at all.
+   * - ``checked_true``, ``checked_false``
+     - It has to run, or it does not.
+   * - ``pending``
+     - Waiting for its inputs to be good enough to start on.
+   * - ``ready``
+     - Inputs are good; the task has not been queued yet.
+   * - ``starting``, ``running``
+     - The task is queued, then producing.
+   * - ``done``
+     - The task finished.
+   * - ``failed``
+     - The task failed, or the child workflow did.
+   * - ``closed``
+     - Not run, because its condition was false.
+   * - ``cancelled``
+     - Stopped, either with the workflow or by the failure of another step.
+
+|br|
+
 Asking how the steps and tasks relate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -156,12 +274,12 @@ Step relations
     {"workflow_id": 133,
      "steps": [
        {"step_id": 516, "name": "evgen", "type": "ordinary", "flavor": "panda_task",
-        "status": "done", "target_id": "52382519", "parent_step_ids": []},
+        "status": "done", "reason": null, "target_id": "52382519", "parent_step_ids": []},
        {"step_id": 517, "name": "merge_evnt", "type": "ordinary", "flavor": "panda_task",
-        "status": "done", "target_id": "52382898", "parent_step_ids": [516]}
+        "status": "done", "reason": null, "target_id": "52382898", "parent_step_ids": [516]}
      ]}
 
-A step whose inputs all come from outside the workflow has no parent, rather than being its own parent. A step that has not started yet has no ``target_id``, while its place in the graph is already known.
+A step whose inputs all come from outside the workflow has no parent, rather than being its own parent. A step that has not started yet has no ``target_id``, while its place in the graph is already known. ``reason`` is set only once a step has failed or been cancelled, and is null otherwise.
 
 |br|
 
