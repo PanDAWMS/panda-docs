@@ -9235,6 +9235,99 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
+  /v1/workflow/get_workflow_status:
+    get:
+      summary: Get workflow status
+      description: 'Report the status of a workflow together with the spread of its
+        steps across statuses. The step
+
+        relation query answers about the parts of a workflow; this answers about the
+        workflow itself,
+
+        which is what a consumer polling after submission needs. Requires a secure
+        connection.'
+      tags:
+      - workflow
+      parameters:
+      - name: workflow_id
+        in: query
+        required: true
+        description: ID of the workflow to report on
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: The workflow's own status and a count of its steps
+                      per status. reason says which step failed the workflow, or why
+                      it was cancelled, and is null while it is still running. The
+                      times are ISO 8601 strings, and start_time and end_time are
+                      null until the workflow starts and finishes. A workflow that
+                      is not a sub-workflow has a null parent_id.
+                    properties:
+                      workflow_id:
+                        type: integer
+                      name:
+                        type: string
+                      status:
+                        type: string
+                      reason:
+                        type: string
+                      parent_id:
+                        type: integer
+                      creation_time:
+                        type: string
+                      start_time:
+                        type: string
+                      end_time:
+                        type: string
+                      n_steps:
+                        type: integer
+                      step_status_counts:
+                        type: object
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /v1/workflow/get_step_relations:
     get:
       summary: Get workflow step relations
@@ -9277,10 +9370,11 @@ paths:
                   data:
                     type: object
                     description: The workflow's steps, one entry per step in step_id
-                      order, each with step_id, name, type, flavor, status, target_id
-                      and parent_step_ids. A step taking only data produced outside
-                      the workflow has no parent, and a step that has not started
-                      yet has no target_id.
+                      order, each with step_id, name, type, flavor, status, reason,
+                      target_id and parent_step_ids. reason is set only for a step
+                      that failed or was cancelled. A step taking only data produced
+                      outside the workflow has no parent, and a step that has not
+                      started yet has no target_id.
                     properties:
                       workflow_id:
                         type: integer
