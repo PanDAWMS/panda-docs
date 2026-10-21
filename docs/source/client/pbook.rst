@@ -251,7 +251,9 @@ where available formats are 'standard', 'long', 'json', 'plain'.
 Workflow bookkeeping
 -------------------------
 
-All workflow bookkeeping commands take the request ID of the workflow as the argument.
+All workflow bookkeeping commands take the request ID of the workflow as the argument, with the
+exception of ``show_native_workflow``, which belongs to the native workflow engine and takes a
+workflow ID instead.
 
 Show status of a workflow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -323,6 +325,60 @@ Resume a workflow
    $ pbook resume_workflow request_id
 
 This command resume paused tasks in the workflow.
+
+
+Show a native workflow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+   >>> show_native_workflow(workflow_id)
+
+   $ pbook show_native_workflow workflow_id
+
+This command shows a :doc:`PanDA native workflow </client/pchain_native>` whole: its own status,
+its steps, and the data passing between them. Note that it takes the ``workflow_id`` reported at
+submission, not the iDDS request ID the commands above take.
+
+.. code-block:: text
+
+   workflow_id=140  name="mc23_full_chain"  status=failed  submitted_as=managed  user="Jane Doe"
+     reason: step recon (step_id=525) failed: task 48810706 reported broken
+
+    steps (9):
+
+     #   Name            Status   Flavor       PSLabel   Progress   TargetID   Parents
+    ──────────────────────────────────────────────────────────────────────────────────────
+     1   evgen             done   panda_task   managed       100%   48810690   -
+     2   merge_evnt        done   panda_task   managed       100%   48810691   evgen
+     ...
+     5   recon           failed   panda_task   managed        20%   48810694   merge_hits
+     6   merge_aod    cancelled   panda_task   managed          -          -   recon
+
+    data (4) (pass --show_data to see)
+
+Each step shows which steps feed it, under ``Parents``, and how far its task has got, under
+``Progress``. The percentage is the share of the task's input files that have finished, the same
+number ``show`` reports for a task on its own. A step whose target is not a PanDA task, or which
+has not been submitted yet, has no progress to report and shows ``-``. A ``TargetID`` is a link to
+the task in PanDA monitoring; for a step running a nested workflow it is the child workflow's ID
+instead. ``reason`` appears only once a workflow has failed or been cancelled, and names the step
+responsible.
+
+The data passing between the steps is counted but not listed, since the dataset names are long:
+
+.. code-block:: bash
+
+   $ pbook show_native_workflow workflow_id --show_data
+
+Other output formats are available through ``--format``: ``long`` adds the file counts behind each
+percentage and the per-step reason, ``json`` prints the server's answer verbatim for scripting, and
+``plain`` drops the colour and the links.
+
+.. code-block:: bash
+
+   $ pbook show_native_workflow workflow_id --format=long
+   $ pbook show_native_workflow workflow_id --format=json
 
 -----
 

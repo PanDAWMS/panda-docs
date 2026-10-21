@@ -137,6 +137,13 @@ Following it
             break
         time.sleep(600)
 
+To read a workflow rather than poll it, :ref:`pbook <client/pbook:Show a native workflow>` renders
+the same answer, steps and progress included, without any of the code on this page:
+
+.. prompt:: bash
+
+  pbook show_native_workflow 136
+
 A production chain takes days, so poll at the pace of the work rather than of the loop above. The counts move as the chain progresses:
 
 .. code-block:: json
