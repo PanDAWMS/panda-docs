@@ -555,4 +555,11 @@ workflow, its steps and the tasks they submit can be followed in PanDA monitorin
 themselves are ordinary PanDA tasks named after their output datasets, i.e.
 :brown:`<outDS>_<NNN>_<step_name>`.
 
+:ref:`pbook <client/pbook:Show a native workflow>` reports the same from the command line, with the
+steps, how they feed each other and how far each has got in one view:
+
+.. prompt:: bash
+
+  pbook show_native_workflow <workflow_id>
+
 |br|
