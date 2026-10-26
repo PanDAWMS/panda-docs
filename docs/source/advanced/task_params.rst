@@ -161,10 +161,6 @@ where applicable, corresponding two-letter codes.
      - LS
      - The task will use only limit PQs specified or unspecified in the task.
 
-   * - loadXML
-     - LX
-     - The task will load the XML file to generate jobs.
-
    * - minCpuEfficiency
      - MC
      - The minimum CPU efficiency to be allowed for the task. If the CPU efficiency is lower than this value, the task will go to exhausted.
