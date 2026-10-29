@@ -4424,16 +4424,29 @@ paths:
         them, not JEDI_Datasets) for the given names. Requires a secure connection.
 
 
-        Each name is looked up once in every partition of the table, which is partitioned
-        on modificationdate, so the most
+        The table keeps one row per dataset, under the form of the name its first
+        writer used, scope:name or name. So each
 
-        names one call may give is the db_read_probe_budget of the server divided
-        by the number of partitions. A call giving
+        name is looked up in both forms: a name with a scope also without it, and
+        a name without one also with the scope
 
-        more is refused, not cut short. Both numbers come back with every answer,
-        so a caller can split its names into
+        its first part gives (up to the first dot, or up to the second for user and
+        group datasets), which is the scope
 
-        calls that fit.
+        the vuid of the dataset is made with. Every row says which of the given names
+        it answers.
+
+
+        Each form is a key, looked up once in every partition of the table, which
+        is partitioned on modificationdate, so
+
+        the most names one call may give is the db_read_probe_budget of the server
+        divided by keys_per_name times the
+
+        number of partitions. A call giving more is refused, not cut short. The three
+        numbers come back with every answer,
+
+        so a caller can split its names into calls that fit.
 
 
         POST is accepted too, with the arguments in a JSON body (Content-Type: application/json).
@@ -4476,24 +4489,30 @@ paths:
                     type: object
                     description: 'The rows of the datasets, and what tells how complete
                       they are. {"rows": [...], "as_of": datetime, "retained_from":
-                      datetime or None, "partitions": int, "budget": int} - rows:
-                      one dict per row, ordered by name and creationdate, with every
-                      column: vuid, name, version, type, status, numberfiles, currentfiles,
-                      creationdate, modificationdate, MoverID, transferStatus and
-                      subType, with null for NULL. A name without rows has none -
-                      as_of: database time in UTC taken before the rows were read
-                      - retained_from: time from which the table holds every row,
-                      on modificationdate, or None when it cannot be told. Old partitions
-                      are dropped, so a dataset last modified before this time may
-                      have been in the table - partitions, budget: the number of partitions,
-                      counted as 1 when there are none, and the db_read_probe_budget;
-                      a call may give at most budget // partitions names On failure,
-                      with the reason in the message, the reason as values: - {"rejected":
-                      "no_keys"}: no names - {"rejected": "too_many_keys", "keys":
-                      int, "max_keys": int}: more names than one IN list takes - {"rejected":
-                      "probe_budget", "keys": int, "partitions": int, "budget": int}:
-                      keys x partitions exceed the budget - {"error": str}: the database
-                      failed, with the error code (ORA-xxxxx, or the SQLSTATE on Postgres)'
+                      datetime or None, "partitions": int, "budget": int, "keys_per_name":
+                      int} - rows: one dict per row, ordered by name and creationdate,
+                      with every column: vuid, name, version, type, status, numberfiles,
+                      currentfiles, creationdate, modificationdate, MoverID, transferStatus
+                      and subType, with null for NULL, and asked_as: the given names,
+                      in the order given, that the row answers in either form. A name
+                      without rows has none - as_of: database time in UTC taken before
+                      the rows were read - retained_from: time from which the table
+                      holds every row, on modificationdate, or None when it cannot
+                      be told. Old partitions are dropped, so a dataset last modified
+                      before this time may have been in the table - partitions, budget,
+                      keys_per_name: the number of partitions, counted as 1 when there
+                      are none, the db_read_probe_budget, and the keys a name is looked
+                      up with; a call may give at most budget // (keys_per_name *
+                      partitions) names On failure, with the reason in the message,
+                      the reason as values: - {"rejected": "no_keys"}: no names -
+                      {"rejected": "too_many_keys", "keys": int, "max_keys": int,
+                      "keys_per_name": int}: more keys than one IN list takes - {"rejected":
+                      "probe_budget", "keys": int, "partitions": int, "budget": int,
+                      "keys_per_name": int}: keys x partitions exceed the budget -
+                      {"error": str}: the database failed, with the error code (ORA-xxxxx,
+                      or the SQLSTATE on Postgres) keys counts the forms looked up,
+                      and a form shared by two names, such as s:n given with n, counts
+                      once.'
                 required:
                 - success
                 - message
