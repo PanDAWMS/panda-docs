@@ -844,7 +844,19 @@ This is the ATLAS analysis job brokerage flow:
        * Skip queues if there are many jobs from the task closed or failed for the last :gdp:`TW_DONE_JOB_STAT` hours.
          (nFailed + nClosed) must be less than max(2 :raw-html:`&times;` nFinished, :gdp:`MIN_BAD_JOBS_TO_SKIP_PQ`).
 
-       * Skip queues if defined+activated+assigned+starting > 2 :raw-html:`&times;` max(20, running).
+       * Skip queues if defined+activated+assigned+starting > max(20, 2 :raw-html:`&times;` running),
+         where the numbers of jobs are counted per gshare and resource_type of the task.
+         This check is skipped when queues are pre-assigned.
+
+       * Skip overloaded queues. This check is skipped for merge jobs.
+         nQueue (defined+activated+assigned+starting) and nRunning are the numbers of jobs at the queue
+         in the gshare of the task, and grandRatio is the total nQueue/nRunning of the gshare over all queues.
+         A queue is overloaded if nQueue > :gdp:`OVERLOAD_MIN_QUEUE` and either nRunning = 0 or
+         nQueue/nRunning > min(grandRatio, :gdp:`OVERLOAD_MAX_GRAND_RATIO`) :raw-html:`&times;` :gdp:`OVERLOAD_RATIO_OFFSET`.
+         :gdp:`OVERLOAD_MIN_QUEUE` and :gdp:`OVERLOAD_RATIO_OFFSET` default to 20 and 1.2, and grandRatio is not
+         capped unless :gdp:`OVERLOAD_MAX_GRAND_RATIO` is set.
+         If all candidates are overloaded, the brokerage keeps the overloaded queues that have input data without VP,
+         or all of them if the task has no input or the input data locality check is suppressed.
 
        * Skip queues if the user has too many queued jobs there.
 

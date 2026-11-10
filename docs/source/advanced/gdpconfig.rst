@@ -203,6 +203,8 @@ The following is the list of parameters defined in the ``PANDA.CONFIG`` table. T
      - Activate the network weights in job brokerage
    * - OUTDISKCOUNT_ANALY_KB
      - Default outdiskcount for analysis jobs in kB
+   * - OVERLOAD_MAX_GRAND_RATIO
+     - Upper limit of the total nQ/nR ratio of the gshare used to skip overloaded PQs. No limit if not set
    * - OVERLOAD_MIN_QUEUE
      - Minimum number of queued jobs to skip overloaded PQs
    * - OVERLOAD_RATIO_OFFSET
