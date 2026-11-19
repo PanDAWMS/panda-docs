@@ -8611,6 +8611,239 @@ paths:
                 type: string
                 example: INTERNAL SERVER ERROR. The server encountered an internal
                   error and was unable to complete your request.
+  /v1/task/get_job_rows:
+    get:
+      summary: Get the job rows of a task
+      description: 'Gets the rows of the jobs of a task from jobsDefined4, jobsActive4,
+        jobsArchived4 and the archive, with their number by
+
+        status. Requires a secure connection.
+
+
+        jobsArchived4 and the archive are partitioned by day and by a few days on
+        modificationTime, and the task is looked up
+
+        once in each of their partitions a window touches. The window starts at since,
+        or at the creation of the task without
+
+        since, and ends at the database time. Both ends are moved out by 10 minutes
+        for the clocks of the servers and then to
+
+        whole UTC days. A task that is not found and is given no since is read without
+        a start, in every partition. A call
+
+        that would look up more partitions than the db_read_probe_budget of the server
+        allows is refused, not cut short; a
+
+        later since lets it fit.
+
+
+        The rows of all four tables are read by one statement, so a job moving between
+        tables meanwhile is read once, and a
+
+        row the same in two tables is given once. The counts are read by a second
+        statement, so a job that changes its status
+
+        in between may be counted under its new status.
+
+
+        A task with more jobs than one call returns is read in pages: ask the next
+        page with after_panda_id set to the last
+
+        PandaID of the page before, with the same since, until a page is not truncated.
+        The pages are ordered over all four
+
+        tables, so a job moving between tables from one page to the next is still
+        read once.'
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        description: JEDI Task ID
+        schema:
+          type: integer
+      - name: since
+        in: query
+        required: false
+        description: 'read the jobs modified at or after this time from jobsArchived4
+          and the archive, in UTC,
+
+          e.g. `2026-10-12 14:30:45` (ISO 8601 is accepted). Defaults to the creation
+          of the task'
+        schema:
+          type: string
+      - name: after_panda_id
+        in: query
+        required: false
+        description: return only the jobs with a larger PandaID, for the next page.
+          Defaults to from the first
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: 'The jobs of the task, and what tells how complete
+                      they are. {"rows": [...], "truncated": bool, "max_rows": int,
+                      "after_panda_id": int or None, "counts": {str: int}, "as_of":
+                      datetime, "since": datetime or None, "until": datetime, "retained_from":
+                      datetime or None, "partitions": int, "probes": int, "budget":
+                      int} - rows: one dict per job, ordered by PandaID and starting
+                      after after_panda_id, with PandaID, jobStatus, jobSubStatus,
+                      creationTime, modificationTime, stateChangeTime, endTime, prodSourceLabel,
+                      currentPriority, computingSite and attemptNr - truncated, max_rows:
+                      whether the rows were cut at max_rows, the most a call returns;
+                      when cut, the next page starts after the last PandaID of rows
+                      - after_panda_id: the one given, or None - counts: the number
+                      of jobs by jobStatus, every job in the window counted, whatever
+                      page this is and however many rows were cut - as_of: database
+                      time in UTC taken before the rows were read - since, until:
+                      the window read on jobsArchived4 and the archive, after the
+                      widening. since is None when it has no start - retained_from:
+                      time from which the archive holds every row, or None when it
+                      cannot be told. Old partitions are dropped, so jobs of a task
+                      older than this may be missing - partitions, probes, budget:
+                      the partitions of the two tables the window touches, each table
+                      counted as at least 1, the index lookups of the call, two for
+                      each table or partition, and the db_read_probe_budget On failure,
+                      with the reason in the message, the reason as values: - None:
+                      task_id is not an integer - {"rejected": "invalid_window"}:
+                      since is not a time - {"rejected": "probe_budget", "probes":
+                      int, "partitions": int, "budget": int}: the lookups exceed the
+                      budget - {"error": str}: the database failed, with the error
+                      code (ORA-xxxxx, or the SQLSTATE on Postgres)'
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
+  /v1/task/get_dataset_rows:
+    get:
+      summary: Get the dataset rows of a task
+      description: 'Gets the rows JEDI_Datasets holds for a task, with every column.
+        Requires a secure connection.
+
+
+        A task with more datasets than one call returns is read in pages: ask the
+        next page with after_dataset_id set to the
+
+        last datasetID of the page before, until a page is not truncated.'
+      tags:
+      - task
+      parameters:
+      - name: task_id
+        in: query
+        required: true
+        description: JEDI Task ID
+        schema:
+          type: integer
+      - name: after_dataset_id
+        in: query
+        required: false
+        description: 'return only the datasets with a larger datasetID, for the next
+          page. Defaults to
+
+          from the first'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Method called correctly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                    description: Indicates whether the request was successful (True)
+                      or not (False)
+                  message:
+                    type: string
+                    description: Message indicating the nature of the failure. Empty
+                      or meaningless if the request was successful.
+                  data:
+                    type: object
+                    description: 'The datasets of the task. {"rows": [...], "truncated":
+                      bool, "max_rows": int, "as_of": datetime} - rows: one dict per
+                      dataset, ordered by datasetID and starting after after_dataset_id,
+                      with every column keyed as JediDatasetSpec names it (jediTaskID,
+                      datasetID, datasetName, type, masterID, status, nFiles, ...),
+                      and None for NULL. A task that is not found has none - truncated,
+                      max_rows: whether the rows were cut at max_rows, the most a
+                      call returns; when cut, the next page starts after the last
+                      datasetID of rows - as_of: database time in UTC taken before
+                      the rows of this page were read On failure, with the reason
+                      in the message: {"error": str} when the database failed, with
+                      the error code (ORA-xxxxx, or the SQLSTATE on Postgres), and
+                      None otherwise.'
+                required:
+                - success
+                - message
+                - data
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: You are calling an undefined method is not allowed for the
+                  requested URL
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Resource not found
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: INTERNAL SERVER ERROR. The server encountered an internal
+                  error and was unable to complete your request.
   /v1/task/get_details:
     get:
       summary: Get task details
