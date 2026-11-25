@@ -10,26 +10,24 @@ PanDA IAM is consist of
 
 * `Indigo IAM <https://indigo-iam.github.io/docs/v/current/>`_
 
-* `CILogon <https://cilogon.org/>`_
-
 * `Identity providers <https://cilogon.org/idplist/>`_
 
 Indigo IAM is an account and group membership management service to define virtual organizations (VOs) and groups,
-to add/remove users to/from VOs and groups, and issue access tokens (including identity claims, or ID tokens otherwise) once users are authenticated.
-CILogon is a federated ID broker to delegate authentication to ID providers such as CERN, BNL IT/SDCC, KIT,
-Google, ...
+to add/remove users to/from VOs and groups, and to issue access tokens and ID tokens once users are authenticated
+with identity providers such as CERN, BNL IT/SDCC, KIT, Google, and others.
 
 .. figure:: images/iam.png
 
 The figure above shows the procedure of end-user authentication and authorization, where the device code flow is used
 to allow users to run command-line tools.
 First, the user invokes a command-line tool which checks if a valid token is locally available.
-If not, the command-line tool sends an authentication request to Indigo IAM on behalf of the user and retrieves
+If not, the command-line tool triggers the device code flow to Indigo IAM on behalf of the user and retrieves
 a verification URL. Then the user opens a web browser to go to the verification URL, and is eventually
-redirected to his/her own ID provider through CILogon. Once the user successfully logs on, a couple
-of tokens are exchanged between CILogon and Indigo IAM, and an access token is issued. The command-line
+redirected to his/her own ID provider. Once the user successfully logs on, a couple
+of tokens are exchanged between the ID provider and Indigo IAM, and an access token is issued. The command-line
 tool gets the access token and put it to the HTTP request header when accessing the PanDA server.
-The PanDA server decodes the token and authorizes the user based on OIDC claims such as name, username, and groups.
+The PanDA server decodes the access token and authorizes the user based on OIDC claims such as given_name, family_name, preferred_name, and groups.
+When those identity claims are not available in the access token, the ID token can also be used.
 
 |br|
 
