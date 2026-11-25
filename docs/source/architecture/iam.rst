@@ -53,8 +53,8 @@ users to authenticate themselves by visiting links in their web browsers.
 Users are redirected to their own ID providers, and after successful authentication,
 those tools obtain tokens from Indigo IAM to access the PanDA server.
 Typically, these tokens have a lifetime of 24 hours, reducing the need for frequent browser sessions.
-The PanDA server authenticates end-users using the ``sub``, ``aud``, and ``name`` claims in the ID token,
-and authorizes them based on the ``groups`` claim.
+The PanDA server authenticates end-users using the ``sub``, ``aud``, and ``_name`` claims in the ID token (or access tokens including identity claims)
+and authorizes them based on the ``groups`` (``wlcg.groups`` for WLCG profile) claim.
 
 |br|
 
