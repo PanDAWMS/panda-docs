@@ -15,7 +15,7 @@ PanDA IAM is consist of
 * `Identity providers <https://cilogon.org/idplist/>`_
 
 Indigo IAM is an account and group membership management service to define virtual organizations (VOs) and groups,
-to add/remove users to/from VOs and groups, and issue ID tokens (or access tokens including identity claims) once users are authenticated.
+to add/remove users to/from VOs and groups, and issue access tokens (including identity claims, or ID tokens otherwise) once users are authenticated.
 CILogon is a federated ID broker to delegate authentication to ID providers such as CERN, BNL IT/SDCC, KIT,
 Google, ...
 
@@ -27,8 +27,8 @@ First, the user invokes a command-line tool which checks if a valid token is loc
 If not, the command-line tool sends an authentication request to Indigo IAM on behalf of the user and retrieves
 a verification URL. Then the user opens a web browser to go to the verification URL, and is eventually
 redirected to his/her own ID provider through CILogon. Once the user successfully logs on, a couple
-of tokens are exchanged between CILogon and Indigo IAM, and an ID token is issued. The command-line
-tool gets the ID token and put it to the HTTP request header when accessing the PanDA server.
+of tokens are exchanged between CILogon and Indigo IAM, and an access token is issued. The command-line
+tool gets the access token and put it to the HTTP request header when accessing the PanDA server.
 The PanDA server decodes the token and authorizes the user based on OIDC claims such as name, username, and groups.
 
 |br|
@@ -53,7 +53,7 @@ users to authenticate themselves by visiting links in their web browsers.
 Users are redirected to their own ID providers, and after successful authentication,
 those tools obtain tokens from Indigo IAM to access the PanDA server.
 Typically, these tokens have a lifetime of 24 hours, reducing the need for frequent browser sessions.
-The PanDA server authenticates end-users using the ``sub``, ``aud``, and ``_name`` claims in the ID token (or access tokens including identity claims)
+The PanDA server authenticates end-users using the ``sub``, ``aud``,  ``given_name``, ``family_name``, and ``preferred_name`` claims in the access token
 and authorizes them based on the ``groups`` (``wlcg.groups`` for WLCG profile) claim.
 
 |br|
@@ -70,7 +70,7 @@ they redirect users to their own ID providers through Indigo IAM.
 Once users are successfully authenticated, the web applications obtain tokens from Indigo IAM
 for accessing the PanDA server.
 Typically, these tokens have a lifetime of 24 hours.
-The PanDA server authenticates users (delegators) using the ``sub``, ``aud``, ``name``, ``prefered_name``, and ``client_id`` claims in the token,
+The PanDA server authenticates users (delegators) using the ``sub``, ``aud``, ``*_name``, and ``client_id`` claims in the access token,
 and authorizes them based on the ``groups`` claim.
 
 |br|
