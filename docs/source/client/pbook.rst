@@ -178,6 +178,10 @@ Retry tasks
 
 This command is used to retry only failed PanDA jobs in a `finished` task.
 The arg is a jediTaskID or a list of jediTaskIDs.
+The command can also be used while the task is still `running`, `scouting` or `pending`. In that case the task
+keeps running and only the input files that have used up their attempts get 3 more attempts.
+Input files that still have attempts left are not changed, so retrying a running task several times does not
+keep raising their attempt limits.
 It is possible to specify ``newOpts``, which is None by default and can be a map of options and new arguments like
 *{'nFilesPerJob': 10,'excludedSite': 'ABC,XYZ'}* to overwrite task parameters.
 If values of some arguments are *None*, corresponding task parameters are removed. For example,

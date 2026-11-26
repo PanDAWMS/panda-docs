@@ -158,6 +158,10 @@ Users send the following commands to JEDI through the RESTful interface of the P
 * retry
    To retry a task. The task will process only input data that were unsuccessful in the previous attempt.
    Hopeless tasks such as broken and failed tasks reject the retry command since there is no reason to retry.
+   Note: for an analysis task that is still running, scouting or pending, the retry is applied to its input files
+   instead: only files that have reached their attempt limit (``maxAttempt``) or failure limit (``maxFailure``)
+   get 3 more attempts and are reactivated, while files that still have attempts left are not changed.
+   This part of the retry command is applied directly without passing through the Task Commando.
 
 * incexec
    To retry a task with new task parameters after looking up the input data. This is typically useful
